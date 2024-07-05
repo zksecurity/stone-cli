@@ -69,17 +69,12 @@ if ! cargo build --release; then
     exit 1
 fi
 
-# Check if starknet-adapter binary exists, if not copy it
-# if [ ! -f "$HOME/.stone-prover/starknet-adapter" ]; then
-    if ! cp ./target/release/starknet-adapter "$HOME/.stone-prover/starknet-adapter"; then
-        echo "Failed to copy starknet-adapter binary. Please check if the file exists in the current directory."
-        exit 1
-    fi
-    echo "starknet-adapter binary copied successfully to ~/.stone-prover."
-# else
-#     echo "starknet-adapter binary already exists in ~/.stone-prover."
-# fi
 
+if ! cp ./target/release/starknet-adapter "$HOME/.stone-prover/starknet-adapter"; then
+    echo "Failed to copy starknet-adapter binary. Please check if the file exists in the current directory."
+    exit 1
+fi
+echo "starknet-adapter binary copied successfully to ~/.stone-prover."
 
 # Add the binaries to the PATH
 # The if statement checks if the PATH update is already present in the shell configuration file
@@ -105,14 +100,3 @@ elif [ -n "$ZSH_VERSION" ]; then
 fi
 
 echo "PATH updated successfully."
-
-# install scarb
-# Check if scarb is installed
-if ! command -v scarb &> /dev/null; then
-    echo "scarb could not be found, installing scarb..."
-    curl --proto '=https' --tlsv1.2 -sSf https://docs.swmansion.com/scarb/install.sh | sh
-else
-    echo "scarb is already installed."
-fi
-
-# setup account for sncast
