@@ -1,0 +1,22 @@
+[package]
+name = "starknet-adapter"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0.86"
+cairo-args-runner = { git = "https://github.com/mellowcroc/cairo-args-runner.git", branch = "update_cairo_dependencies" }
+cairo-felt = "0.9.1"
+cairo-lang-sierra = "=2.5.0"
+cairo-lang-sierra-to-casm = "=2.5.0"
+cairo-proof-parser = { git = "https://github.com/Okm165/cairo-proof-parser", rev = "97a04bbee07330311b38d6f4cecfed3acb237626"}
+cairo-vm = "1.0.0-rc3"
+clap = { version = "4.3.10", features = ["derive"] }
+itertools = "0.13.0"
+num-bigint = "0.4.6"
+serde = { version = "1.0", features = ["derive"], default-features = false }
+serde_json = "1"
+stone-prover-sdk = { git = "https://github.com/zksecurity/stone-prover-sdk" }
+tempfile = "3.10.1"
+thiserror = "1.0.61"
+uuid = "1.9.1"
