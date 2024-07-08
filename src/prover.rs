@@ -3,8 +3,8 @@ mod settings;
 use crate::utils::write_json_to_file;
 use settings::{get_prover_config, get_prover_parameters};
 use std::path::PathBuf;
+use std::process::Command;
 use stone_prover_sdk::error::ProverError;
-use stone_prover_sdk::prover::run_prover_from_command_line_with_annotations;
 
 /// Represents the result of running the Stone prover
 pub struct StoneProverResult {
@@ -41,11 +41,46 @@ pub fn run_stone_prover(
     run_prover_from_command_line_with_annotations(
         air_public_input,
         air_private_input,
-        prover_config_path.as_path(),
-        prover_parameters_path.as_path(),
-        proof_path.as_path(),
+        &prover_config_path,
+        &prover_parameters_path,
+        &proof_path,
         true,
     )?;
 
     Ok(StoneProverResult { proof: proof_path })
+}
+
+pub fn run_prover_from_command_line_with_annotations(
+    public_input_file: &PathBuf,
+    private_input_file: &PathBuf,
+    prover_config_file: &PathBuf,
+    prover_parameter_file: &PathBuf,
+    output_file: &PathBuf,
+    generate_annotations: bool,
+) -> Result<(), ProverError> {
+    // TODO: Add better error handling
+    let prover_run_path = std::env::var("CPU_AIR_PROVER").unwrap();
+
+    let mut command = Command::new(prover_run_path);
+    command
+        .arg("--out-file")
+        .arg(output_file)
+        .arg("--public-input-file")
+        .arg(public_input_file)
+        .arg("--private-input-file")
+        .arg(private_input_file)
+        .arg("--prover-config-file")
+        .arg(prover_config_file)
+        .arg("--parameter-file")
+        .arg(prover_parameter_file);
+    if generate_annotations {
+        command.arg("--generate-annotations");
+    }
+
+    let output = command.output()?;
+    if !output.status.success() {
+        return Err(ProverError::CommandError(output));
+    }
+
+    Ok(())
 }

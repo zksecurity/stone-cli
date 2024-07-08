@@ -47,7 +47,9 @@ pub fn run_cairo1(
         }
     }
 
-    let mut command = Command::new("cairo1-run");
+    let cairo1_run_path = std::env::var("CAIRO1_RUN".replace("-", "_"))
+        .map_err(|e| anyhow::anyhow!("Failed to get CAIRO1_RUN environment variable: {}", e))?;
+    let mut command = Command::new(cairo1_run_path);
     command
         .arg(&parsed_args.filename)
         .arg("--layout")
