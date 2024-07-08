@@ -5,6 +5,8 @@ A CLI to verify Cairo 1 programs on Starknet.
 ## Setup
 - Run `cargo install --path .` to build the project and install the CLI
 
+Currently, only Linux platforms are supported.
+
 ### Verifying on Starknet Sepolia
 By default, the CLI verifies locally. To verify on Starknet Sepolia, you need some additional setup
 - Install `sncast` following this [guide](https://foundry-rs.github.io/starknet-foundry/getting-started/installation.html)
