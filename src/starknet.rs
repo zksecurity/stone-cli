@@ -64,7 +64,8 @@ fn run_locally(proof_file: &Path) -> Result<()> {
 
     println!("proof size: {} felts", proof.len());
 
-    let program = "./verifier/cairo_verifier.sierra.json";
+    let program =
+        std::env::var("CAIRO_VERIFIER").expect("Failed to get CAIRO_VERIFIER environment variable");
     let sierra_program =
         serde_json::from_str::<VersionedProgram>(&fs::read_to_string(program)?)?.into_v1()?;
     println!(

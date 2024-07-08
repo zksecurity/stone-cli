@@ -1,7 +1,12 @@
 use reqwest;
 
 const URL: &str = "https://github.com/zksecurity/starknet-adapter/releases/download/v0.1.0-alpha/starknet-adapter-cli-linux-x86-64.tar.gz";
-const FILENAMES: [&str; 3] = ["cairo1-run", "cpu_air_prover", "cpu_air_verifier"];
+const FILENAMES: [&str; 4] = [
+    "cairo1-run",
+    "cpu_air_prover",
+    "cpu_air_verifier",
+    "cairo_verifier.sierra.json",
+];
 const DOWNLOAD_DIR: &str = concat!(env!("HOME"), "/.starknet-adapter-cli/v0.1.0");
 
 pub fn setup() {
@@ -107,6 +112,7 @@ fn clone_corelib_repo() {
 fn set_env_vars() {
     for filename in FILENAMES.iter() {
         let full_path = format!("{}/{}", DOWNLOAD_DIR, filename);
-        std::env::set_var(filename.replace("-", "_").to_uppercase(), full_path.clone());
+        let filename = filename.split('.').next().unwrap().replace("-", "_");
+        std::env::set_var(filename.to_uppercase(), full_path.clone());
     }
 }
