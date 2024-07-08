@@ -19,7 +19,7 @@ pub fn cleanup_tmp_files(tmp_dir: &tempfile::TempDir) {
 }
 
 // TODO: Add more specific handling of errors
-pub fn handle_error(err: anyhow::Error) {
+pub fn handle_error(err: &anyhow::Error) {
     eprintln!("Error: {}", err);
     std::process::exit(1);
 }
