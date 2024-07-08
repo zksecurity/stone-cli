@@ -4,7 +4,9 @@ use anyhow::{Context, Result};
 use cairo_args_runner::Felt252;
 use cairo_proof_parser::parse;
 use itertools::chain;
+use std::io::{BufRead, BufReader};
 use std::path::Path;
+use std::process::{Command, Stdio};
 use vec252::VecFelt252;
 
 /// Runs the Starknet verifier on a given proof file.
@@ -53,13 +55,15 @@ pub fn run_starknet_verifier(proof_file: &Path) -> Result<()> {
 }
 
 fn execute_sncast_command(calldata: &str) -> Result<()> {
+    println!("Broadcasting tx...");
+
     const ACCOUNT: &str = "testnet-sepolia";
     const CONTRACT_ADDRESS: &str =
         "0x274d8165a19590bdeaa94d1dd427e2034462d7611754ab3e15714a908c60df7";
     const RPC_URL: &str = "https://free-rpc.nethermind.io/sepolia-juno/v0_7";
     const FUNCTION: &str = "verify_and_register_fact";
 
-    let output = std::process::Command::new("sncast")
+    let mut child = Command::new("sncast")
         .args(&[
             "--account",
             ACCOUNT,
@@ -74,17 +78,20 @@ fn execute_sncast_command(calldata: &str) -> Result<()> {
             "--calldata",
             calldata,
         ])
-        .output()
-        .context("Failed to execute sncast command")?;
+        .stdout(Stdio::piped())
+        .spawn()
+        .context("Failed to spawn sncast command")?;
 
-    if output.status.success() {
-        println!("sncast command executed successfully");
-        println!("{}", String::from_utf8_lossy(&output.stdout));
-    } else {
-        println!(
-            "sncast command failed with error: {}",
-            String::from_utf8_lossy(&output.stderr)
-        );
+    let stdout = child.stdout.take().expect("Failed to open stdout");
+    let reader = BufReader::new(stdout);
+
+    for line in reader.lines() {
+        println!("{}", line.context("Failed to read line from stdout")?);
+    }
+
+    let status = child.wait().context("Failed to wait on sncast command")?;
+    if !status.success() {
+        anyhow::bail!("sncast command failed with exit code: {:?}", status.code());
     }
 
     Ok(())

@@ -109,17 +109,5 @@ fn set_env_vars() {
     for filename in FILENAMES.iter() {
         let full_path = format!("{}/{}", DOWNLOAD_DIR, filename);
         std::env::set_var(filename.replace("-", "_").to_uppercase(), full_path.clone());
-        if let Ok(value) = std::env::var(filename.replace("-", "_").to_uppercase()) {
-            println!(
-                "Environment variable {} is set to {}",
-                filename.to_uppercase(),
-                value
-            );
-        } else {
-            println!(
-                "Environment variable {} is not set",
-                filename.to_uppercase()
-            );
-        }
     }
 }

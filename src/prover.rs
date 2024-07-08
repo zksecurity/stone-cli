@@ -58,6 +58,7 @@ pub fn run_prover_from_command_line_with_annotations(
     output_file: &PathBuf,
     generate_annotations: bool,
 ) -> Result<(), ProverError> {
+    println!("Running prover...");
     // TODO: Add better error handling
     let prover_run_path = std::env::var("CPU_AIR_PROVER").unwrap();
 
