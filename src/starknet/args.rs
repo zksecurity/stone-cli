@@ -1,18 +1,19 @@
-use clap::{Parser, ValueHint};
+use clap::Parser;
 use core::fmt::{self, Display};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
+// TODO: remove unnessary args
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
-pub struct Cairo1Args {
-    #[clap(value_parser, value_hint=ValueHint::FilePath)]
+pub struct StarknetArgs {
+    #[clap(value_parser)]
     pub filename: PathBuf,
 
     #[clap(long = "trace_file", value_parser)]
     pub trace_file: Option<PathBuf>,
 
-    #[structopt(long = "memory_file")]
+    #[clap(long = "memory_file")]
     pub memory_file: Option<PathBuf>,
 
     #[clap(long = "layout", default_value = "plain", value_enum)]
@@ -32,19 +33,14 @@ pub struct Cairo1Args {
 
     #[clap(
         long = "cairo_pie_output",
-        // We need to add these air_private_input & air_public_input or else
-        // passing cairo_pie_output + either of these without proof_mode will not fail
         conflicts_with_all = ["proof_mode", "air_private_input", "air_public_input"]
     )]
     pub cairo_pie_output: Option<PathBuf>,
 
-    // Arguments should be spaced, with array elements placed between brackets
-    // For example " --args '1 2 [1 2 3]'" will yield 3 arguments, with the last one being an array of 3 elements
     #[clap(long = "args")]
     pub args: Option<String>,
 
-    // Same rules from `args` apply here
-    #[clap(long = "args_file", value_parser, value_hint=ValueHint::FilePath, conflicts_with = "args")]
+    #[clap(long = "args_file", value_parser, conflicts_with = "args")]
     pub args_file: Option<PathBuf>,
 
     #[clap(long = "print_output", value_parser)]
@@ -52,13 +48,11 @@ pub struct Cairo1Args {
 
     #[clap(
         long = "append_return_values",
-        // We need to add these air_private_input & air_public_input or else
-        // passing cairo_pie_output + either of these without proof_mode will not fail
         conflicts_with_all = ["proof_mode", "air_private_input", "air_public_input"]
     )]
     pub append_return_values: bool,
 
-    #[clap(long = "prover_config_file", value_parser, value_hint=ValueHint::FilePath)]
+    #[clap(long = "prover_config_file", value_parser)]
     pub prover_config_file: Option<PathBuf>,
 
     #[clap(long = "verify_on_starknet", value_parser)]

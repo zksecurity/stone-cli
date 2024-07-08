@@ -1,40 +1,36 @@
+mod args;
 mod vec252;
 
+use anyhow::Ok;
 use anyhow::{Context, Result};
+use args::StarknetArgs;
 use cairo_args_runner::Felt252;
+use cairo_lang_runner::{Arg, ProfilingInfoCollectionConfig, RunResultValue, SierraCasmRunner};
+use cairo_lang_sierra::program::VersionedProgram;
+use cairo_lang_utils::ordered_hash_map::OrderedHashMap;
 use cairo_proof_parser::parse;
+use clap::Parser;
 use itertools::chain;
+use itertools::Itertools;
+use std::fs;
 use std::io::{BufRead, BufReader};
 use std::path::Path;
 use std::process::{Command, Stdio};
 use vec252::VecFelt252;
 
-/// Runs the Starknet verifier on a given proof file.
-///
-/// This function reads a proof file, parses its content, prepares the calldata,
-/// and executes a Starknet command to verify the proof.
-///
-/// # Arguments
-///
-/// * `proof_file` - A reference to the Path of the proof file to be verified.
-///
-/// # Returns
-///
-/// A Result indicating success or containing an error if any step fails.
-pub fn run_starknet_verifier(proof_file: &Path) -> Result<()> {
-    let proof_file_content =
-        std::fs::read_to_string(proof_file).context("Failed to read proof file")?;
+pub fn run_starknet_verifier(args: impl Iterator<Item = String>, proof_file: &Path) -> Result<()> {
+    let args = StarknetArgs::try_parse_from(args)?;
+    if args.verify_on_starknet {
+        run_on_starknet(proof_file)?;
+    } else {
+        run_locally(proof_file)?;
+    }
 
-    let parsed = parse(proof_file_content).context("Failed to parse proof file")?;
+    Ok(())
+}
 
-    let config: VecFelt252 =
-        serde_json::from_str(&parsed.config.to_string()).context("Failed to parse config")?;
-    let public_input: VecFelt252 = serde_json::from_str(&parsed.public_input.to_string())
-        .context("Failed to parse public input")?;
-    let unsent_commitment: VecFelt252 = serde_json::from_str(&parsed.unsent_commitment.to_string())
-        .context("Failed to parse unsent commitment")?;
-    let witness: VecFelt252 =
-        serde_json::from_str(&parsed.witness.to_string()).context("Failed to parse witness")?;
+fn run_on_starknet(proof_file: &Path) -> Result<()> {
+    let (config, public_input, unsent_commitment, witness) = parse_proof_file(proof_file)?;
 
     let proof = chain!(
         config.into_iter(),
@@ -43,7 +39,6 @@ pub fn run_starknet_verifier(proof_file: &Path) -> Result<()> {
         witness.into_iter()
     );
 
-    // TODO: replace Felt252::from(1) with the correct cairo version
     let calldata = chain!(proof, std::iter::once(Felt252::from(1)));
 
     let calldata_string = calldata
@@ -51,7 +46,73 @@ pub fn run_starknet_verifier(proof_file: &Path) -> Result<()> {
         .collect::<Vec<_>>()
         .join(" ");
 
-    execute_sncast_command(&calldata_string)
+    execute_sncast_command(&calldata_string)?;
+
+    Ok(())
+}
+
+fn run_locally(proof_file: &Path) -> Result<()> {
+    let (config, public_input, unsent_commitment, witness) = parse_proof_file(proof_file)?;
+
+    let proof = chain!(
+        config.into_iter(),
+        public_input.into_iter(),
+        unsent_commitment.into_iter(),
+        witness.into_iter()
+    )
+    .collect_vec();
+
+    println!("proof size: {} felts", proof.len());
+
+    let program = "./verifier/cairo_verifier.sierra.json";
+    let sierra_program =
+        serde_json::from_str::<VersionedProgram>(&fs::read_to_string(program)?)?.into_v1()?;
+    println!(
+        "program size: {} bytes",
+        sierra_program.program.statements.len()
+    );
+
+    let runner = SierraCasmRunner::new(
+        sierra_program.program.clone(),
+        Some(Default::default()),
+        OrderedHashMap::default(),
+        Some(ProfilingInfoCollectionConfig::default()),
+    )
+    .unwrap();
+
+    let function = "main";
+    let func = runner.find_function(function).unwrap();
+    let proof_arg = Arg::Array(proof.into_iter().map(Arg::Value).collect_vec());
+    let cairo_version_arg = Arg::Value(Felt252::from(1));
+    let args = &[proof_arg, cairo_version_arg];
+    let result = runner
+        .run_function_with_starknet_context(func, args, Some(u32::MAX as usize), Default::default())
+        .unwrap();
+
+    println!("gas_counter: {}", result.gas_counter.unwrap());
+
+    match result.value {
+        RunResultValue::Success(msg) => {
+            println!("{:?}", msg);
+        }
+        RunResultValue::Panic(msg) => {
+            panic!("{:?}", msg);
+        }
+    }
+
+    Ok(())
+}
+
+fn parse_proof_file(proof_file: &Path) -> Result<(VecFelt252, VecFelt252, VecFelt252, VecFelt252)> {
+    let proof_file_content = std::fs::read_to_string(proof_file)?;
+    let parsed = parse(proof_file_content)?;
+
+    Ok((
+        serde_json::from_str(&parsed.config.to_string())?,
+        serde_json::from_str(&parsed.public_input.to_string())?,
+        serde_json::from_str(&parsed.unsent_commitment.to_string())?,
+        serde_json::from_str(&parsed.witness.to_string())?,
+    ))
 }
 
 fn execute_sncast_command(calldata: &str) -> Result<()> {

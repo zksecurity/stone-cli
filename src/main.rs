@@ -24,7 +24,7 @@ fn main() -> anyhow::Result<()> {
             .map_err(|e| anyhow::anyhow!("Failed to run stone prover: {}", e))
         })
         .and_then(|run_stone_prover_result| {
-            run_starknet_verifier(&run_stone_prover_result.proof)
+            run_starknet_verifier(std::env::args(), &run_stone_prover_result.proof)
                 .map_err(|e| anyhow::anyhow!("Failed to run starknet verifier: {}", e))
         });
 

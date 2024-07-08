@@ -50,7 +50,6 @@ fn download_executables() {
 }
 
 fn give_execute_permissions() {
-    println!("Giving execute permissions to {}", DOWNLOAD_DIR);
     for filename in FILENAMES.iter() {
         let file_path = format!("{}/{}", DOWNLOAD_DIR, filename);
         if !std::path::Path::new(&file_path).exists() {
