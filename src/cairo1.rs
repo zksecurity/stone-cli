@@ -1,9 +1,7 @@
 mod args;
-mod error;
 
 use args::Cairo1Args;
 use clap::Parser;
-use error::Error;
 use std::path::PathBuf;
 use std::process::Command;
 
@@ -24,11 +22,11 @@ pub struct Cairo1RunResult {
 ///
 /// # Returns
 ///
-/// A `Result` containing a `Cairo1RunResult` on success, or an `Error` on failure.
+/// A `Result` containing a `Cairo1RunResult` on success, or an `anyhow::Error` on failure.
 pub fn run_cairo1(
     args: impl Iterator<Item = String>,
     tmp_dir: &tempfile::TempDir,
-) -> Result<Cairo1RunResult, Error> {
+) -> Result<Cairo1RunResult, anyhow::Error> {
     let mut parsed_args = Cairo1Args::try_parse_from(args)?;
     let filename = parsed_args.filename.file_stem().unwrap().to_str().unwrap();
 
@@ -90,10 +88,10 @@ pub fn run_cairo1(
     let output = command.output().expect("Failed to execute cairo1-run");
 
     if !output.status.success() {
-        println!(
+        return Err(anyhow::anyhow!(
             "cairo1-run failed with error: {}",
             String::from_utf8_lossy(&output.stderr)
-        );
+        ));
     } else {
         println!("cairo1-run executed successfully.");
     }

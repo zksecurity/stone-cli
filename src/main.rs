@@ -18,13 +18,9 @@ fn main() -> anyhow::Result<()> {
                 &run_cairo1_result.air_private_input,
                 &tmp_dir,
             )
-            .map_err(|e| anyhow::anyhow!("Failed to create temp dir: {}", e)) // Convert cairo1::error::Error to anyhow::Error
+            .map_err(|e| anyhow::anyhow!("Failed to run stone prover: {}", e))
         })
         .and_then(|run_stone_prover_result| {
-            println!(
-                "Program output: {}",
-                run_stone_prover_result.proof.display()
-            );
             run_starknet_verifier(&run_stone_prover_result.proof)
                 .map_err(|e| anyhow::anyhow!("Failed to run starknet verifier: {}", e))
         });
@@ -35,8 +31,9 @@ fn main() -> anyhow::Result<()> {
             Ok(())
         }
         Err(err) => {
-            handle_error(err);
-            Err(anyhow::anyhow!("An error occurred"))
+            cleanup_tmp_files(&tmp_dir);
+            handle_error(&err);
+            Err(err)
         }
     }
 }
