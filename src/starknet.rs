@@ -119,6 +119,7 @@ fn execute_sncast_command(calldata: &str) -> Result<()> {
     println!("Broadcasting tx...");
 
     const ACCOUNT: &str = "testnet-sepolia";
+    // Integrity verifier contract address (https://github.com/HerodotusDev/integrity)
     const CONTRACT_ADDRESS: &str =
         "0x274d8165a19590bdeaa94d1dd427e2034462d7611754ab3e15714a908c60df7";
     const RPC_URL: &str = "https://free-rpc.nethermind.io/sepolia-juno/v0_7";
