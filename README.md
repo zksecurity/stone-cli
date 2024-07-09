@@ -17,12 +17,12 @@ By default, the CLI verifies locally. To verify on Starknet Sepolia, you need so
 - The program must be a Cairo 1 program
 ### Verifying locally
 ```bash
-starknet-adapter run <program-path> --layout recursive --proof_mode
+starknet-adapter <program-path> --layout recursive --proof_mode
 ```
 
 ### Verifying on Starknet Sepolia
 ```bash
-starknet-adapter run <program-path> --layout recursive --proof_mode --verify_on_starknet
+starknet-adapter <program-path> --layout recursive --proof_mode --verify_on_starknet
 ```
 
 ## How it works
