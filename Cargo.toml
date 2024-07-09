@@ -5,7 +5,6 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0.86"
-cairo-args-runner = "2.0.1"
 cairo-felt = "0.9.1"
 cairo-lang-runner = { git = "https://github.com/starkware-libs/cairo/", rev = "4471a55923663eb8150ea6cd636d5c1038b137d1"}
 cairo-lang-sierra = { git = "https://github.com/starkware-libs/cairo/", rev = "4471a55923663eb8150ea6cd636d5c1038b137d1"}

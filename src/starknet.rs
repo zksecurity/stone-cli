@@ -4,7 +4,7 @@ mod vec252;
 use anyhow::Ok;
 use anyhow::{Context, Result};
 use args::StarknetArgs;
-use cairo_args_runner::Felt252;
+use cairo_felt::Felt252;
 use cairo_lang_runner::{Arg, ProfilingInfoCollectionConfig, RunResultValue, SierraCasmRunner};
 use cairo_lang_sierra::program::VersionedProgram;
 use cairo_lang_utils::ordered_hash_map::OrderedHashMap;
