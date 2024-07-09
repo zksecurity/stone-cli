@@ -1,28 +1,17 @@
 use rstest::{fixture, rstest};
-use starknet_adapter::cairo1::run_cairo1;
+use starknet_adapter::{build::setup as build_setup, cairo1::run_cairo1};
 use std::{env::current_exe, path::Path, path::PathBuf};
 use tempfile::TempDir;
 
 #[fixture]
-fn install_dependencies() {
-    let output = std::process::Command::new("sh")
-        .arg("-c")
-        .arg("chmod +x ./install-dependencies.sh && ./install-dependencies.sh > /dev/null")
-        .output()
-        .expect("Failed to execute install-dependencies.sh");
-
-    if !output.status.success() {
-        panic!(
-            "install-dependencies.sh did not run successfully: {}",
-            String::from_utf8_lossy(&output.stderr)
-        );
-    }
+fn setup() {
+    build_setup();
 }
 
 #[rstest]
 #[case("plain", "fibonacci.cairo")]
 fn test_run_cairo1_fail(
-    #[from(install_dependencies)] _path: (),
+    #[from(setup)] _path: (),
     #[case(layout)] layout: &str,
     #[case(program)] program: &str,
 ) {
@@ -72,7 +61,7 @@ fn test_run_cairo1_fail(
 #[case("all-cairo", "fibonacci.cairo")]
 #[case("dynamic", "fibonacci.cairo")]
 fn test_run_cairo1_success(
-    #[from(install_dependencies)] _path: (),
+    #[from(setup)] _path: (),
     #[case(layout)] layout: &str,
     #[case(program)] program: &str,
 ) {
