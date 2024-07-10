@@ -23,3 +23,21 @@ pub fn handle_error(err: &anyhow::Error) {
     eprintln!("Error: {}", err);
     std::process::exit(1);
 }
+
+#[derive(serde::Deserialize)]
+pub struct Config {
+    download_dir: String,
+    url: String,
+    file_names: Vec<String>,
+    sha256_sums: Vec<String>,
+}
+
+pub fn set_env_vars(config: &[u8]) {
+    let config: Config = serde_json::from_slice(config).expect("Failed to parse config file");
+    let download_dir = format!("{}/{}", env!("HOME"), config.download_dir);
+    for filename in config.file_names.iter() {
+        let full_path = format!("{}/{}", download_dir, filename);
+        let filename = filename.split('.').next().unwrap().replace("-", "_");
+        std::env::set_var(filename.to_uppercase(), full_path.clone());
+    }
+}

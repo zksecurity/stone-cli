@@ -13,15 +13,20 @@ cairo-lang-utils = { git = "https://github.com/starkware-libs/cairo/", rev = "44
 cairo-proof-parser = { git = "https://github.com/Okm165/cairo-proof-parser", rev = "97a04bbee07330311b38d6f4cecfed3acb237626"}
 cairo-vm = "1.0.0-rc3"
 clap = { version = "4.3.10", features = ["derive"] }
-flate2 = "1.0.30"
 itertools = "0.13.0"
 num-bigint = "0.4.6"
-reqwest = { version = "0.12.5", features = ["blocking"] }
 rstest = "0.21.0"
 serde = { version = "1.0", features = ["derive"], default-features = false }
 serde_json = "1"
 stone-prover-sdk = { git = "https://github.com/zksecurity/stone-prover-sdk" }
-tar = "0.4.41"
 tempfile = "3.10.1"
 thiserror = "1.0.61"
 uuid = "1.9.1"
+
+[build-dependencies]
+flate2 = "1.0.30"
+reqwest = { version = "0.12.5", features = ["blocking"] }
+serde = { version = "1.0", features = ["derive"], default-features = false }
+serde_json = "1"
+sha256 = "1.5.0"
+tar = "0.4.41"

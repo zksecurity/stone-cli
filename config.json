@@ -1,0 +1,16 @@
+{
+    "download_dir": "/.starknet-adapter-cli/v0.1.0",
+    "url": "https://github.com/zksecurity/starknet-adapter-cli/releases/download/v0.1.0-alpha/starknet-adapter-cli-linux-x86-64.tar.gz",
+    "file_names": [
+        "cairo1-run",
+        "cpu_air_prover",
+        "cpu_air_verifier",
+        "cairo_verifier.sierra.json"
+    ],
+    "sha256_sums": [
+        "4a45808fd5ace7a88bfaa2b921baeb49f381d38afaa67e795b1038dd5a6adeff",
+        "f4d621a4e396fd4ea8e5f5b41caaa8f6d93ba533cd4065ae2e3c38553f3060ad",
+        "87180ac066ad7fc719275561bcc8f3a300b99f921802040df73ab4d4dd0b22f9",
+        "672dbec290a5ab55a4e90d54d556d5d6f33f5ae9fdf8fd635b555172fdf6a34a"
+    ]
+}

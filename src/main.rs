@@ -1,12 +1,13 @@
-use starknet_adapter::build::setup;
 use starknet_adapter::cairo1::run_cairo1;
 use starknet_adapter::prover::run_stone_prover;
 use starknet_adapter::starknet::run_starknet_verifier;
-use starknet_adapter::utils::{cleanup_tmp_files, handle_error};
+use starknet_adapter::utils::{cleanup_tmp_files, handle_error, set_env_vars};
 use tempfile::Builder;
 
+const CONFIG: &[u8] = include_bytes!("../config.json");
+
 fn main() -> anyhow::Result<()> {
-    setup();
+    set_env_vars(CONFIG);
 
     let tmp_dir = Builder::new()
         .prefix("starknet-adapter-")
