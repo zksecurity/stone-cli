@@ -1,4 +1,4 @@
 /target
 /build
 /starknet/calldata
-proof.json
+/examples-fail
