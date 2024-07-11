@@ -138,10 +138,9 @@ fn test_run_e2e(
     ]
     .into_iter()
     .map(|s| s.to_string());
+
     match run_cairo1(args.clone(), &tmp_dir) {
         Ok(result) => {
-            println!("Successfully ran cairo1: {:?}", result);
-
             let filename = program_file.file_stem().unwrap().to_str().unwrap();
             let air_public_input = tmp_dir
                 .path()
@@ -149,20 +148,9 @@ fn test_run_e2e(
             let air_private_input = tmp_dir
                 .path()
                 .join(format!("{}_air_private_input.json", filename));
-            let dest_dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("tmp_files_backup");
-            if !dest_dir.exists() {
-                std::fs::create_dir_all(&dest_dir).expect("Failed to create destination directory");
-            }
 
-            for entry in std::fs::read_dir(&tmp_dir).expect("Failed to read tmp_dir") {
-                let entry = entry.expect("Failed to get entry");
-                let file_name = entry.file_name();
-                let dest_file = dest_dir.join(file_name);
-                std::fs::copy(entry.path(), dest_file).expect("Failed to copy file");
-            }
             match run_stone_prover(&air_public_input, &air_private_input, &tmp_dir) {
                 Ok(result) => {
-                    println!("Successfully ran stone prover: {:?}", result.proof);
                     let proof = result.proof;
 
                     match run_starknet_verifier(args, &proof) {
