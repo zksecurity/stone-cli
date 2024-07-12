@@ -5,6 +5,7 @@ use settings::{get_prover_config, get_prover_parameters};
 use std::path::PathBuf;
 use std::process::Command;
 use stone_prover_sdk::error::ProverError;
+use stone_prover_sdk::json::read_json_from_file;
 
 /// Represents the result of running the Stone prover
 pub struct StoneProverResult {
@@ -28,7 +29,10 @@ pub fn run_stone_prover(
     air_private_input: &PathBuf,
     tmp_dir: &tempfile::TempDir,
 ) -> Result<StoneProverResult, ProverError> {
-    let prover_parameters = get_prover_parameters();
+    let air_public_input_json: serde_json::Value = read_json_from_file(air_public_input)?;
+    // TODO: handle error properly
+    let n_steps = air_public_input_json["n_steps"].as_u64().unwrap() as u32;
+    let prover_parameters = get_prover_parameters(n_steps);
     let prover_parameters_path = tmp_dir.path().join("prover_parameters.json");
     write_json_to_file(&prover_parameters, &prover_parameters_path)?;
 

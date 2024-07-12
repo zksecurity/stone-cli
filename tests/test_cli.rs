@@ -100,6 +100,7 @@ fn test_run_cairo1_success(
 
 #[rstest]
 #[case("recursive", "array_append.cairo")]
+#[case("recursive", "array_get.cairo")]
 #[case("recursive", "array_integer_tuple.cairo")]
 #[case("recursive", "bytes31_ret.cairo")]
 #[case("recursive", "enum_flow.cairo")]
@@ -140,7 +141,7 @@ fn test_run_e2e(
     .map(|s| s.to_string());
 
     match run_cairo1(args.clone(), &tmp_dir) {
-        Ok(result) => {
+        Ok(_) => {
             let filename = program_file.file_stem().unwrap().to_str().unwrap();
             let air_public_input = tmp_dir
                 .path()

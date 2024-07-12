@@ -1,5 +1,6 @@
 use serde::Serialize;
-use stone_prover_sdk::models::{FriParameters, ProverConfig, StarkParameters};
+use stone_prover_sdk::fri::{FriComputer, L1VerifierFriComputer};
+use stone_prover_sdk::models::{ProverConfig, StarkParameters};
 
 #[derive(Debug, Serialize)]
 struct StatementParameters {
@@ -20,8 +21,8 @@ pub struct ProverParametersWithHash {
     verifier_friendly_commitment_hash: String,
 }
 
-// TODO: make these configurable
-pub fn get_prover_parameters() -> ProverParametersWithHash {
+pub fn get_prover_parameters(nb_steps: u32) -> ProverParametersWithHash {
+    let fri_parameters = L1VerifierFriComputer.compute_fri_parameters(nb_steps);
     ProverParametersWithHash {
         field: "PrimeField0".to_string(),
         channel_hash: "poseidon3".to_string(),
@@ -32,12 +33,7 @@ pub fn get_prover_parameters() -> ProverParametersWithHash {
             page_hash: "pedersen".to_string(),
         },
         stark: StarkParameters {
-            fri: FriParameters {
-                fri_step_list: vec![0, 4, 4, 3],
-                last_layer_degree_bound: 128,
-                n_queries: 10,
-                proof_of_work_bits: 30,
-            },
+            fri: fri_parameters,
             log_n_cosets: 2,
         },
         use_extension_field: false,
