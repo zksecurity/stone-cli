@@ -1,7 +1,4 @@
-mod args;
-
-use args::Cairo1Args;
-use clap::Parser;
+use crate::args::ProveArgs;
 use std::path::PathBuf;
 use std::process::Command;
 
@@ -22,70 +19,56 @@ pub struct Cairo1RunResult {
 ///
 /// # Returns
 ///
-/// A `Result` containing a `Cairo1RunResult` on success, or an `anyhow::Error` on failure.
+/// A `Result` containing a `Cairo1RunResult` on success, or an `anyhow::Error` on failure
+///
+/// # Note
+///
+/// This function ignores the following arguments to cairo1-run: `append_return_values`, `cairo_pie_output`, `print_output`.
 pub fn run_cairo1(
-    args: impl Iterator<Item = String>,
+    prove_args: &ProveArgs,
     tmp_dir: &tempfile::TempDir,
 ) -> Result<Cairo1RunResult, anyhow::Error> {
-    let mut parsed_args = Cairo1Args::try_parse_from(args)?;
-    let filename = parsed_args.filename.file_stem().unwrap().to_str().unwrap();
-
-    // Set default file paths
-    let mut default_paths = [
-        (&mut parsed_args.trace_file, "_trace.json"),
-        (&mut parsed_args.memory_file, "_memory.json"),
-        (&mut parsed_args.air_public_input, "_air_public_input.json"),
-        (
-            &mut parsed_args.air_private_input,
-            "_air_private_input.json",
-        ),
-    ];
-
-    for (arg, suffix) in default_paths.iter_mut() {
-        if arg.is_none() {
-            **arg = Some(tmp_dir.path().join(format!("{}{}", filename, suffix)));
-        }
-    }
+    let filename = prove_args
+        .cairo_program
+        .file_stem()
+        .unwrap()
+        .to_str()
+        .unwrap();
 
     let cairo1_run_path = std::env::var("CAIRO1_RUN")
         .map_err(|e| anyhow::anyhow!("Failed to get CAIRO1_RUN environment variable: {}", e))?;
     let mut command = Command::new(cairo1_run_path);
     command
-        .arg(&parsed_args.filename)
+        .arg(&prove_args.cairo_program)
         .arg("--layout")
-        .arg(parsed_args.layout.to_str());
+        .arg(prove_args.layout.to_str());
 
-    // Add optional arguments
-    let optional_args = [
-        ("--trace_file", &parsed_args.trace_file),
-        ("--memory_file", &parsed_args.memory_file),
-        ("--air_public_input", &parsed_args.air_public_input),
-        ("--air_private_input", &parsed_args.air_private_input),
-        ("--cairo_pie_output", &parsed_args.cairo_pie_output),
-        ("--args_file", &parsed_args.args_file),
+    // Set default file paths using tmp_dir
+    let trace_file = tmp_dir.path().join(format!("{}_trace.json", filename));
+    let memory_file = tmp_dir.path().join(format!("{}_memory.json", filename));
+    let air_public_input = tmp_dir
+        .path()
+        .join(format!("{}_air_public_input.json", filename));
+    let air_private_input = tmp_dir
+        .path()
+        .join(format!("{}_air_private_input.json", filename));
+    let tmp_file_args = [
+        ("--trace_file", &trace_file),
+        ("--memory_file", &memory_file),
+        ("--air_public_input", &air_public_input),
+        ("--air_private_input", &air_private_input),
     ];
-
-    for (arg, value) in optional_args.iter() {
-        if let Some(v) = value {
-            command.arg(arg).arg(v);
-        }
+    for (arg, value) in tmp_file_args.iter() {
+        command.arg(arg).arg(value);
     }
 
-    // `args` is of different type than the others, so we need to handle it separately
-    if let Some(args) = &parsed_args.args {
+    if let Some(args_file) = &prove_args.program_input_file {
+        command.arg("--args_file").arg(args_file);
+    }
+    if let Some(args) = &prove_args.program_input {
         command.arg("--args").arg(args);
     }
-
-    // Add flag arguments
-    if parsed_args.proof_mode {
-        command.arg("--proof_mode");
-    }
-    if parsed_args.print_output {
-        command.arg("--print_output");
-    }
-    if parsed_args.append_return_values {
-        command.arg("--append_return_values");
-    }
+    command.arg("--proof_mode");
 
     let output = command.output().expect("Failed to execute cairo1-run");
 
@@ -99,9 +82,9 @@ pub fn run_cairo1(
     }
 
     Ok(Cairo1RunResult {
-        memory_file: parsed_args.memory_file.unwrap(),
-        trace_file: parsed_args.trace_file.unwrap(),
-        air_public_input: parsed_args.air_public_input.unwrap(),
-        air_private_input: parsed_args.air_private_input.unwrap(),
+        memory_file,
+        trace_file,
+        air_public_input,
+        air_private_input,
     })
 }

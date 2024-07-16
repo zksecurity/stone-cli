@@ -1,6 +1,6 @@
 use std::path::Path;
 
-const CONFIG: &[u8] = include_bytes!("./config.json");
+const CONFIG: &[u8] = include_bytes!("./configs/env.json");
 
 #[derive(serde::Deserialize)]
 struct Config {

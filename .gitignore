@@ -1,4 +1,6 @@
 /target
 /build
 /starknet/calldata
-/examples-fail
+annotations.txt
+extra_output_file.txt
+proof.json

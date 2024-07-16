@@ -3,13 +3,11 @@ mod vec252;
 
 use anyhow::Ok;
 use anyhow::{Context, Result};
-use args::StarknetArgs;
 use cairo_felt::Felt252;
 use cairo_lang_runner::{Arg, ProfilingInfoCollectionConfig, RunResultValue, SierraCasmRunner};
 use cairo_lang_sierra::program::VersionedProgram;
 use cairo_lang_utils::ordered_hash_map::OrderedHashMap;
 use cairo_proof_parser::parse;
-use clap::Parser;
 use itertools::chain;
 use itertools::Itertools;
 use std::fs;
@@ -18,13 +16,10 @@ use std::path::Path;
 use std::process::{Command, Stdio};
 use vec252::VecFelt252;
 
-pub fn run_starknet_verifier(args: impl Iterator<Item = String>, proof_file: &Path) -> Result<()> {
-    let args = StarknetArgs::try_parse_from(args)?;
-    if args.verify_on_starknet {
-        run_on_starknet(proof_file)?;
-    } else {
-        run_locally(proof_file)?;
-    }
+use crate::args::ProveArgs;
+
+pub fn run_starknet_verifier(args: &ProveArgs) -> Result<()> {
+    run_locally(&args.output)?;
 
     Ok(())
 }
