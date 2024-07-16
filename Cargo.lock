@@ -5772,3 +5772,6 @@ dependencies = [
  "cc",
  "pkg-config",
 ]
+=======
+name = "starknet-adapter"
+version = "0.1.0"
