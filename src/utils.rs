@@ -21,8 +21,10 @@ pub fn cleanup_tmp_files(tmp_dir: &tempfile::TempDir) {
 #[derive(serde::Deserialize)]
 pub struct Config {
     download_dir: String,
+    #[allow(dead_code)]
     url: String,
     file_names: Vec<String>,
+    #[allow(dead_code)]
     sha256_sums: Vec<String>,
 }
 
@@ -31,7 +33,7 @@ pub fn set_env_vars(config: &[u8]) {
     let download_dir = format!("{}/{}", env!("HOME"), config.download_dir);
     for filename in config.file_names.iter() {
         let full_path = format!("{}/{}", download_dir, filename);
-        let filename = filename.split('.').next().unwrap().replace("-", "_");
+        let filename = filename.split('.').next().unwrap().replace('-', "_");
         std::env::set_var(filename.to_uppercase(), full_path.clone());
     }
 }

@@ -7,7 +7,10 @@ use starknet_adapter::{
     utils::set_env_vars,
     verifier::run_stone_verifier,
 };
-use std::{path::Path, path::PathBuf};
+use std::{
+    path::{Path, PathBuf},
+    str::FromStr,
+};
 use tempfile::TempDir;
 
 #[fixture]

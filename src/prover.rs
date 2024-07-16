@@ -36,18 +36,18 @@ pub fn run_stone_prover(
             read_json_from_file(air_public_input).unwrap();
         let n_steps = air_public_input_json["n_steps"].as_u64().unwrap() as u32;
         let prover_parameters = get_default_prover_parameters(n_steps)?;
-        write_json_to_file(&prover_parameters, &tmp_prover_parameters_path)?;
+        write_json_to_file(prover_parameters, &tmp_prover_parameters_path)?;
         &tmp_prover_parameters_path
     };
 
     let tmp_prover_config_path = tmp_dir.path().join("prover_config.json");
 
     let prover_config_path = if let Some(prover_config_file) = &prove_args.prover_config_file {
-        &prover_config_file
+        prover_config_file
     } else {
         let prover_config =
             get_default_prover_config().expect("Failed to get default prover config");
-        write_json_to_file(&prover_config, &tmp_prover_config_path)
+        write_json_to_file(prover_config, &tmp_prover_config_path)
             .expect("Failed to write prover config to file");
         &tmp_prover_config_path
     };
@@ -55,8 +55,8 @@ pub fn run_stone_prover(
     run_prover_from_command_line_with_annotations(
         air_public_input,
         air_private_input,
-        &prover_config_path,
-        &prover_parameters_path,
+        prover_config_path,
+        prover_parameters_path,
         &prove_args.output,
         true,
     )?;

@@ -66,7 +66,7 @@ fn give_execute_permissions(config: &Config) {
             panic!("File {} does not exist", file_path);
         }
         if !std::process::Command::new("chmod")
-            .args(&["+x", &file_path])
+            .args(["+x", &file_path])
             .status()
             .expect("Failed to change file permissions")
             .success()
@@ -81,7 +81,7 @@ fn clone_corelib_repo(config: &Config) {
     let repo_path = format!("{}/../corelib", download_dir);
     if !std::path::Path::new(&repo_path).exists() {
         if !std::process::Command::new("git")
-            .args(&[
+            .args([
                 "clone",
                 "--depth=1",
                 "-b",
@@ -96,7 +96,7 @@ fn clone_corelib_repo(config: &Config) {
         }
 
         if !std::process::Command::new("cp")
-            .args(&["-r", "./cairo/corelib", &repo_path])
+            .args(["-r", "./cairo/corelib", &repo_path])
             .status()
             .expect("Failed to copy corelib directory")
             .success()
@@ -105,7 +105,7 @@ fn clone_corelib_repo(config: &Config) {
         }
 
         if !std::process::Command::new("rm")
-            .args(&["-rf", "cairo/"])
+            .args(["-rf", "cairo/"])
             .status()
             .expect("Failed to remove the repository")
             .success()

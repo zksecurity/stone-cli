@@ -24,6 +24,7 @@ pub fn run_starknet_verifier(args: &ProveArgs) -> Result<()> {
     Ok(())
 }
 
+#[allow(dead_code)]
 fn run_on_starknet(proof_file: &Path) -> Result<()> {
     let (config, public_input, unsent_commitment, witness) = parse_proof_file(proof_file)?;
 
@@ -111,6 +112,7 @@ fn parse_proof_file(proof_file: &Path) -> Result<(VecFelt252, VecFelt252, VecFel
     ))
 }
 
+#[allow(dead_code)]
 fn execute_sncast_command(calldata: &str) -> Result<()> {
     println!("Broadcasting tx...");
 
@@ -122,7 +124,7 @@ fn execute_sncast_command(calldata: &str) -> Result<()> {
     const FUNCTION: &str = "verify_and_register_fact";
 
     let mut child = Command::new("sncast")
-        .args(&[
+        .args([
             "--account",
             ACCOUNT,
             "--url",

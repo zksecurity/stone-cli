@@ -80,21 +80,25 @@ impl LayoutName {
             LayoutName::dynamic => "all_cairo",
         }
     }
+}
 
-    pub fn from_str(layout: &str) -> Option<Self> {
+impl std::str::FromStr for LayoutName {
+    type Err = ();
+
+    fn from_str(layout: &str) -> Result<Self, Self::Err> {
         match layout {
-            "plain" => Some(LayoutName::plain),
-            "small" => Some(LayoutName::small),
-            "dex" => Some(LayoutName::dex),
-            "recursive" => Some(LayoutName::recursive),
-            "starknet" => Some(LayoutName::starknet),
-            "starknet_with_keccak" => Some(LayoutName::starknet_with_keccak),
-            "recursive_large_output" => Some(LayoutName::recursive_large_output),
-            "recursive_with_poseidon" => Some(LayoutName::recursive_with_poseidon),
-            "all_solidity" => Some(LayoutName::all_solidity),
-            "all_cairo" => Some(LayoutName::all_cairo),
-            "dynamic" => Some(LayoutName::dynamic),
-            _ => None,
+            "plain" => Ok(LayoutName::plain),
+            "small" => Ok(LayoutName::small),
+            "dex" => Ok(LayoutName::dex),
+            "recursive" => Ok(LayoutName::recursive),
+            "starknet" => Ok(LayoutName::starknet),
+            "starknet_with_keccak" => Ok(LayoutName::starknet_with_keccak),
+            "recursive_large_output" => Ok(LayoutName::recursive_large_output),
+            "recursive_with_poseidon" => Ok(LayoutName::recursive_with_poseidon),
+            "all_solidity" => Ok(LayoutName::all_solidity),
+            "all_cairo" => Ok(LayoutName::all_cairo),
+            "dynamic" => Ok(LayoutName::dynamic),
+            _ => Err(()),
         }
     }
 }
