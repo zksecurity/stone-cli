@@ -1,4 +1,3 @@
-mod args;
 mod vec252;
 
 use anyhow::Ok;
