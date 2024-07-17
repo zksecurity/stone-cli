@@ -1,8 +1,8 @@
-mod settings;
+pub mod config;
 
 use crate::args::ProveArgs;
 use crate::utils::write_json_to_file;
-use settings::{get_default_prover_config, get_default_prover_parameters};
+use config::{ProverConfig, ProverParametersConfig};
 use std::path::PathBuf;
 use std::process::Command;
 use stone_prover_sdk::error::ProverError;
@@ -35,7 +35,8 @@ pub fn run_stone_prover(
         let air_public_input_json: serde_json::Value =
             read_json_from_file(air_public_input).unwrap();
         let n_steps = air_public_input_json["n_steps"].as_u64().unwrap() as u32;
-        let prover_parameters = get_default_prover_parameters(n_steps)?;
+        let prover_parameters =
+            ProverParametersConfig::new(n_steps, &prove_args.parameter_config).unwrap();
         write_json_to_file(prover_parameters, &tmp_prover_parameters_path)?;
         &tmp_prover_parameters_path
     };
@@ -45,10 +46,8 @@ pub fn run_stone_prover(
     let prover_config_path = if let Some(prover_config_file) = &prove_args.prover_config_file {
         prover_config_file
     } else {
-        let prover_config =
-            get_default_prover_config().expect("Failed to get default prover config");
-        write_json_to_file(prover_config, &tmp_prover_config_path)
-            .expect("Failed to write prover config to file");
+        let prover_config = ProverConfig::new(&prove_args.prover_config).unwrap();
+        write_json_to_file(prover_config, &tmp_prover_config_path)?;
         &tmp_prover_config_path
     };
 

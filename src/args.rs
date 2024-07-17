@@ -1,4 +1,7 @@
+pub use crate::prover;
+
 use clap::{Args, Parser, ValueHint};
+use prover::config::{ProverConfig, ProverParametersConfig};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
@@ -9,6 +12,7 @@ use std::path::PathBuf;
     about = "CLI for proving Cairo 1 programs on Starknet"
 )]
 #[command(bin_name = "starknet-adapter")]
+#[allow(clippy::large_enum_variant)]
 pub enum Cli {
     Prove(ProveArgs),
     Verify(VerifyArgs),
@@ -40,6 +44,12 @@ pub struct ProveArgs {
 
     #[clap(long = "output", default_value = "./proof.json")]
     pub output: PathBuf,
+
+    #[clap(flatten)]
+    pub parameter_config: ProverParametersConfig,
+
+    #[clap(flatten)]
+    pub prover_config: ProverConfig,
 }
 
 #[derive(Args, Debug)]
