@@ -22,17 +22,20 @@ Currently, only Linux platforms are supported.
   - `--parameter_file`
   - `--output`
 - Additional args for prover parameters:
+  - `--field`
   - `--channel_hash`
   - `--commitment_hash`
-  - `--verifier_friendly_commitment_hash`
   - `--n_verifier_friendly_commitment_layers`
-  - `--page_hash`
   - `--pow_hash`
+  - `--page_hash`
   - `--fri_step_list`
   - `--last_layer_degree_bound`
   - `--n_queries`
   - `--proof_of_work_bits`
   - `--log_n_cosets`
+  - `--use_extension_field`
+  - `--verifier_friendly_channel_updates`
+  - `--verifier_friendly_commitment_hash`
 - Additional args for prover config:
   - `--store_full_lde`
   - `--use_fft_for_eval`
