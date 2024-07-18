@@ -60,3 +60,4 @@ jobs:
         run: |
           sha256sum ~/cpu_air_prover
           sha256sum ~/cpu_air_verifier
+          cd ~/ && ls -al
