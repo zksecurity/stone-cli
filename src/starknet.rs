@@ -18,32 +18,7 @@ use vec252::VecFelt252;
 use crate::args::ProveArgs;
 
 pub fn run_starknet_verifier(args: &ProveArgs) -> Result<()> {
-    run_locally(&args.output)?;
-
-    Ok(())
-}
-
-#[allow(dead_code)]
-fn run_on_starknet(proof_file: &Path) -> Result<()> {
-    let (config, public_input, unsent_commitment, witness) = parse_proof_file(proof_file)?;
-
-    let proof = chain!(
-        config.into_iter(),
-        public_input.into_iter(),
-        unsent_commitment.into_iter(),
-        witness.into_iter()
-    );
-
-    let calldata = chain!(proof, std::iter::once(Felt252::from(1)));
-
-    let calldata_string = calldata
-        .map(|f| f.to_string())
-        .collect::<Vec<_>>()
-        .join(" ");
-
-    execute_sncast_command(&calldata_string)?;
-
-    Ok(())
+    run_locally(&args.output)
 }
 
 fn run_locally(proof_file: &Path) -> Result<()> {
