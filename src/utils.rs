@@ -26,14 +26,17 @@ pub struct Config {
     file_names: Vec<String>,
     #[allow(dead_code)]
     sha256_sums: Vec<String>,
+    env_names: Vec<String>,
 }
 
-pub fn set_env_vars(config: &[u8]) {
-    let config: Config = serde_json::from_slice(config).expect("Failed to parse config file");
-    let download_dir = format!("{}/{}", env!("HOME"), config.download_dir);
-    for filename in config.file_names.iter() {
-        let full_path = format!("{}/{}", download_dir, filename);
-        let filename = filename.split('.').next().unwrap().replace('-', "_");
-        std::env::set_var(filename.to_uppercase(), full_path.clone());
+pub fn parse(config: &str) -> Config {
+    serde_json::from_str(config).expect("Failed to parse config file")
+}
+
+pub fn set_env_vars(config: &Config) {
+    let download_dir = Path::new(env!("HOME")).join(&config.download_dir);
+    for (env_name, filename) in config.env_names.iter().zip(config.file_names.iter()) {
+        let full_path = download_dir.join(filename);
+        std::env::set_var(env_name, full_path.clone());
     }
 }

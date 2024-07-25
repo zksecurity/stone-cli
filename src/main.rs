@@ -2,14 +2,15 @@ use clap::Parser;
 use starknet_adapter::args::Cli;
 use starknet_adapter::cairo1::run_cairo1;
 use starknet_adapter::prover::run_stone_prover;
-use starknet_adapter::utils::{cleanup_tmp_files, set_env_vars};
+use starknet_adapter::utils::{cleanup_tmp_files, parse, set_env_vars};
 use starknet_adapter::verifier::run_stone_verifier;
 use tempfile::Builder;
 
-const CONFIG: &[u8] = include_bytes!("../configs/env.json");
+const CONFIG: &str = include_str!("../configs/env.json");
 
 fn main() -> anyhow::Result<()> {
-    set_env_vars(CONFIG);
+    let config = parse(CONFIG);
+    set_env_vars(&config);
 
     let cli = Cli::parse();
     match cli {

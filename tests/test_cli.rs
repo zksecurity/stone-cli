@@ -4,7 +4,7 @@ use starknet_adapter::{
     cairo1::run_cairo1,
     prover::run_stone_prover,
     starknet::run_starknet_verifier,
-    utils::set_env_vars,
+    utils::{parse, set_env_vars},
     verifier::run_stone_verifier,
 };
 use std::{
@@ -15,8 +15,9 @@ use tempfile::TempDir;
 
 #[fixture]
 fn setup() {
-    const CONFIG: &[u8] = include_bytes!("../configs/env.json");
-    set_env_vars(CONFIG);
+    const CONFIG: &str = include_str!("../configs/env.json");
+    let config = parse(CONFIG);
+    set_env_vars(&config);
 }
 
 #[rstest]
