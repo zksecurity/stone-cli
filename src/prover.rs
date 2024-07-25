@@ -3,10 +3,11 @@ mod settings;
 use crate::args::ProveArgs;
 use crate::utils::write_json_to_file;
 use settings::{get_default_prover_config, get_default_prover_parameters};
+use std::fs;
 use std::path::PathBuf;
 use std::process::Command;
 use stone_prover_sdk::error::ProverError;
-use stone_prover_sdk::json::read_json_from_file;
+use stone_prover_sdk::models::PublicInput;
 
 /// Runs the Stone prover with the given inputs
 ///
@@ -32,10 +33,9 @@ pub fn run_stone_prover(
     let prover_parameters_path = if let Some(parameter_file) = &prove_args.parameter_file {
         parameter_file
     } else {
-        let air_public_input_json: serde_json::Value =
-            read_json_from_file(air_public_input).unwrap();
-        let n_steps = air_public_input_json["n_steps"].as_u64().unwrap() as u32;
-        let prover_parameters = get_default_prover_parameters(n_steps)?;
+        let air_public_input_json: PublicInput =
+            serde_json::from_str(&fs::read_to_string(air_public_input)?).unwrap();
+        let prover_parameters = get_default_prover_parameters(air_public_input_json.n_steps)?;
         write_json_to_file(prover_parameters, &tmp_prover_parameters_path)?;
         &tmp_prover_parameters_path
     };
