@@ -41,7 +41,7 @@ fn download_executables(config: &Config) {
     unzip_file(&download_file_path, &download_dir);
     remove_file(&download_file_path).expect("Failed to remove tar file");
     validate_unpacked_files(&download_dir, &config.file_names, &config.sha256_sums);
-    set_execute_permissions(&config);
+    set_execute_permissions(config);
 }
 
 fn set_execute_permissions(config: &Config) {
@@ -61,7 +61,7 @@ fn set_execute_permissions(config: &Config) {
 
 fn download_corelib_repo() {
     let download_dir = Path::new(env!("HOME")).join(".starknet-adapter-cli");
-    let corelib_dir = Path::new(env!("HOME")).join(&download_dir.join("corelib"));
+    let corelib_dir = Path::new(env!("HOME")).join(download_dir.join("corelib"));
     let url = "https://github.com/starkware-libs/cairo/releases/download/v2.6.3/release-x86_64-unknown-linux-musl.tar.gz";
     let download_file_path = download_dir.join("release-x86_64-unknown-linux-musl.tar.gz");
     if !corelib_dir.exists() {
@@ -94,7 +94,7 @@ fn download_corelib_repo() {
 }
 
 fn unzip_file(download_file_path: &Path, download_dir: &Path) {
-    let tar_gz = std::fs::File::open(&download_file_path).expect("Failed to open tar.gz file");
+    let tar_gz = std::fs::File::open(download_file_path).expect("Failed to open tar.gz file");
     let tar = flate2::read::GzDecoder::new(tar_gz);
     let mut archive = tar::Archive::new(tar);
     archive
@@ -103,7 +103,7 @@ fn unzip_file(download_file_path: &Path, download_dir: &Path) {
 }
 
 fn validate_unpacked_files(download_dir: &Path, file_names: &[String], sha256_sums: &[String]) {
-    let unpacked_files: Vec<_> = std::fs::read_dir(&download_dir)
+    let unpacked_files: Vec<_> = std::fs::read_dir(download_dir)
         .expect("Failed to read download directory")
         .map(|entry| {
             entry
@@ -137,7 +137,7 @@ fn validate_unpacked_files(download_dir: &Path, file_names: &[String], sha256_su
 
 fn download_from_url(url: &str, download_file_path: &Path) {
     let response = reqwest::blocking::get(url).expect("Failed to download file");
-    let mut file = std::fs::File::create(&download_file_path).expect("Failed to create file");
+    let mut file = std::fs::File::create(download_file_path).expect("Failed to create file");
     std::io::copy(
         &mut response.bytes().expect("Failed to read response").as_ref(),
         &mut file,
