@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 use serde_json::Result;
-use stone_prover_sdk::fri::{FriComputer, L1VerifierFriComputer};
+use stone_prover_sdk::fri::{DefaultFriComputer, FriComputer};
 use stone_prover_sdk::models::{ProverConfig, StarkParameters};
 
 const DEFAULT_CPU_AIR_PARAMS: &str = include_str!("../../configs/default_cpu_air_params.json");
@@ -30,7 +30,7 @@ pub fn get_default_prover_parameters(nb_steps: u32) -> Result<ProverParametersWi
     let mut prover_parameters: ProverParametersWithHash =
         serde_json::from_str(DEFAULT_CPU_AIR_PARAMS)?;
 
-    let fri_parameters = L1VerifierFriComputer.compute_fri_parameters(nb_steps);
+    let fri_parameters = DefaultFriComputer.compute_fri_parameters(nb_steps);
     prover_parameters.stark.fri = fri_parameters;
     Ok(prover_parameters)
 }
