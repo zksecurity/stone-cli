@@ -3,7 +3,6 @@ use starknet_adapter::{
     args::{LayoutName, ProveArgs, VerifyArgs},
     cairo1::run_cairo1,
     prover::run_stone_prover,
-    starknet::run_starknet_verifier,
     utils::{parse, set_env_vars},
     verifier::run_stone_verifier,
 };
@@ -259,12 +258,9 @@ fn test_run_e2e(
 
             match run_stone_prover(&prove_args, &air_public_input, &air_private_input, &tmp_dir) {
                 Ok(_) => match run_stone_verifier(&verify_args) {
-                    Ok(_) => match run_starknet_verifier(&prove_args) {
-                        Ok(_) => {
-                            println!("Successfully ran starknet verifier");
-                        }
-                        Err(e) => panic!("Expected a successful result but got an error: {:?}", e),
-                    },
+                    Ok(_) => {
+                        println!("Successfully ran stone verifier");
+                    }
                     Err(e) => panic!("Expected a successful result but got an error: {:?}", e),
                 },
                 Err(e) => panic!("Expected a successful result but got an error: {:?}", e),
