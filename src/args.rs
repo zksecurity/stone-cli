@@ -4,11 +4,11 @@ use std::path::PathBuf;
 
 #[derive(Parser, Debug)]
 #[command(
-    name = "starknet-adapter",
+    name = "stone-cli",
     version = "0.1.0-alpha",
     about = "CLI for proving Cairo 1 programs on Starknet"
 )]
-#[command(bin_name = "starknet-adapter")]
+#[command(bin_name = "stone-cli")]
 pub enum Cli {
     Prove(ProveArgs),
     Verify(VerifyArgs),

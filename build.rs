@@ -60,7 +60,7 @@ fn set_execute_permissions(config: &Config) {
 }
 
 fn download_corelib_repo() {
-    let download_dir = Path::new(env!("HOME")).join(".starknet-adapter-cli");
+    let download_dir = Path::new(env!("HOME")).join(".stone-cli");
     let corelib_dir = Path::new(env!("HOME")).join(download_dir.join("corelib"));
     let url = "https://github.com/starkware-libs/cairo/releases/download/v2.6.3/release-x86_64-unknown-linux-musl.tar.gz";
     let download_file_path = download_dir.join("release-x86_64-unknown-linux-musl.tar.gz");

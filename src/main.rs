@@ -1,9 +1,9 @@
 use clap::Parser;
-use starknet_adapter::args::Cli;
-use starknet_adapter::cairo1::run_cairo1;
-use starknet_adapter::prover::run_stone_prover;
-use starknet_adapter::utils::{cleanup_tmp_files, parse, set_env_vars};
-use starknet_adapter::verifier::run_stone_verifier;
+use stone_cli::args::Cli;
+use stone_cli::cairo1::run_cairo1;
+use stone_cli::prover::run_stone_prover;
+use stone_cli::utils::{cleanup_tmp_files, parse, set_env_vars};
+use stone_cli::verifier::run_stone_verifier;
 use tempfile::Builder;
 
 const CONFIG: &str = include_str!("../configs/env.json");
@@ -16,7 +16,7 @@ fn main() -> anyhow::Result<()> {
     match cli {
         Cli::Prove(args) => {
             let tmp_dir = Builder::new()
-                .prefix("starknet-adapter-")
+                .prefix("stone-cli-")
                 .tempdir()
                 .map_err(|e| anyhow::anyhow!("Failed to create temp dir: {}", e))?;
             let result = run_cairo1(&args, &tmp_dir)

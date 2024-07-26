@@ -1,5 +1,5 @@
 [package]
-name = "starknet-adapter"
+name = "stone-cli"
 version = "0.1.0-alpha"
 edition = "2021"
 

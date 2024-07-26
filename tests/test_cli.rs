@@ -1,14 +1,14 @@
 use rstest::{fixture, rstest};
-use starknet_adapter::{
+use std::{
+    path::{Path, PathBuf},
+    str::FromStr,
+};
+use stone_cli::{
     args::{LayoutName, ProveArgs, VerifyArgs},
     cairo1::run_cairo1,
     prover::run_stone_prover,
     utils::{parse, set_env_vars},
     verifier::run_stone_verifier,
-};
-use std::{
-    path::{Path, PathBuf},
-    str::FromStr,
 };
 use tempfile::TempDir;
 
@@ -27,7 +27,7 @@ fn test_run_cairo1_fail(
     #[case(program)] program: &str,
 ) {
     let tmp_dir = tempfile::Builder::new()
-        .prefix("starknet-adapter-test-")
+        .prefix("stone-cli-test-")
         .tempdir()
         .expect("Failed to create temp dir");
     let program_file = Path::new(env!("CARGO_MANIFEST_DIR"))
@@ -101,7 +101,7 @@ fn test_run_cairo1_success(
     #[case(program)] program: &str,
 ) {
     let tmp_dir = tempfile::Builder::new()
-        .prefix("starknet-adapter-test-")
+        .prefix("stone-cli-test-")
         .tempdir()
         .expect("Failed to create temp dir");
     let program_file = Path::new(env!("CARGO_MANIFEST_DIR"))
@@ -137,7 +137,7 @@ fn test_run_cairo1_with_input_file(
     #[case(input)] input: &str,
 ) {
     let tmp_dir = tempfile::Builder::new()
-        .prefix("starknet-adapter-test-")
+        .prefix("stone-cli-test-")
         .tempdir()
         .expect("Failed to create temp dir");
     let program_file = Path::new(env!("CARGO_MANIFEST_DIR"))
@@ -180,7 +180,7 @@ fn test_run_cairo1_with_inputs(
     #[case(input)] input: &str,
 ) {
     let tmp_dir = tempfile::Builder::new()
-        .prefix("starknet-adapter-test-")
+        .prefix("stone-cli-test-")
         .tempdir()
         .expect("Failed to create temp dir");
     let program_file = Path::new(env!("CARGO_MANIFEST_DIR"))
@@ -215,7 +215,7 @@ fn test_run_e2e(
     #[case(input)] input: &str,
 ) {
     let tmp_dir = tempfile::Builder::new()
-        .prefix("starknet-adapter-test-")
+        .prefix("stone-cli-test-")
         .tempdir()
         .expect("Failed to create temp dir");
     let program_file = if !input.is_empty() {

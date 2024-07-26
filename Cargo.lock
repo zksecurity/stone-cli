@@ -4545,33 +4545,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "starknet-adapter"
-version = "0.1.0-alpha"
-dependencies = [
- "anyhow",
- "cairo-felt",
- "cairo-lang-runner",
- "cairo-lang-sierra",
- "cairo-lang-sierra-to-casm",
- "cairo-lang-utils",
- "cairo-proof-parser",
- "clap 4.5.9",
- "flate2",
- "itertools 0.13.0",
- "num-bigint",
- "reqwest 0.12.5",
- "rstest",
- "serde",
- "serde_json",
- "sha256",
- "stone-prover-sdk",
- "tar",
- "tempfile",
- "thiserror",
- "uuid 1.10.0",
-]
-
-[[package]]
 name = "starknet-crypto"
 version = "0.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4643,6 +4616,33 @@ name = "static_assertions"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
+
+[[package]]
+name = "stone-cli"
+version = "0.1.0-alpha"
+dependencies = [
+ "anyhow",
+ "cairo-felt",
+ "cairo-lang-runner",
+ "cairo-lang-sierra",
+ "cairo-lang-sierra-to-casm",
+ "cairo-lang-utils",
+ "cairo-proof-parser",
+ "clap 4.5.9",
+ "flate2",
+ "itertools 0.13.0",
+ "num-bigint",
+ "reqwest 0.12.5",
+ "rstest",
+ "serde",
+ "serde_json",
+ "sha256",
+ "stone-prover-sdk",
+ "tar",
+ "tempfile",
+ "thiserror",
+ "uuid 1.10.0",
+]
 
 [[package]]
 name = "stone-prover-sdk"
