@@ -1,2 +1,7 @@
-/bin
 /target
+/build
+/starknet/calldata
+/bin
+annotations.txt
+extra_output_file.txt
+proof.json
