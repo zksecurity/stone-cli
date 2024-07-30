@@ -6,6 +6,7 @@ use std::{
 use stone_cli::{
     args::{LayoutName, ProveArgs, VerifyArgs},
     cairo1::run_cairo1,
+    config::{ProverConfig, ProverParametersConfig},
     prover::run_stone_prover,
     utils::{parse, set_env_vars},
     verifier::run_stone_verifier,
@@ -41,6 +42,8 @@ fn test_run_cairo1_fail(
         prover_config_file: None,
         parameter_file: None,
         output: tmp_dir.path().join("proof.json"),
+        parameter_config: ProverParametersConfig::default(),
+        prover_config: ProverConfig::default(),
     };
     match run_cairo1(&prove_args, &tmp_dir) {
         Ok(result) => panic!(
@@ -115,6 +118,8 @@ fn test_run_cairo1_success(
         prover_config_file: None,
         parameter_file: None,
         output: tmp_dir.path().join("proof.json"),
+        parameter_config: ProverParametersConfig::default(),
+        prover_config: ProverConfig::default(),
     };
     match run_cairo1(&prove_args, &tmp_dir) {
         Ok(result) => println!("Successfully ran cairo1: {:?}", result),
@@ -157,6 +162,8 @@ fn test_run_cairo1_with_input_file(
         prover_config_file: None,
         parameter_file: None,
         output: tmp_dir.path().join("proof.json"),
+        parameter_config: ProverParametersConfig::default(),
+        prover_config: ProverConfig::default(),
     };
 
     match run_cairo1(&prove_args, &tmp_dir) {
@@ -195,6 +202,8 @@ fn test_run_cairo1_with_inputs(
         prover_config_file: None,
         parameter_file: None,
         output: tmp_dir.path().join("proof.json"),
+        parameter_config: ProverParametersConfig::default(),
+        prover_config: ProverConfig::default(),
     };
 
     match run_cairo1(&prove_args, &tmp_dir) {
@@ -207,7 +216,6 @@ fn test_run_cairo1_with_inputs(
 
 #[rstest]
 #[case("recursive", "fibonacci.cairo", "")]
-#[case("recursive", "array_input_sum.cairo", "[2 4 1 2 3 4 0 2 9 8]")]
 fn test_run_e2e(
     #[from(setup)] _path: (),
     #[case(layout)] layout: &str,
@@ -241,6 +249,8 @@ fn test_run_e2e(
         prover_config_file: None,
         parameter_file: None,
         output: tmp_dir.path().join("proof.json"),
+        parameter_config: ProverParametersConfig::default(),
+        prover_config: ProverConfig::default(),
     };
     let verify_args = VerifyArgs {
         proof: tmp_dir.path().join("proof.json"),

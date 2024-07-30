@@ -1,4 +1,7 @@
+pub use crate::prover;
+
 use clap::{Args, Parser, ValueHint};
+use prover::config::{ProverConfig, ProverParametersConfig};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
@@ -9,6 +12,7 @@ use std::path::PathBuf;
     about = "CLI for proving Cairo 1 programs on Starknet"
 )]
 #[command(bin_name = "stone-cli")]
+#[allow(clippy::large_enum_variant)]
 pub enum Cli {
     Prove(ProveArgs),
     Verify(VerifyArgs),
@@ -32,14 +36,20 @@ pub struct ProveArgs {
     #[clap(long = "layout", default_value = "recursive", value_enum)]
     pub layout: LayoutName,
 
-    #[clap(long = "prover_config_file")]
+    #[clap(long = "prover_config_file", conflicts_with_all = ["store_full_lde", "use_fft_for_eval", "constraint_polynomial_task_size", "n_out_of_memory_merkle_layers", "table_prover_n_tasks_per_segment"])]
     pub prover_config_file: Option<PathBuf>,
 
-    #[clap(long = "parameter_file")]
+    #[clap(long = "parameter_file", conflicts_with_all = ["field", "channel_hash", "commitment_hash", "n_verifier_friendly_commitment_layers", "pow_hash", "page_hash", "fri_step_list", "last_layer_degree_bound", "n_queries", "proof_of_work_bits", "log_n_cosets", "use_extension_field", "verifier_friendly_channel_updates", "verifier_friendly_commitment_hash"])]
     pub parameter_file: Option<PathBuf>,
 
     #[clap(long = "output", default_value = "./proof.json")]
     pub output: PathBuf,
+
+    #[clap(flatten)]
+    pub parameter_config: ProverParametersConfig,
+
+    #[clap(flatten)]
+    pub prover_config: ProverConfig,
 }
 
 #[derive(Args, Debug)]
