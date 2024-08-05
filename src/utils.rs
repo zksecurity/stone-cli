@@ -19,16 +19,6 @@ macro_rules! define_enum {
                 }
             }
         }
-
-        #[allow(dead_code)]
-        impl $name {
-            fn from_str(s: &str) -> std::result::Result<Self, ()> {
-                match s {
-                    $($str => Ok($name::$variant)),+,
-                    _ => Err(()),
-                }
-            }
-        }
     };
 }
 
