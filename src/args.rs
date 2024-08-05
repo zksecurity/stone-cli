@@ -17,6 +17,7 @@ use std::path::PathBuf;
 pub enum Cli {
     Prove(ProveArgs),
     Verify(VerifyArgs),
+    SerializeProof(SerializeArgs),
 }
 
 #[derive(Args, Debug)]
@@ -93,4 +94,21 @@ impl std::str::FromStr for LayoutName {
             _ => Err(()),
         }
     }
+}
+
+#[derive(Args, Debug)]
+pub struct SerializeArgs {
+    #[clap(long = "proof", value_hint=ValueHint::FilePath)]
+    pub proof: PathBuf,
+
+    #[clap(long = "network", value_enum)]
+    pub network: Network,
+
+    #[clap(long = "output")]
+    pub output: PathBuf,
+}
+
+define_enum! {
+    Network,
+    starknet => "starknet",
 }

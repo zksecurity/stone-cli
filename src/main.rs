@@ -2,6 +2,7 @@ use clap::Parser;
 use stone_cli::args::Cli;
 use stone_cli::cairo1::run_cairo1;
 use stone_cli::prover::run_stone_prover;
+use stone_cli::serialize::serialize_proof;
 use stone_cli::utils::{cleanup_tmp_files, parse, set_env_vars};
 use stone_cli::verifier::run_stone_verifier;
 use tempfile::Builder;
@@ -43,6 +44,9 @@ fn main() -> anyhow::Result<()> {
         }
         Cli::Verify(args) => {
             run_stone_verifier(&args).map_err(|e| anyhow::anyhow!("Verification failed: {}", e))
+        }
+        Cli::SerializeProof(args) => {
+            serialize_proof(&args).map_err(|e| anyhow::anyhow!("Serialization failed: {}", e))
         }
     }
 }
