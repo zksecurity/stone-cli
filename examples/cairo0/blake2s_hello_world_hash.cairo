@@ -1,0 +1,1 @@
+../blake2s_hello_world_hash.cairo

@@ -1,5 +1,5 @@
 pub mod args;
-pub mod cairo1;
+pub mod cairo;
 pub mod prover;
 pub mod serialize;
 pub mod utils;

@@ -1,0 +1,1 @@
+../relocate_segments_with_offset.cairo

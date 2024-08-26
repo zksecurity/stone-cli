@@ -1,0 +1,1 @@
+../keccak_copy_inputs.cairo

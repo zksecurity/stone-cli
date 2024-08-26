@@ -1,0 +1,558 @@
+{
+    "attributes": [],
+    "builtins": [],
+    "compiler_version": "0.13.1",
+    "data": [
+        "0x40780017fff7fff",
+        "0x0",
+        "0x1104800180018000",
+        "0x9",
+        "0x10780017fff7fff",
+        "0x0",
+        "0x400b7ffd7fff7ffc",
+        "0x208b7fff7fff7ffe",
+        "0x40780017fff7fff",
+        "0x1",
+        "0x208b7fff7fff7ffe",
+        "0x1104800180018000",
+        "0x800000000000010fffffffffffffffffffffffffffffffffffffffffffffffe",
+        "0x482480017fff8000",
+        "0x64",
+        "0x400080007ffe7fff",
+        "0x208b7fff7fff7ffe"
+    ],
+    "debug_info": {
+        "file_contents": {
+            "<start>": "__start__:\nap += main.Args.SIZE + main.ImplicitArgs.SIZE;\ncall main;\n\n__end__:\njmp rel 0;\n"
+        },
+        "instruction_locations": {
+            "0": {
+                "accessible_scopes": [
+                    "__main__"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 0,
+                        "offset": 0
+                    },
+                    "reference_ids": {}
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 46,
+                    "end_line": 2,
+                    "input_file": {
+                        "filename": "<start>"
+                    },
+                    "start_col": 1,
+                    "start_line": 2
+                }
+            },
+            "2": {
+                "accessible_scopes": [
+                    "__main__"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 0,
+                        "offset": 0
+                    },
+                    "reference_ids": {}
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 10,
+                    "end_line": 3,
+                    "input_file": {
+                        "filename": "<start>"
+                    },
+                    "start_col": 1,
+                    "start_line": 3
+                }
+            },
+            "4": {
+                "accessible_scopes": [
+                    "__main__"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 1,
+                        "offset": 0
+                    },
+                    "reference_ids": {}
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 10,
+                    "end_line": 6,
+                    "input_file": {
+                        "filename": "<start>"
+                    },
+                    "start_col": 1,
+                    "start_line": 6
+                }
+            },
+            "6": {
+                "accessible_scopes": [
+                    "starkware.cairo.common.segments",
+                    "starkware.cairo.common.segments.relocate_segment"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 2,
+                        "offset": 0
+                    },
+                    "reference_ids": {
+                        "starkware.cairo.common.segments.relocate_segment.dest_ptr": 1,
+                        "starkware.cairo.common.segments.relocate_segment.src_ptr": 0
+                    }
+                },
+                "hints": [
+                    {
+                        "location": {
+                            "end_col": 81,
+                            "end_line": 6,
+                            "input_file": {
+                                "filename": "/home/jin/starkware/cairo-vm/cairo-vm-env/lib/python3.9/site-packages/starkware/cairo/common/segments.cairo"
+                            },
+                            "start_col": 5,
+                            "start_line": 6
+                        },
+                        "n_prefix_newlines": 0
+                    }
+                ],
+                "inst": {
+                    "end_col": 31,
+                    "end_line": 9,
+                    "input_file": {
+                        "filename": "/home/jin/starkware/cairo-vm/cairo-vm-env/lib/python3.9/site-packages/starkware/cairo/common/segments.cairo"
+                    },
+                    "start_col": 5,
+                    "start_line": 9
+                }
+            },
+            "7": {
+                "accessible_scopes": [
+                    "starkware.cairo.common.segments",
+                    "starkware.cairo.common.segments.relocate_segment"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 2,
+                        "offset": 0
+                    },
+                    "reference_ids": {
+                        "starkware.cairo.common.segments.relocate_segment.dest_ptr": 1,
+                        "starkware.cairo.common.segments.relocate_segment.src_ptr": 0
+                    }
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 15,
+                    "end_line": 10,
+                    "input_file": {
+                        "filename": "/home/jin/starkware/cairo-vm/cairo-vm-env/lib/python3.9/site-packages/starkware/cairo/common/segments.cairo"
+                    },
+                    "start_col": 5,
+                    "start_line": 10
+                }
+            },
+            "8": {
+                "accessible_scopes": [
+                    "starkware.cairo.common.alloc",
+                    "starkware.cairo.common.alloc.alloc"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 3,
+                        "offset": 0
+                    },
+                    "reference_ids": {}
+                },
+                "hints": [
+                    {
+                        "location": {
+                            "end_col": 38,
+                            "end_line": 3,
+                            "input_file": {
+                                "filename": "/home/jin/starkware/cairo-vm/cairo-vm-env/lib/python3.9/site-packages/starkware/cairo/common/alloc.cairo"
+                            },
+                            "start_col": 5,
+                            "start_line": 3
+                        },
+                        "n_prefix_newlines": 0
+                    }
+                ],
+                "inst": {
+                    "end_col": 12,
+                    "end_line": 4,
+                    "input_file": {
+                        "filename": "/home/jin/starkware/cairo-vm/cairo-vm-env/lib/python3.9/site-packages/starkware/cairo/common/alloc.cairo"
+                    },
+                    "start_col": 5,
+                    "start_line": 4
+                }
+            },
+            "10": {
+                "accessible_scopes": [
+                    "starkware.cairo.common.alloc",
+                    "starkware.cairo.common.alloc.alloc"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 3,
+                        "offset": 1
+                    },
+                    "reference_ids": {}
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 40,
+                    "end_line": 5,
+                    "input_file": {
+                        "filename": "/home/jin/starkware/cairo-vm/cairo-vm-env/lib/python3.9/site-packages/starkware/cairo/common/alloc.cairo"
+                    },
+                    "start_col": 5,
+                    "start_line": 5
+                }
+            },
+            "11": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.main"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 4,
+                        "offset": 0
+                    },
+                    "reference_ids": {}
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 35,
+                    "end_line": 6,
+                    "input_file": {
+                        "filename": "cairo_programs/proof_programs/value_beyond_segment.cairo"
+                    },
+                    "start_col": 28,
+                    "start_line": 6
+                }
+            },
+            "13": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.main"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 4,
+                        "offset": 3
+                    },
+                    "reference_ids": {
+                        "__main__.main.segment": 2
+                    }
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 50,
+                    "end_line": 9,
+                    "input_file": {
+                        "filename": "cairo_programs/proof_programs/value_beyond_segment.cairo"
+                    },
+                    "start_col": 25,
+                    "start_line": 9
+                }
+            },
+            "15": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.main"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 4,
+                        "offset": 4
+                    },
+                    "reference_ids": {
+                        "__main__.main.__temp0": 3,
+                        "__main__.main.segment": 2
+                    }
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 51,
+                    "end_line": 9,
+                    "input_file": {
+                        "filename": "cairo_programs/proof_programs/value_beyond_segment.cairo"
+                    },
+                    "start_col": 5,
+                    "start_line": 9
+                }
+            },
+            "16": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.main"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 4,
+                        "offset": 4
+                    },
+                    "reference_ids": {
+                        "__main__.main.__temp0": 3,
+                        "__main__.main.segment": 2
+                    }
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 15,
+                    "end_line": 11,
+                    "input_file": {
+                        "filename": "cairo_programs/proof_programs/value_beyond_segment.cairo"
+                    },
+                    "start_col": 5,
+                    "start_line": 11
+                }
+            }
+        }
+    },
+    "hints": {
+        "6": [
+            {
+                "accessible_scopes": [
+                    "starkware.cairo.common.segments",
+                    "starkware.cairo.common.segments.relocate_segment"
+                ],
+                "code": "memory.add_relocation_rule(src_ptr=ids.src_ptr, dest_ptr=ids.dest_ptr)",
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 2,
+                        "offset": 0
+                    },
+                    "reference_ids": {
+                        "starkware.cairo.common.segments.relocate_segment.dest_ptr": 1,
+                        "starkware.cairo.common.segments.relocate_segment.src_ptr": 0
+                    }
+                }
+            }
+        ],
+        "8": [
+            {
+                "accessible_scopes": [
+                    "starkware.cairo.common.alloc",
+                    "starkware.cairo.common.alloc.alloc"
+                ],
+                "code": "memory[ap] = segments.add()",
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 3,
+                        "offset": 0
+                    },
+                    "reference_ids": {}
+                }
+            }
+        ]
+    },
+    "identifiers": {
+        "__main__.__end__": {
+            "pc": 4,
+            "type": "label"
+        },
+        "__main__.__start__": {
+            "pc": 0,
+            "type": "label"
+        },
+        "__main__.alloc": {
+            "destination": "starkware.cairo.common.alloc.alloc",
+            "type": "alias"
+        },
+        "__main__.main": {
+            "decorators": [],
+            "pc": 11,
+            "type": "function"
+        },
+        "__main__.main.Args": {
+            "full_name": "__main__.main.Args",
+            "members": {},
+            "size": 0,
+            "type": "struct"
+        },
+        "__main__.main.ImplicitArgs": {
+            "full_name": "__main__.main.ImplicitArgs",
+            "members": {},
+            "size": 0,
+            "type": "struct"
+        },
+        "__main__.main.Return": {
+            "cairo_type": "()",
+            "type": "type_definition"
+        },
+        "__main__.main.SIZEOF_LOCALS": {
+            "type": "const",
+            "value": 0
+        },
+        "__main__.main.__temp0": {
+            "cairo_type": "felt",
+            "full_name": "__main__.main.__temp0",
+            "references": [
+                {
+                    "ap_tracking_data": {
+                        "group": 4,
+                        "offset": 4
+                    },
+                    "pc": 15,
+                    "value": "[cast(ap + (-1), felt*)]"
+                }
+            ],
+            "type": "reference"
+        },
+        "__main__.main.segment": {
+            "cairo_type": "felt*",
+            "full_name": "__main__.main.segment",
+            "references": [
+                {
+                    "ap_tracking_data": {
+                        "group": 4,
+                        "offset": 3
+                    },
+                    "pc": 13,
+                    "value": "[cast(ap + (-1), felt**)]"
+                }
+            ],
+            "type": "reference"
+        },
+        "__main__.relocate_segment": {
+            "destination": "starkware.cairo.common.segments.relocate_segment",
+            "type": "alias"
+        },
+        "starkware.cairo.common.alloc.alloc": {
+            "decorators": [],
+            "pc": 8,
+            "type": "function"
+        },
+        "starkware.cairo.common.alloc.alloc.Args": {
+            "full_name": "starkware.cairo.common.alloc.alloc.Args",
+            "members": {},
+            "size": 0,
+            "type": "struct"
+        },
+        "starkware.cairo.common.alloc.alloc.ImplicitArgs": {
+            "full_name": "starkware.cairo.common.alloc.alloc.ImplicitArgs",
+            "members": {},
+            "size": 0,
+            "type": "struct"
+        },
+        "starkware.cairo.common.alloc.alloc.Return": {
+            "cairo_type": "(ptr: felt*)",
+            "type": "type_definition"
+        },
+        "starkware.cairo.common.alloc.alloc.SIZEOF_LOCALS": {
+            "type": "const",
+            "value": 0
+        },
+        "starkware.cairo.common.segments.relocate_segment": {
+            "decorators": [],
+            "pc": 6,
+            "type": "function"
+        },
+        "starkware.cairo.common.segments.relocate_segment.Args": {
+            "full_name": "starkware.cairo.common.segments.relocate_segment.Args",
+            "members": {
+                "dest_ptr": {
+                    "cairo_type": "felt*",
+                    "offset": 1
+                },
+                "src_ptr": {
+                    "cairo_type": "felt*",
+                    "offset": 0
+                }
+            },
+            "size": 2,
+            "type": "struct"
+        },
+        "starkware.cairo.common.segments.relocate_segment.ImplicitArgs": {
+            "full_name": "starkware.cairo.common.segments.relocate_segment.ImplicitArgs",
+            "members": {},
+            "size": 0,
+            "type": "struct"
+        },
+        "starkware.cairo.common.segments.relocate_segment.Return": {
+            "cairo_type": "()",
+            "type": "type_definition"
+        },
+        "starkware.cairo.common.segments.relocate_segment.SIZEOF_LOCALS": {
+            "type": "const",
+            "value": 0
+        },
+        "starkware.cairo.common.segments.relocate_segment.dest_ptr": {
+            "cairo_type": "felt*",
+            "full_name": "starkware.cairo.common.segments.relocate_segment.dest_ptr",
+            "references": [
+                {
+                    "ap_tracking_data": {
+                        "group": 2,
+                        "offset": 0
+                    },
+                    "pc": 6,
+                    "value": "[cast(fp + (-3), felt**)]"
+                }
+            ],
+            "type": "reference"
+        },
+        "starkware.cairo.common.segments.relocate_segment.src_ptr": {
+            "cairo_type": "felt*",
+            "full_name": "starkware.cairo.common.segments.relocate_segment.src_ptr",
+            "references": [
+                {
+                    "ap_tracking_data": {
+                        "group": 2,
+                        "offset": 0
+                    },
+                    "pc": 6,
+                    "value": "[cast(fp + (-4), felt**)]"
+                }
+            ],
+            "type": "reference"
+        }
+    },
+    "main_scope": "__main__",
+    "prime": "0x800000000000011000000000000000000000000000000000000000000000001",
+    "reference_manager": {
+        "references": [
+            {
+                "ap_tracking_data": {
+                    "group": 2,
+                    "offset": 0
+                },
+                "pc": 6,
+                "value": "[cast(fp + (-4), felt**)]"
+            },
+            {
+                "ap_tracking_data": {
+                    "group": 2,
+                    "offset": 0
+                },
+                "pc": 6,
+                "value": "[cast(fp + (-3), felt**)]"
+            },
+            {
+                "ap_tracking_data": {
+                    "group": 4,
+                    "offset": 3
+                },
+                "pc": 13,
+                "value": "[cast(ap + (-1), felt**)]"
+            },
+            {
+                "ap_tracking_data": {
+                    "group": 4,
+                    "offset": 4
+                },
+                "pc": 15,
+                "value": "[cast(ap + (-1), felt*)]"
+            }
+        ]
+    }
+}

@@ -4,8 +4,8 @@ use std::{
     str::FromStr,
 };
 use stone_cli::{
-    args::{LayoutName, ProveArgs, VerifyArgs},
-    cairo1::run_cairo1,
+    args::{CairoVersion, LayoutName, ProveArgs, VerifyArgs},
+    cairo::{run_cairo0, run_cairo1},
     config::{ProverConfig, ProverParametersConfig},
     prover::run_stone_prover,
     utils::{parse, set_env_vars},
@@ -18,6 +18,210 @@ fn setup() {
     const CONFIG: &str = include_str!("../configs/env.json");
     let config = parse(CONFIG);
     set_env_vars(&config);
+}
+
+#[rstest]
+#[case("recursive", "abs_value_array.json")]
+#[case("recursive", "array_sum.json")]
+#[case("recursive", "assert_250_bit_element_array.json")]
+#[case("recursive", "assert_le_felt_hint.json")]
+#[case("recursive", "assert_le_felt_old.json")]
+#[case("recursive", "assert_lt_felt.json")]
+#[case("recursive", "assert_nn.json")]
+#[case("recursive", "assert_not_zero.json")]
+#[case("recursive", "big_struct.json")]
+#[case("recursive", "bigint.json")]
+#[case("recursive", "bitand_hint.json")]
+#[case("recursive", "bitwise_builtin_test.json")]
+#[case("recursive", "bitwise_output.json")]
+#[case("recursive", "bitwise_recursion.json")]
+#[case("recursive", "blake2s_felts.json")]
+#[case("recursive", "blake2s_hello_world_hash.json")]
+#[case("recursive", "blake2s_integration_tests.json")]
+#[case("recursive", "cairo_finalize_keccak.json")]
+#[case("recursive", "cairo_finalize_keccak_block_size_1000.json")]
+#[case("recursive", "call_function_assign_param_by_name.json")]
+#[case("recursive", "chained_ec_op.json")]
+#[case("recursive", "common_signature.json")]
+#[case("recursive", "compare_arrays.json")]
+#[case("recursive", "compare_different_arrays.json")]
+#[case("recursive", "compare_greater_array.json")]
+#[case("recursive", "compare_lesser_array.json")]
+#[case("recursive", "compute_doubling_slope_v2.json")]
+#[case("recursive", "compute_slope_v2.json")]
+#[case("recursive", "dict.json")]
+#[case("recursive", "dict_integration_tests.json")]
+#[case("recursive", "dict_squash.json")]
+#[case("recursive", "dict_store_cast_ptr.json")]
+#[case("recursive", "dict_update.json")]
+#[case("recursive", "div_mod_n.json")]
+#[case("recursive", "ec_double_assign_new_x_v3.json")]
+#[case("recursive", "ec_double_slope.json")]
+#[case("recursive", "ec_double_v4.json")]
+#[case("recursive", "ec_negate.json")]
+#[case("recursive", "ec_op.json")]
+#[case("recursive", "ec_recover.json")]
+#[case("recursive", "ed25519_ec.json")]
+#[case("recursive", "ed25519_field.json")]
+#[case("recursive", "efficient_secp256r1_ec.json")]
+#[case("recursive", "example_blake2s.json")]
+#[case("recursive", "example_program.json")]
+#[case("recursive", "factorial.json")]
+#[case("recursive", "fast_ec_add_v2.json")]
+#[case("recursive", "fast_ec_add_v3.json")]
+#[case("recursive", "fibonacci.json")]
+#[case("recursive", "field_arithmetic.json")]
+#[case("recursive", "finalize_blake2s.json")]
+#[case("recursive", "finalize_blake2s_v2_hint.json")]
+#[case("recursive", "find_element.json")]
+#[case("recursive", "fq.json")]
+#[case("recursive", "fq_test.json")]
+#[case("recursive", "function_return.json")]
+#[case("recursive", "function_return_if_print.json")]
+#[case("recursive", "function_return_to_variable.json")]
+#[case("recursive", "garaga.json")]
+#[case("recursive", "highest_bitlen.json")]
+#[case("recursive", "if_and_prime.json")]
+#[case("recursive", "if_in_function.json")]
+#[case("recursive", "if_list.json")]
+#[case("recursive", "if_reloc_equal.json")]
+#[case("recursive", "integration.json")]
+#[case("recursive", "integration_with_alloc_locals.json")]
+#[case("recursive", "inv_mod_p_uint512.json")]
+#[case("recursive", "is_quad_residue_test.json")]
+#[case("recursive", "is_zero.json")]
+#[case("recursive", "is_zero_pack.json")]
+#[case("recursive", "jmp.json")]
+#[case("recursive", "jmp_if_condition.json")]
+#[case("recursive", "keccak.json")]
+#[case("recursive", "keccak_add_uint256.json")]
+#[case("recursive", "keccak_alternative_hint.json")]
+#[case("recursive", "keccak_builtin.json")]
+#[case("recursive", "keccak_copy_inputs.json")]
+#[case("recursive", "keccak_integration_tests.json")]
+#[case("recursive", "keccak_uint256.json")]
+#[case("recursive", "math_cmp.json")]
+#[case("recursive", "math_cmp_and_pow_integration_tests.json")]
+#[case("recursive", "math_integration_tests.json")]
+#[case("recursive", "memcpy_test.json")]
+#[case("recursive", "memory_holes.json")]
+#[case("recursive", "memory_integration_tests.json")]
+#[case("recursive", "memset.json")]
+#[case("recursive", "mul_s_inv.json")]
+#[case("recursive", "multiplicative_inverse.json")]
+#[case("recursive", "n_bit.json")]
+#[case("recursive", "nondet_bigint3_v2.json")]
+#[case("recursive", "normalize_address.json")]
+#[case("recursive", "not_main.json")]
+#[case("recursive", "operations_with_data_structures.json")]
+#[case("recursive", "packed_sha256.json")]
+#[case("recursive", "packed_sha256_test.json")]
+#[case("recursive", "pedersen_extra_builtins.json")]
+#[case("recursive", "pedersen_test.json")]
+#[case("recursive", "pointers.json")]
+#[case("recursive", "poseidon_builtin.json")]
+#[case("recursive", "poseidon_hash.json")]
+#[case("recursive", "poseidon_multirun.json")]
+#[case("recursive", "pow.json")]
+#[case("recursive", "print.json")]
+#[case("recursive", "recover_y.json")]
+#[case("recursive", "reduce.json")]
+#[case("recursive", "relocate_segments.json")]
+#[case("recursive", "relocate_segments_with_offset.json")]
+#[case("recursive", "relocate_temporary_segment_append.json")]
+#[case("recursive", "relocate_temporary_segment_into_new.json")]
+#[case("recursive", "return.json")]
+#[case("recursive", "reversed_register_instructions.json")]
+#[case("recursive", "search_sorted_lower.json")]
+#[case("recursive", "secp.json")]
+#[case("recursive", "secp256r1_div_mod_n.json")]
+#[case("recursive", "secp256r1_fast_ec_add.json")]
+#[case("recursive", "secp256r1_slope.json")]
+#[case("recursive", "secp_ec.json")]
+#[case("recursive", "secp_integration_tests.json")]
+#[case("recursive", "set_add.json")]
+#[case("recursive", "set_integration_tests.json")]
+#[case("recursive", "sha256.json")]
+#[case("recursive", "sha256_test.json")]
+#[case("recursive", "signature.json")]
+#[case("recursive", "signed_div_rem.json")]
+#[case("recursive", "simple_print.json")]
+#[case("recursive", "split_felt.json")]
+#[case("recursive", "split_int.json")]
+#[case("recursive", "split_int_big.json")]
+#[case("recursive", "split_xx_hint.json")]
+#[case("recursive", "sqrt.json")]
+#[case("recursive", "squash_dict.json")]
+#[case("recursive", "struct.json")]
+#[case("recursive", "test_addition_if.json")]
+#[case("recursive", "test_reverse_if.json")]
+#[case("recursive", "test_subtraction_if.json")]
+#[case("recursive", "uint256.json")]
+#[case("recursive", "uint256_improvements.json")]
+#[case("recursive", "uint256_integration_tests.json")]
+#[case("recursive", "uint384.json")]
+#[case("recursive", "uint384_extension.json")]
+#[case("recursive", "uint384_extension_test.json")]
+#[case("recursive", "uint384_test.json")]
+#[case("recursive", "unsafe_keccak.json")]
+#[case("recursive", "unsafe_keccak_finalize.json")]
+#[case("recursive", "unsigned_div_rem.json")]
+#[case("recursive", "use_imported_module.json")]
+#[case("recursive", "usort.json")]
+#[case("recursive", "value_beyond_segment.json")]
+fn test_run_cairo0_success(
+    #[from(setup)] _path: (),
+    #[case(layout)] layout: &str,
+    #[case(program)] program: &str,
+) {
+    let tmp_dir = tempfile::Builder::new()
+        .prefix("stone-cli-test-")
+        .tempdir()
+        .expect("Failed to create temp dir");
+    let program_file = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("examples")
+        .join("cairo0")
+        .join(program);
+    let prove_args = ProveArgs {
+        cairo_version: CairoVersion::cairo0,
+        cairo_program: program_file.clone(),
+        program_input: None,
+        program_input_file: None,
+        layout: LayoutName::from_str(layout).unwrap(),
+        prover_config_file: None,
+        parameter_file: None,
+        output: tmp_dir.path().join("proof.json"),
+        parameter_config: ProverParametersConfig::default(),
+        prover_config: ProverConfig::default(),
+    };
+    let verify_args = VerifyArgs {
+        proof: tmp_dir.path().join("proof.json"),
+    };
+
+    match run_cairo0(&prove_args, &tmp_dir) {
+        Ok(_) => {
+            let filename = program_file.file_stem().unwrap().to_str().unwrap();
+            let air_public_input = tmp_dir
+                .path()
+                .join(format!("{}_air_public_input.json", filename));
+            let air_private_input = tmp_dir
+                .path()
+                .join(format!("{}_air_private_input.json", filename));
+
+            match run_stone_prover(&prove_args, &air_public_input, &air_private_input, &tmp_dir) {
+                Ok(_) => match run_stone_verifier(&verify_args) {
+                    Ok(_) => {
+                        println!("Successfully ran stone verifier");
+                    }
+                    Err(e) => panic!("Expected a successful result but got an error: {:?}", e),
+                },
+                Err(e) => panic!("Expected a successful result but got an error: {:?}", e),
+            }
+        }
+        Err(e) => panic!("Expected a successful result but got an error: {:?}", e),
+    }
+
+    check_tmp_files(&tmp_dir, &program_file);
 }
 
 #[rstest]
@@ -35,6 +239,7 @@ fn test_run_cairo1_fail(
         .join("examples")
         .join(program);
     let prove_args = ProveArgs {
+        cairo_version: CairoVersion::cairo1,
         cairo_program: program_file.clone(),
         program_input: None,
         program_input_file: None,
@@ -111,6 +316,7 @@ fn test_run_cairo1_success(
         .join("examples")
         .join(program);
     let prove_args = ProveArgs {
+        cairo_version: CairoVersion::cairo1,
         cairo_program: program_file.clone(),
         program_input: None,
         program_input_file: None,
@@ -155,6 +361,7 @@ fn test_run_cairo1_with_input_file(
         .join(input);
 
     let prove_args = ProveArgs {
+        cairo_version: CairoVersion::cairo1,
         cairo_program: program_file.clone(),
         program_input: None,
         program_input_file: Some(input_file),
@@ -195,6 +402,7 @@ fn test_run_cairo1_with_inputs(
         .join("with_input")
         .join(program);
     let prove_args = ProveArgs {
+        cairo_version: CairoVersion::cairo1,
         cairo_program: program_file.clone(),
         program_input: Some(input.to_string()),
         program_input_file: None,
@@ -215,35 +423,30 @@ fn test_run_cairo1_with_inputs(
 }
 
 #[rstest]
-#[case("recursive", "fibonacci.cairo", "")]
-fn test_run_e2e(
+#[case("small", "fibonacci.json", CairoVersion::cairo0)]
+#[case("small", "fibonacci.cairo", CairoVersion::cairo1)]
+fn test_run_cairo_e2e(
     #[from(setup)] _path: (),
     #[case(layout)] layout: &str,
     #[case(program)] program: &str,
-    #[case(input)] input: &str,
+    #[case(cairo_version)] cairo_version: CairoVersion,
 ) {
     let tmp_dir = tempfile::Builder::new()
         .prefix("stone-cli-test-")
         .tempdir()
         .expect("Failed to create temp dir");
-    let program_file = if !input.is_empty() {
-        Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join("examples")
-            .join("with_input")
-            .join(program)
-    } else {
-        Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join("examples")
-            .join(program)
-    };
-    let program_input = if !input.is_empty() {
-        Some(input.to_string())
-    } else {
-        None
-    };
+    let program_file = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("examples")
+        .join(if cairo_version == CairoVersion::cairo0 {
+            "cairo0"
+        } else {
+            ""
+        })
+        .join(program);
     let prove_args = ProveArgs {
+        cairo_version: cairo_version.clone(),
         cairo_program: program_file.clone(),
-        program_input,
+        program_input: None,
         program_input_file: None,
         layout: LayoutName::from_str(layout).unwrap(),
         prover_config_file: None,
@@ -256,7 +459,12 @@ fn test_run_e2e(
         proof: tmp_dir.path().join("proof.json"),
     };
 
-    match run_cairo1(&prove_args, &tmp_dir) {
+    let run_result = match cairo_version {
+        CairoVersion::cairo0 => run_cairo0(&prove_args, &tmp_dir).map_err(|e| anyhow::anyhow!(e)),
+        CairoVersion::cairo1 => run_cairo1(&prove_args, &tmp_dir),
+    };
+
+    match run_result {
         Ok(_) => {
             let filename = program_file.file_stem().unwrap().to_str().unwrap();
             let air_public_input = tmp_dir
@@ -278,6 +486,8 @@ fn test_run_e2e(
         }
         Err(e) => panic!("Expected a successful result but got an error: {:?}", e),
     }
+
+    check_tmp_files(&tmp_dir, &program_file);
 }
 
 fn assert_error_msg_eq(e: &anyhow::Error, expected: &str) {
