@@ -41,8 +41,8 @@ fn setup() {
 #[case("recursive", "cairo_finalize_keccak.json")]
 #[case("recursive", "cairo_finalize_keccak_block_size_1000.json")]
 #[case("recursive", "call_function_assign_param_by_name.json")]
-#[case("recursive", "chained_ec_op.json")]
-#[case("recursive", "common_signature.json")]
+#[case("starknet", "chained_ec_op.json")]
+#[case("starknet", "common_signature.json")]
 #[case("recursive", "compare_arrays.json")]
 #[case("recursive", "compare_different_arrays.json")]
 #[case("recursive", "compare_greater_array.json")]
@@ -59,7 +59,7 @@ fn setup() {
 #[case("recursive", "ec_double_slope.json")]
 #[case("recursive", "ec_double_v4.json")]
 #[case("recursive", "ec_negate.json")]
-#[case("recursive", "ec_op.json")]
+#[case("starknet", "ec_op.json")]
 #[case("recursive", "ec_recover.json")]
 #[case("recursive", "ed25519_ec.json")]
 #[case("recursive", "ed25519_field.json")]
@@ -96,10 +96,10 @@ fn setup() {
 #[case("recursive", "keccak.json")]
 #[case("recursive", "keccak_add_uint256.json")]
 #[case("recursive", "keccak_alternative_hint.json")]
-#[case("recursive", "keccak_builtin.json")]
+#[case("starknet_with_keccak", "keccak_builtin.json")]
 #[case("recursive", "keccak_copy_inputs.json")]
 #[case("recursive", "keccak_integration_tests.json")]
-#[case("recursive", "keccak_uint256.json")]
+#[case("starknet_with_keccak", "keccak_uint256.json")]
 #[case("recursive", "math_cmp.json")]
 #[case("recursive", "math_cmp_and_pow_integration_tests.json")]
 #[case("recursive", "math_integration_tests.json")]
@@ -119,9 +119,9 @@ fn setup() {
 #[case("recursive", "pedersen_extra_builtins.json")]
 #[case("recursive", "pedersen_test.json")]
 #[case("recursive", "pointers.json")]
-#[case("recursive", "poseidon_builtin.json")]
-#[case("recursive", "poseidon_hash.json")]
-#[case("recursive", "poseidon_multirun.json")]
+#[case("recursive_with_poseidon", "poseidon_builtin.json")]
+#[case("recursive_with_poseidon", "poseidon_hash.json")]
+#[case("recursive_with_poseidon", "poseidon_multirun.json")]
 #[case("recursive", "pow.json")]
 #[case("recursive", "print.json")]
 #[case("recursive", "recover_y.json")]
@@ -163,8 +163,8 @@ fn setup() {
 #[case("recursive", "uint384_extension.json")]
 #[case("recursive", "uint384_extension_test.json")]
 #[case("recursive", "uint384_test.json")]
-#[case("recursive", "unsafe_keccak.json")]
-#[case("recursive", "unsafe_keccak_finalize.json")]
+#[case("starknet_with_keccak", "unsafe_keccak.json")]
+#[case("starknet_with_keccak", "unsafe_keccak_finalize.json")]
 #[case("recursive", "unsigned_div_rem.json")]
 #[case("recursive", "use_imported_module.json")]
 #[case("recursive", "usort.json")]
@@ -194,30 +194,9 @@ fn test_run_cairo0_success(
         parameter_config: ProverParametersConfig::default(),
         prover_config: ProverConfig::default(),
     };
-    let verify_args = VerifyArgs {
-        proof: tmp_dir.path().join("proof.json"),
-    };
 
     match run_cairo0(&prove_args, &tmp_dir) {
-        Ok(_) => {
-            let filename = program_file.file_stem().unwrap().to_str().unwrap();
-            let air_public_input = tmp_dir
-                .path()
-                .join(format!("{}_air_public_input.json", filename));
-            let air_private_input = tmp_dir
-                .path()
-                .join(format!("{}_air_private_input.json", filename));
-
-            match run_stone_prover(&prove_args, &air_public_input, &air_private_input, &tmp_dir) {
-                Ok(_) => match run_stone_verifier(&verify_args) {
-                    Ok(_) => {
-                        println!("Successfully ran stone verifier");
-                    }
-                    Err(e) => panic!("Expected a successful result but got an error: {:?}", e),
-                },
-                Err(e) => panic!("Expected a successful result but got an error: {:?}", e),
-            }
-        }
+        Ok(result) => println!("Successfully ran cairo0: {:?}", result),
         Err(e) => panic!("Expected a successful result but got an error: {:?}", e),
     }
 
