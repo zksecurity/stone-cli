@@ -16,6 +16,7 @@ use std::path::PathBuf;
 #[allow(clippy::large_enum_variant)]
 pub enum Cli {
     Prove(ProveArgs),
+    ProveBootloader(ProveBootloaderArgs),
     Verify(VerifyArgs),
     SerializeProof(SerializeArgs),
 }
@@ -58,9 +59,42 @@ pub struct ProveArgs {
 }
 
 #[derive(Args, Debug)]
+pub struct ProveBootloaderArgs {
+    #[clap(long = "cairo_program", value_hint=ValueHint::FilePath)]
+    pub cairo_program: PathBuf,
+
+    #[clap(long = "layout", default_value = "starknet_with_keccak", value_enum)]
+    pub layout: LayoutName,
+
+    #[clap(long = "prover_config_file", conflicts_with_all = ["store_full_lde", "use_fft_for_eval", "constraint_polynomial_task_size", "n_out_of_memory_merkle_layers", "table_prover_n_tasks_per_segment"])]
+    pub prover_config_file: Option<PathBuf>,
+
+    #[clap(long = "parameter_file", conflicts_with_all = ["field", "channel_hash", "commitment_hash", "n_verifier_friendly_commitment_layers", "pow_hash", "page_hash", "fri_step_list", "last_layer_degree_bound", "n_queries", "proof_of_work_bits", "log_n_cosets", "use_extension_field", "verifier_friendly_channel_updates", "verifier_friendly_commitment_hash"])]
+    pub parameter_file: Option<PathBuf>,
+
+    #[clap(long = "output", default_value = "./bootloader_proof.json")]
+    pub output: PathBuf,
+
+    #[clap(long = "fact_topologies_output", default_value = "./fact_topologies.json", value_hint=ValueHint::FilePath, help = "Output of bootloader required along with bootloader_proof.json to split proofs for Ethereum")]
+    pub fact_topologies_output: PathBuf,
+
+    #[clap(flatten)]
+    pub parameter_config: ProverParametersConfig,
+
+    #[clap(flatten)]
+    pub prover_config: ProverConfig,
+}
+
+#[derive(Args, Debug)]
 pub struct VerifyArgs {
     #[clap(long = "proof", value_parser)]
     pub proof: PathBuf,
+
+    #[clap(long = "annotation_file", value_hint=ValueHint::FilePath)]
+    pub annotation_file: Option<PathBuf>,
+
+    #[clap(long = "extra_output_file", value_hint=ValueHint::FilePath)]
+    pub extra_output_file: Option<PathBuf>,
 }
 
 define_enum! {
@@ -105,7 +139,31 @@ impl std::str::FromStr for LayoutName {
     }
 }
 
-#[derive(Args, Debug)]
+impl LayoutName {
+    pub fn to_cairo_vm_layout(&self) -> cairo_vm::types::layout_name::LayoutName {
+        match self {
+            LayoutName::plain => cairo_vm::types::layout_name::LayoutName::plain,
+            LayoutName::small => cairo_vm::types::layout_name::LayoutName::small,
+            LayoutName::dex => cairo_vm::types::layout_name::LayoutName::dex,
+            LayoutName::recursive => cairo_vm::types::layout_name::LayoutName::recursive,
+            LayoutName::starknet => cairo_vm::types::layout_name::LayoutName::starknet,
+            LayoutName::starknet_with_keccak => {
+                cairo_vm::types::layout_name::LayoutName::starknet_with_keccak
+            }
+            LayoutName::recursive_large_output => {
+                cairo_vm::types::layout_name::LayoutName::recursive_large_output
+            }
+            LayoutName::recursive_with_poseidon => {
+                cairo_vm::types::layout_name::LayoutName::recursive_with_poseidon
+            }
+            LayoutName::all_solidity => cairo_vm::types::layout_name::LayoutName::all_solidity,
+            LayoutName::all_cairo => cairo_vm::types::layout_name::LayoutName::all_cairo,
+            LayoutName::dynamic => cairo_vm::types::layout_name::LayoutName::dynamic,
+        }
+    }
+}
+
+#[derive(Args, Debug, Clone)]
 pub struct SerializeArgs {
     #[clap(long = "proof", value_hint=ValueHint::FilePath)]
     pub proof: PathBuf,
@@ -115,9 +173,24 @@ pub struct SerializeArgs {
 
     #[clap(long = "output")]
     pub output: PathBuf,
+
+    #[clap(
+        long = "annotation_file",
+        help = "Required for serializing proofs for Ethereum",
+        value_hint=ValueHint::FilePath
+    )]
+    pub annotation_file: Option<PathBuf>,
+
+    #[clap(
+        long = "extra_output_file",
+        help = "Required for serializing proofs for Ethereum",
+        value_hint=ValueHint::FilePath
+    )]
+    pub extra_output_file: Option<PathBuf>,
 }
 
 define_enum! {
     Network,
     starknet => "starknet",
+    ethereum => "ethereum",
 }

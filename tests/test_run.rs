@@ -1,13 +1,19 @@
 use rstest::{fixture, rstest};
+use serde_json::json;
 use std::{
     path::{Path, PathBuf},
     str::FromStr,
 };
 use stone_cli::{
-    args::{CairoVersion, LayoutName, ProveArgs, VerifyArgs},
+    args::{
+        CairoVersion, LayoutName, Network, ProveArgs, ProveBootloaderArgs, SerializeArgs,
+        VerifyArgs,
+    },
+    bootloader::run_bootloader,
     cairo::{run_cairo0, run_cairo1},
     config::{ProverConfig, ProverParametersConfig},
-    prover::run_stone_prover,
+    prover::{run_stone_prover, run_stone_prover_bootloader},
+    serialize::serialize_proof,
     utils::{parse, set_env_vars},
     verifier::run_stone_verifier,
 };
@@ -41,8 +47,8 @@ fn setup() {
 #[case("recursive", "cairo_finalize_keccak.json")]
 #[case("recursive", "cairo_finalize_keccak_block_size_1000.json")]
 #[case("recursive", "call_function_assign_param_by_name.json")]
-#[case("starknet", "chained_ec_op.json")]
-#[case("starknet", "common_signature.json")]
+#[case("recursive", "chained_ec_op.json")]
+#[case("recursive", "common_signature.json")]
 #[case("recursive", "compare_arrays.json")]
 #[case("recursive", "compare_different_arrays.json")]
 #[case("recursive", "compare_greater_array.json")]
@@ -59,7 +65,7 @@ fn setup() {
 #[case("recursive", "ec_double_slope.json")]
 #[case("recursive", "ec_double_v4.json")]
 #[case("recursive", "ec_negate.json")]
-#[case("starknet", "ec_op.json")]
+#[case("recursive", "ec_op.json")]
 #[case("recursive", "ec_recover.json")]
 #[case("recursive", "ed25519_ec.json")]
 #[case("recursive", "ed25519_field.json")]
@@ -96,10 +102,10 @@ fn setup() {
 #[case("recursive", "keccak.json")]
 #[case("recursive", "keccak_add_uint256.json")]
 #[case("recursive", "keccak_alternative_hint.json")]
-#[case("starknet_with_keccak", "keccak_builtin.json")]
+#[case("recursive", "keccak_builtin.json")]
 #[case("recursive", "keccak_copy_inputs.json")]
 #[case("recursive", "keccak_integration_tests.json")]
-#[case("starknet_with_keccak", "keccak_uint256.json")]
+#[case("recursive", "keccak_uint256.json")]
 #[case("recursive", "math_cmp.json")]
 #[case("recursive", "math_cmp_and_pow_integration_tests.json")]
 #[case("recursive", "math_integration_tests.json")]
@@ -119,9 +125,9 @@ fn setup() {
 #[case("recursive", "pedersen_extra_builtins.json")]
 #[case("recursive", "pedersen_test.json")]
 #[case("recursive", "pointers.json")]
-#[case("recursive_with_poseidon", "poseidon_builtin.json")]
-#[case("recursive_with_poseidon", "poseidon_hash.json")]
-#[case("recursive_with_poseidon", "poseidon_multirun.json")]
+#[case("recursive", "poseidon_builtin.json")]
+#[case("recursive", "poseidon_hash.json")]
+#[case("recursive", "poseidon_multirun.json")]
 #[case("recursive", "pow.json")]
 #[case("recursive", "print.json")]
 #[case("recursive", "recover_y.json")]
@@ -163,8 +169,8 @@ fn setup() {
 #[case("recursive", "uint384_extension.json")]
 #[case("recursive", "uint384_extension_test.json")]
 #[case("recursive", "uint384_test.json")]
-#[case("starknet_with_keccak", "unsafe_keccak.json")]
-#[case("starknet_with_keccak", "unsafe_keccak_finalize.json")]
+#[case("recursive", "unsafe_keccak.json")]
+#[case("recursive", "unsafe_keccak_finalize.json")]
 #[case("recursive", "unsigned_div_rem.json")]
 #[case("recursive", "use_imported_module.json")]
 #[case("recursive", "usort.json")]
@@ -196,7 +202,9 @@ fn test_run_cairo0_success(
     };
 
     match run_cairo0(&prove_args, &tmp_dir) {
-        Ok(result) => println!("Successfully ran cairo0: {:?}", result),
+        Ok(_) => {
+            println!("Successfully ran cairo0");
+        }
         Err(e) => panic!("Expected a successful result but got an error: {:?}", e),
     }
 
@@ -436,6 +444,8 @@ fn test_run_cairo_e2e(
     };
     let verify_args = VerifyArgs {
         proof: tmp_dir.path().join("proof.json"),
+        annotation_file: None,
+        extra_output_file: None,
     };
 
     let run_result = match cairo_version {
@@ -454,7 +464,7 @@ fn test_run_cairo_e2e(
                 .join(format!("{}_air_private_input.json", filename));
 
             match run_stone_prover(&prove_args, &air_public_input, &air_private_input, &tmp_dir) {
-                Ok(_) => match run_stone_verifier(&verify_args) {
+                Ok(_) => match run_stone_verifier(verify_args) {
                     Ok(_) => {
                         println!("Successfully ran stone verifier");
                     }
@@ -467,6 +477,103 @@ fn test_run_cairo_e2e(
     }
 
     check_tmp_files(&tmp_dir, &program_file);
+}
+
+#[rstest]
+#[case("bitwise_output.json", [1,0], [1])]
+fn test_run_bootloader_e2e(
+    #[from(setup)] _path: (),
+    #[case(program)] program: &str,
+    #[case(tree_structure)] tree_structure: [u32; 2],
+    #[case(page_sizes)] page_sizes: [u32; 1],
+) {
+    let tmp_dir = tempfile::Builder::new()
+        .prefix("stone-cli-test-")
+        .tempdir()
+        .expect("Failed to create temp dir");
+    let program_file = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("examples")
+        .join("cairo0")
+        .join(program);
+    let bootloader_params_file = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests")
+        .join("configs")
+        .join("bootloader_cpu_air_params.json");
+    let prove_bootloader_args = ProveBootloaderArgs {
+        cairo_program: program_file.clone(),
+        layout: LayoutName::starknet,
+        prover_config_file: None,
+        parameter_file: Some(bootloader_params_file.clone()),
+        output: tmp_dir.path().join("bootloader_proof.json"),
+        parameter_config: ProverParametersConfig::default(),
+        prover_config: ProverConfig::default(),
+        fact_topologies_output: tmp_dir.path().join("fact_topologies.json"),
+    };
+    let annotation_file = tmp_dir.path().join("bootloader_annotation.json");
+    let extra_output_file = tmp_dir.path().join("bootloader_extra_output.json");
+    let verify_args = VerifyArgs {
+        proof: tmp_dir.path().join("bootloader_proof.json"),
+        annotation_file: Some(annotation_file.clone()),
+        extra_output_file: Some(extra_output_file.clone()),
+    };
+    let serialize_args = SerializeArgs {
+        proof: tmp_dir.path().join("bootloader_proof.json"),
+        network: Network::ethereum,
+        annotation_file: Some(annotation_file),
+        extra_output_file: Some(extra_output_file),
+        output: tmp_dir.path().join("bootloader_proof_serialized.json"),
+    };
+
+    match run_bootloader(&prove_bootloader_args, &tmp_dir) {
+        Ok(run_bootloader_result) => {
+            let fact_topologies_content =
+                std::fs::read_to_string(&prove_bootloader_args.fact_topologies_output)
+                    .expect("Failed to read fact_topologies file");
+            let fact_topologies: serde_json::Value = serde_json::from_str(&fact_topologies_content)
+                .expect("Failed to parse fact_topologies JSON");
+
+            // Assert the content of fact_topologies
+            assert_eq!(
+                fact_topologies["fact_topologies"][0]["tree_structure"],
+                json!(tree_structure)
+            );
+            assert_eq!(
+                fact_topologies["fact_topologies"][0]["page_sizes"],
+                json!(page_sizes)
+            );
+
+            match run_stone_prover_bootloader(
+                &prove_bootloader_args,
+                &run_bootloader_result.air_public_input,
+                &run_bootloader_result.air_private_input,
+                &tmp_dir,
+            ) {
+                Ok(_) => match run_stone_verifier(verify_args) {
+                    Ok(_) => match serialize_proof(serialize_args) {
+                        Ok(_) => {
+                            println!("Successfully ran stone verifier");
+                        }
+                        Err(e) => panic!(
+                            "Expected a successful result but got an error while serializing proof: {:?}",
+                            e
+                        ),
+                    },
+                    Err(e) => panic!(
+                        "Expected a successful result but got an error while running verifier: {:?}",
+                        e
+                    ),
+                },
+                Err(e) => panic!(
+                    "Expected a successful result but got an error while running prover: {:?}",
+                    e
+                ),
+            }
+        }
+        Err(e) => panic!(
+            "Expected a successful result but got an error while running bootloader: {:?}",
+            e
+        ),
+    }
 }
 
 fn assert_error_msg_eq(e: &anyhow::Error, expected: &str) {
