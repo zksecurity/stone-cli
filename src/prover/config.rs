@@ -1,57 +1,29 @@
-use clap::{Args, ValueEnum};
+use crate::define_enum;
+use clap::Args;
 use serde::{Deserialize, Serialize};
 use serde_json::Result;
 use stone_prover_sdk::fri::{DefaultFriComputer, FriComputer};
 
-macro_rules! define_hash_enum {
-    ($name:ident, $($variant:ident => $str:expr),+ $(,)?) => {
-        #[derive(Serialize, Deserialize, Debug, Clone, ValueEnum)]
-        #[allow(non_camel_case_types)]
-        pub enum $name {
-            $($variant),+
-        }
-
-        impl $name {
-            pub fn to_str(self) -> &'static str {
-                match self {
-                    $($name::$variant => $str),+
-                }
-            }
-        }
-
-        impl std::str::FromStr for $name {
-            type Err = ();
-
-            fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
-                match s {
-                    $($str => Ok($name::$variant)),+,
-                    _ => Err(()),
-                }
-            }
-        }
-    };
-}
-
-define_hash_enum! {
+define_enum! {
     CommitmentHash,
     keccak256_masked160_lsb => "keccak256_masked160_lsb",
     blake256_masked248_lsb => "blake256_masked248_lsb",
 }
 
-define_hash_enum! {
+define_enum! {
     PageHash,
     pedersen => "pedersen",
     keccak256 => "keccak256",
 }
 
-define_hash_enum! {
+define_enum! {
     Hash,
     poseidon3 => "poseidon3",
     blake256 => "blake256",
     keccak256 => "keccak256",
 }
 
-define_hash_enum! {
+define_enum! {
     PowHash,
     blake256 => "blake256",
     keccak256 => "keccak256",

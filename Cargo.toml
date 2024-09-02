@@ -6,10 +6,6 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.86"
 cairo-felt = "0.9.1"
-cairo-lang-runner = { git = "https://github.com/starkware-libs/cairo/", rev = "4471a55923663eb8150ea6cd636d5c1038b137d1"}
-cairo-lang-sierra = { git = "https://github.com/starkware-libs/cairo/", rev = "4471a55923663eb8150ea6cd636d5c1038b137d1"}
-cairo-lang-sierra-to-casm = { git = "https://github.com/starkware-libs/cairo/", rev = "4471a55923663eb8150ea6cd636d5c1038b137d1"}
-cairo-lang-utils = { git = "https://github.com/starkware-libs/cairo/", rev = "4471a55923663eb8150ea6cd636d5c1038b137d1"}
 cairo-proof-parser = { git = "https://github.com/Okm165/cairo-proof-parser", rev = "97a04bbee07330311b38d6f4cecfed3acb237626"}
 clap = { version = "4.3.10", features = ["derive"] }
 itertools = "0.13.0"

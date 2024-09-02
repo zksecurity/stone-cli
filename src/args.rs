@@ -1,3 +1,4 @@
+use crate::define_enum;
 pub use crate::prover;
 
 use clap::{Args, Parser, ValueHint};
@@ -16,6 +17,7 @@ use std::path::PathBuf;
 pub enum Cli {
     Prove(ProveArgs),
     Verify(VerifyArgs),
+    SerializeProof(SerializeArgs),
 }
 
 #[derive(Args, Debug)]
@@ -57,46 +59,27 @@ pub struct VerifyArgs {
     #[clap(long = "proof", value_parser)]
     pub proof: PathBuf,
 }
-/// Enum representing the name of a Cairo Layout
-#[derive(Serialize, Deserialize, Debug, PartialEq, Copy, Clone, Eq, Hash, clap::ValueEnum)]
-#[allow(non_camel_case_types)]
-pub enum LayoutName {
-    plain,
-    small,
-    dex,
-    recursive,
-    starknet,
-    starknet_with_keccak,
-    recursive_large_output,
-    recursive_with_poseidon,
-    all_solidity,
-    all_cairo,
-    dynamic,
-}
 
-impl LayoutName {
-    pub fn to_str(self) -> &'static str {
-        match self {
-            LayoutName::plain => "plain",
-            LayoutName::small => "small",
-            LayoutName::dex => "dex",
-            LayoutName::recursive => "recursive",
-            LayoutName::starknet => "starknet",
-            LayoutName::starknet_with_keccak => "starknet_with_keccak",
-            LayoutName::recursive_large_output => "recursive_large_output",
-            LayoutName::recursive_with_poseidon => "recursive_with_poseidon",
-            LayoutName::all_solidity => "all_solidity",
-            LayoutName::all_cairo => "all_cairo",
-            LayoutName::dynamic => "all_cairo",
-        }
-    }
+define_enum! {
+    LayoutName,
+    plain => "plain",
+    small => "small",
+    dex => "dex",
+    recursive => "recursive",
+    starknet => "starknet",
+    starknet_with_keccak => "starknet_with_keccak",
+    recursive_large_output => "recursive_large_output",
+    recursive_with_poseidon => "recursive_with_poseidon",
+    all_solidity => "all_solidity",
+    all_cairo => "all_cairo",
+    dynamic => "all_cairo",
 }
 
 impl std::str::FromStr for LayoutName {
     type Err = ();
 
-    fn from_str(layout: &str) -> Result<Self, Self::Err> {
-        match layout {
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
             "plain" => Ok(LayoutName::plain),
             "small" => Ok(LayoutName::small),
             "dex" => Ok(LayoutName::dex),
@@ -111,4 +94,21 @@ impl std::str::FromStr for LayoutName {
             _ => Err(()),
         }
     }
+}
+
+#[derive(Args, Debug)]
+pub struct SerializeArgs {
+    #[clap(long = "proof", value_hint=ValueHint::FilePath)]
+    pub proof: PathBuf,
+
+    #[clap(long = "network", value_enum)]
+    pub network: Network,
+
+    #[clap(long = "output")]
+    pub output: PathBuf,
+}
+
+define_enum! {
+    Network,
+    starknet => "starknet",
 }

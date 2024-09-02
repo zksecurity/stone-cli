@@ -41,7 +41,7 @@ pub fn run_cairo1(
     command
         .arg(&prove_args.cairo_program)
         .arg("--layout")
-        .arg(prove_args.layout.to_str());
+        .arg(prove_args.layout.clone().to_str());
 
     // Set default file paths using tmp_dir
     let trace_file = tmp_dir.path().join(format!("{}_trace.json", filename));

@@ -3,6 +3,25 @@ use std::path::Path;
 
 use serde::Serialize;
 
+#[macro_export]
+macro_rules! define_enum {
+    ($name:ident, $($variant:ident => $str:expr),+ $(,)?) => {
+        #[derive(Serialize, Deserialize, Debug, Clone, clap::ValueEnum)]
+        #[allow(non_camel_case_types)]
+        pub enum $name {
+            $($variant),+
+        }
+
+        impl $name {
+            pub fn to_str(self) -> &'static str {
+                match self {
+                    $($name::$variant => $str),+
+                }
+            }
+        }
+    };
+}
+
 pub fn write_json_to_file<T: Serialize, P: AsRef<Path>>(
     obj: T,
     path: P,
