@@ -60,10 +60,10 @@ pub struct ProveArgs {
 
 #[derive(Args, Debug)]
 pub struct ProveBootloaderArgs {
-    #[clap(long = "cairo_program", value_hint=ValueHint::FilePath)]
+    #[clap(long = "cairo_programs", value_hint=ValueHint::FilePath, value_delimiter = ' ', num_args = 1..)]
     pub cairo_programs: Option<Vec<PathBuf>>,
 
-    #[clap(long = "cairo_pie", value_hint=ValueHint::FilePath)]
+    #[clap(long = "cairo_pies", value_hint=ValueHint::FilePath, value_delimiter = ' ', num_args = 1..)]
     pub cairo_pies: Option<Vec<PathBuf>>,
 
     #[clap(long = "layout", default_value = "starknet_with_keccak", value_enum)]
