@@ -61,7 +61,10 @@ pub struct ProveArgs {
 #[derive(Args, Debug)]
 pub struct ProveBootloaderArgs {
     #[clap(long = "cairo_program", value_hint=ValueHint::FilePath)]
-    pub cairo_program: PathBuf,
+    pub cairo_program: Option<PathBuf>,
+
+    #[clap(long = "cairo_pie", value_hint=ValueHint::FilePath)]
+    pub cairo_pie: Option<PathBuf>,
 
     #[clap(long = "layout", default_value = "starknet_with_keccak", value_enum)]
     pub layout: LayoutName,

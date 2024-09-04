@@ -480,10 +480,12 @@ fn test_run_cairo_e2e(
 }
 
 #[rstest]
-#[case("bitwise_output.json", [1,0], [1])]
+#[case("bitwise_output.json", "", [1,0], [1])]
+#[case("", "fibonacci_with_output.zip", [1,0], [2])]
 fn test_run_bootloader_e2e(
     #[from(setup)] _path: (),
-    #[case(program)] program: &str,
+    #[case(cairo_program)] cairo_program: &str,
+    #[case(cairo_pie)] cairo_pie: &str,
     #[case(tree_structure)] tree_structure: [u32; 2],
     #[case(page_sizes)] page_sizes: [u32; 1],
 ) {
@@ -491,16 +493,33 @@ fn test_run_bootloader_e2e(
         .prefix("stone-cli-test-")
         .tempdir()
         .expect("Failed to create temp dir");
-    let program_file = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("examples")
-        .join("cairo0")
-        .join(program);
+    let program_file = if cairo_program == "" {
+        None
+    } else {
+        Some(
+            Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join("examples")
+                .join("cairo0")
+                .join(cairo_program),
+        )
+    };
+    let cairo_pie_file = if cairo_pie == "" {
+        None
+    } else {
+        Some(
+            Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join("examples")
+                .join("cairo_pie")
+                .join(cairo_pie),
+        )
+    };
     let bootloader_params_file = Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("tests")
         .join("configs")
         .join("bootloader_cpu_air_params.json");
     let prove_bootloader_args = ProveBootloaderArgs {
         cairo_program: program_file.clone(),
+        cairo_pie: cairo_pie_file.clone(),
         layout: LayoutName::starknet,
         prover_config_file: None,
         parameter_file: Some(bootloader_params_file.clone()),
