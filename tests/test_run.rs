@@ -482,7 +482,7 @@ fn test_run_cairo_e2e(
 #[rstest]
 #[case("bitwise_output.json", "", [1,0], [1])]
 #[case("", "fibonacci_with_output.zip", [1,0], [2])]
-fn test_run_bootloader_e2e(
+fn test_run_bootloader(
     #[from(setup)] _path: (),
     #[case(cairo_program)] cairo_program: &str,
     #[case(cairo_pie)] cairo_pie: &str,
@@ -493,6 +493,7 @@ fn test_run_bootloader_e2e(
         .prefix("stone-cli-test-")
         .tempdir()
         .expect("Failed to create temp dir");
+
     let program_file = if cairo_program == "" {
         None
     } else {
@@ -528,23 +529,9 @@ fn test_run_bootloader_e2e(
         prover_config: ProverConfig::default(),
         fact_topologies_output: tmp_dir.path().join("fact_topologies.json"),
     };
-    let annotation_file = tmp_dir.path().join("bootloader_annotation.json");
-    let extra_output_file = tmp_dir.path().join("bootloader_extra_output.json");
-    let verify_args = VerifyArgs {
-        proof: tmp_dir.path().join("bootloader_proof.json"),
-        annotation_file: Some(annotation_file.clone()),
-        extra_output_file: Some(extra_output_file.clone()),
-    };
-    let serialize_args = SerializeArgs {
-        proof: tmp_dir.path().join("bootloader_proof.json"),
-        network: Network::ethereum,
-        annotation_file: Some(annotation_file),
-        extra_output_file: Some(extra_output_file),
-        output: tmp_dir.path().join("bootloader_proof_serialized.json"),
-    };
 
     match run_bootloader(&prove_bootloader_args, &tmp_dir) {
-        Ok(run_bootloader_result) => {
+        Ok(_) => {
             let fact_topologies_content =
                 std::fs::read_to_string(&prove_bootloader_args.fact_topologies_output)
                     .expect("Failed to read fact_topologies file");
@@ -560,36 +547,65 @@ fn test_run_bootloader_e2e(
                 fact_topologies["fact_topologies"][0]["page_sizes"],
                 json!(page_sizes)
             );
-
-            match run_stone_prover_bootloader(
-                &prove_bootloader_args,
-                &run_bootloader_result.air_public_input,
-                &run_bootloader_result.air_private_input,
-                &tmp_dir,
-            ) {
-                Ok(_) => match run_stone_verifier(verify_args) {
-                    Ok(_) => match serialize_proof(serialize_args) {
-                        Ok(_) => {
-                            println!("Successfully ran stone verifier");
-                        }
-                        Err(e) => panic!(
-                            "Expected a successful result but got an error while serializing proof: {:?}",
-                            e
-                        ),
-                    },
-                    Err(e) => panic!(
-                        "Expected a successful result but got an error while running verifier: {:?}",
-                        e
-                    ),
-                },
-                Err(e) => panic!(
-                    "Expected a successful result but got an error while running prover: {:?}",
-                    e
-                ),
-            }
         }
         Err(e) => panic!(
             "Expected a successful result but got an error while running bootloader: {:?}",
+            e
+        ),
+    }
+}
+
+#[rstest]
+fn test_run_serialize(#[from(setup)] _path: ()) {
+    let tmp_dir = tempfile::Builder::new()
+        .prefix("stone-cli-test-")
+        .tempdir()
+        .expect("Failed to create temp dir");
+
+    let proof_file = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests")
+        .join("resources")
+        .join("bootloader_proof.json");
+    let annotation_file = tmp_dir.path().join("bootloader_annotation.json");
+    let extra_output_file = tmp_dir.path().join("bootloader_extra_output.json");
+
+    let serialized_proof_file = tmp_dir.path().join("bootloader_proof_serialized.json");
+    let expected_serialized_proof_file = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests")
+        .join("resources")
+        .join("bootloader_proof_serialized.json");
+
+    let verify_args = VerifyArgs {
+        proof: proof_file.clone(),
+        annotation_file: Some(annotation_file.clone()),
+        extra_output_file: Some(extra_output_file.clone()),
+    };
+
+    let serialize_args = SerializeArgs {
+        proof: proof_file,
+        network: Network::ethereum,
+        annotation_file: Some(annotation_file),
+        extra_output_file: Some(extra_output_file),
+        output: serialized_proof_file.clone(),
+    };
+
+    match run_stone_verifier(verify_args) {
+        Ok(_) => match serialize_proof(serialize_args) {
+            Ok(_) => {
+                let expected_serialized_proof_content =
+                    std::fs::read_to_string(expected_serialized_proof_file)
+                        .expect("Failed to read expected serialized proof file");
+                let serialized_proof_content = std::fs::read_to_string(serialized_proof_file)
+                    .expect("Failed to read serialized proof file");
+                assert_eq!(serialized_proof_content, expected_serialized_proof_content);
+            }
+            Err(e) => panic!(
+                "Expected a successful result but got an error while serializing proof: {:?}",
+                e
+            ),
+        },
+        Err(e) => panic!(
+            "Expected a successful result but got an error while running verifier: {:?}",
             e
         ),
     }
