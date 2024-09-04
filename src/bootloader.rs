@@ -63,23 +63,26 @@ pub fn run_bootloader(
     tmp_dir: &tempfile::TempDir,
 ) -> Result<CairoBootloaderRunResult, Error> {
     let bootloader_program = Program::from_bytes(BOOTLOADER_V0_13_1, Some("main"))?;
-    let program_path = if let Some(path) = &prove_bootloader_args.cairo_program {
-        Some(vec![path.as_path()])
+    let program_paths = if let Some(paths) = &prove_bootloader_args.cairo_programs {
+        Some(paths.iter().map(|p| p.as_path()).collect::<Vec<_>>())
     } else {
         None
     };
-    let program_input = HashMap::new();
+    let program_inputs = Some(vec![
+        HashMap::new();
+        program_paths.as_ref().map_or(0, |p| p.len())
+    ]);
 
-    let pie_path = if let Some(path) = &prove_bootloader_args.cairo_pie {
-        Some(vec![path.as_path()])
+    let pie_paths = if let Some(paths) = &prove_bootloader_args.cairo_pies {
+        Some(paths.iter().map(|p| p.as_path()).collect::<Vec<_>>())
     } else {
         None
     };
 
     let tasks = make_bootloader_tasks(
-        program_path.as_deref(),
-        vec![program_input],
-        pie_path.as_deref(),
+        program_paths.as_deref(),
+        program_inputs.as_deref(),
+        pie_paths.as_deref(),
     )?;
 
     let mut runner = cairo_run_bootloader_in_proof_mode(

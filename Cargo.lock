@@ -482,7 +482,7 @@ dependencies = [
 [[package]]
 name = "cairo-bootloader"
 version = "0.1.0"
-source = "git+https://github.com/zksecurity/cairo-bootloader#92f852c0bf257af9c9d0a62c886ca22cb7621483"
+source = "git+https://github.com/zksecurity/cairo-bootloader#b704b5febaaaac915f85857b489d0b0bcdfb93aa"
 dependencies = [
  "cairo-vm 1.0.0-rc3",
  "num-traits",
@@ -613,9 +613,9 @@ dependencies = [
 
 [[package]]
 name = "cc"
-version = "1.1.15"
+version = "1.1.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "57b6a275aa2903740dc87da01c62040406b8812552e97129a63ea8850a17c6e6"
+checksum = "e9d013ecb737093c0e86b151a7b837993cf9ec6c502946cfb44bedc392421e0b"
 dependencies = [
  "jobserver",
  "libc",

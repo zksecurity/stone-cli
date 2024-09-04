@@ -1,5 +1,5 @@
 use rstest::{fixture, rstest};
-use serde_json::json;
+use serde::{Deserialize, Serialize};
 use std::{
     path::{Path, PathBuf},
     str::FromStr,
@@ -479,39 +479,61 @@ fn test_run_cairo_e2e(
     check_tmp_files(&tmp_dir, &program_file);
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+struct FactTopologies {
+    fact_topologies: Vec<Topology>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct Topology {
+    tree_structure: [u32; 2],
+    page_sizes: [u32; 1],
+}
+
 #[rstest]
-#[case("bitwise_output.json", "", [1,0], [1])]
-#[case("", "fibonacci_with_output.zip", [1,0], [2])]
+#[case(vec!["bitwise_output.json"], vec![], FactTopologies { fact_topologies: vec![Topology { tree_structure: [1,0], page_sizes: [1] }] })]
+#[case(vec![], vec!["fibonacci_with_output.zip"], FactTopologies { fact_topologies: vec![Topology { tree_structure: [1,0], page_sizes: [2] }] })]
+#[case(vec!["bitwise_output.json"], vec!["fibonacci_with_output.zip"], FactTopologies { fact_topologies: vec![Topology { tree_structure: [1,0], page_sizes: [1] }, Topology { tree_structure: [1,0], page_sizes: [2] }] })]
+#[case(vec!["bitwise_output.json", "bitwise_output.json"], vec!["fibonacci_with_output.zip", "fibonacci_with_output.zip"], FactTopologies { fact_topologies: vec![Topology { tree_structure: [1,0], page_sizes: [1] }, Topology { tree_structure: [1,0], page_sizes: [1] }, Topology { tree_structure: [1,0], page_sizes: [2] }, Topology { tree_structure: [1,0], page_sizes: [2] }] })]
 fn test_run_bootloader(
     #[from(setup)] _path: (),
-    #[case(cairo_program)] cairo_program: &str,
-    #[case(cairo_pie)] cairo_pie: &str,
-    #[case(tree_structure)] tree_structure: [u32; 2],
-    #[case(page_sizes)] page_sizes: [u32; 1],
+    #[case(cairo_programs)] cairo_programs: Vec<&str>,
+    #[case(cairo_pies)] cairo_pies: Vec<&str>,
+    #[case(fact_topologies)] expected_fact_topologies: FactTopologies,
 ) {
     let tmp_dir = tempfile::Builder::new()
         .prefix("stone-cli-test-")
         .tempdir()
         .expect("Failed to create temp dir");
 
-    let program_file = if cairo_program == "" {
+    let program_files = if cairo_programs.is_empty() {
         None
     } else {
         Some(
-            Path::new(env!("CARGO_MANIFEST_DIR"))
-                .join("examples")
-                .join("cairo0")
-                .join(cairo_program),
+            cairo_programs
+                .iter()
+                .map(|cairo_program| {
+                    Path::new(env!("CARGO_MANIFEST_DIR"))
+                        .join("examples")
+                        .join("cairo0")
+                        .join(cairo_program)
+                })
+                .collect(),
         )
     };
-    let cairo_pie_file = if cairo_pie == "" {
+    let cairo_pie_files = if cairo_pies.is_empty() {
         None
     } else {
         Some(
-            Path::new(env!("CARGO_MANIFEST_DIR"))
-                .join("examples")
-                .join("cairo_pie")
-                .join(cairo_pie),
+            cairo_pies
+                .iter()
+                .map(|cairo_pie| {
+                    Path::new(env!("CARGO_MANIFEST_DIR"))
+                        .join("examples")
+                        .join("cairo_pie")
+                        .join(cairo_pie)
+                })
+                .collect(),
         )
     };
     let bootloader_params_file = Path::new(env!("CARGO_MANIFEST_DIR"))
@@ -519,8 +541,8 @@ fn test_run_bootloader(
         .join("configs")
         .join("bootloader_cpu_air_params.json");
     let prove_bootloader_args = ProveBootloaderArgs {
-        cairo_program: program_file.clone(),
-        cairo_pie: cairo_pie_file.clone(),
+        cairo_programs: program_files,
+        cairo_pies: cairo_pie_files,
         layout: LayoutName::starknet,
         prover_config_file: None,
         parameter_file: Some(bootloader_params_file.clone()),
@@ -535,18 +557,23 @@ fn test_run_bootloader(
             let fact_topologies_content =
                 std::fs::read_to_string(&prove_bootloader_args.fact_topologies_output)
                     .expect("Failed to read fact_topologies file");
-            let fact_topologies: serde_json::Value = serde_json::from_str(&fact_topologies_content)
+            let fact_topologies: FactTopologies = serde_json::from_str(&fact_topologies_content)
                 .expect("Failed to parse fact_topologies JSON");
 
-            // Assert the content of fact_topologies
-            assert_eq!(
-                fact_topologies["fact_topologies"][0]["tree_structure"],
-                json!(tree_structure)
-            );
-            assert_eq!(
-                fact_topologies["fact_topologies"][0]["page_sizes"],
-                json!(page_sizes)
-            );
+            for (expected_fact_topology, actual_fact_topology) in expected_fact_topologies
+                .fact_topologies
+                .iter()
+                .zip(fact_topologies.fact_topologies.iter())
+            {
+                assert_eq!(
+                    expected_fact_topology.tree_structure,
+                    actual_fact_topology.tree_structure
+                );
+                assert_eq!(
+                    expected_fact_topology.page_sizes,
+                    actual_fact_topology.page_sizes
+                );
+            }
         }
         Err(e) => panic!(
             "Expected a successful result but got an error while running bootloader: {:?}",
