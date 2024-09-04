@@ -135,7 +135,7 @@ pub fn run_bootloader(
         .map_err(PublicInputError::Serde)?;
     std::fs::write(air_private_input_path.clone(), air_private_input)?;
 
-    let mut output_buffer = "Program Output:\n".to_string();
+    let mut output_buffer = "Bootloader program output:\n".to_string();
     runner.vm.write_output(&mut output_buffer)?;
     print!("{output_buffer}");
 
