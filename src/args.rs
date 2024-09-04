@@ -66,7 +66,7 @@ pub struct ProveBootloaderArgs {
     #[clap(long = "cairo_pies", value_hint=ValueHint::FilePath, value_delimiter = ' ', num_args = 1..)]
     pub cairo_pies: Option<Vec<PathBuf>>,
 
-    #[clap(long = "layout", default_value = "starknet_with_keccak", value_enum)]
+    #[clap(long = "layout", default_value = "starknet", value_enum)]
     pub layout: LayoutName,
 
     #[clap(long = "prover_config_file", conflicts_with_all = ["store_full_lde", "use_fft_for_eval", "constraint_polynomial_task_size", "n_out_of_memory_merkle_layers", "table_prover_n_tasks_per_segment"])]
