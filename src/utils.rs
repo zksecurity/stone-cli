@@ -1,9 +1,8 @@
 use bincode::enc::write::Writer;
-use std::fs::File;
-use std::io::{self, BufWriter, Write};
-use std::path::Path;
-
 use serde::Serialize;
+use std::fs::File;
+use std::io::{self, BufWriter, Error, Write};
+use std::path::Path;
 
 #[macro_export]
 macro_rules! define_enum {
@@ -95,4 +94,35 @@ impl FileWriter {
     pub fn flush(&mut self) -> io::Result<()> {
         self.buf_writer.flush()
     }
+}
+
+// `CairoRunner.get_air_public_input()` returns a `PublicInput` object.
+// This function converts it to a JSON string and formats the "public_memory" array
+// by prefixing each value with "0x" if it doesn't already start with "0x".
+pub fn get_formatted_air_public_input(air_public_input: &str) -> Result<String, Error> {
+    let mut air_public_input: serde_json::Value = serde_json::from_str(&air_public_input)
+        .map_err(|_| (Error::new(io::ErrorKind::InvalidData, "Invalid JSON format")))?;
+
+    // Check if "public_memory" exists and is an array
+    if let Some(public_memory) = air_public_input
+        .get_mut("public_memory")
+        .and_then(|v| v.as_array_mut())
+    {
+        // Iterate through each item in the "public_memory" array
+        for item in public_memory {
+            // Check if the item has a "value" field
+            if let Some(value) = item.get_mut("value").and_then(|v| v.as_str()) {
+                // Prepend "0x" to the value if it doesn't already start with "0x"
+                if !value.starts_with("0x") {
+                    let new_value = format!("0x{}", value);
+                    item["value"] = serde_json::Value::String(new_value);
+                }
+            }
+        }
+    }
+    // Convert the modified JSON back to a string
+    let air_public_input_str = serde_json::to_string(&air_public_input)
+        .map_err(|_| Error::new(io::ErrorKind::InvalidData, "Invalid JSON format"))?;
+
+    Ok(air_public_input_str)
 }

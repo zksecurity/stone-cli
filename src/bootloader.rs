@@ -1,5 +1,5 @@
 use crate::args::ProveBootloaderArgs;
-use crate::utils::FileWriter;
+use crate::utils::{get_formatted_air_public_input, FileWriter};
 use cairo_bootloader::hints::{
     BootloaderConfig, BootloaderHintProcessor, BootloaderInput, PackedOutput,
     SimpleBootloaderInput, TaskSpec,
@@ -111,7 +111,8 @@ pub fn run_bootloader(
     memory_writer.flush()?;
 
     let air_public_input_path = tmp_dir.path().join("bootloader_air_public_input.json");
-    let air_public_input_str = get_formatted_air_public_input(&runner)?;
+    let air_public_input_json = runner.get_air_public_input()?.serialize_json()?;
+    let air_public_input_str = get_formatted_air_public_input(&air_public_input_json)?;
     std::fs::write(air_public_input_path.clone(), air_public_input_str)?;
 
     let air_private_input_path = tmp_dir.path().join("bootloader_air_private_input.json");
@@ -214,45 +215,4 @@ fn cairo_run_bootloader_in_proof_mode(
         &mut hint_processor,
         exec_scopes,
     )
-}
-
-// `CairoRunner.get_air_public_input()` returns a `PublicInput` object.
-// This function converts it to a JSON string and formats the "public_memory" array
-// by prefixing each value with "0x" if it doesn't already start with "0x".
-fn get_formatted_air_public_input(runner: &CairoRunner) -> Result<String, Error> {
-    let air_public_input = runner.get_air_public_input()?.serialize_json()?;
-    let mut air_public_input: serde_json::Value =
-        serde_json::from_str(&air_public_input).map_err(|_| {
-            Error::IO(io::Error::new(
-                io::ErrorKind::InvalidData,
-                "Invalid JSON format",
-            ))
-        })?;
-
-    // Check if "public_memory" exists and is an array
-    if let Some(public_memory) = air_public_input
-        .get_mut("public_memory")
-        .and_then(|v| v.as_array_mut())
-    {
-        // Iterate through each item in the "public_memory" array
-        for item in public_memory {
-            // Check if the item has a "value" field
-            if let Some(value) = item.get_mut("value").and_then(|v| v.as_str()) {
-                // Prepend "0x" to the value if it doesn't already start with "0x"
-                if !value.starts_with("0x") {
-                    let new_value = format!("0x{}", value);
-                    item["value"] = serde_json::Value::String(new_value);
-                }
-            }
-        }
-    }
-    // Convert the modified JSON back to a string
-    let air_public_input_str = serde_json::to_string(&air_public_input).map_err(|_| {
-        Error::IO(io::Error::new(
-            io::ErrorKind::InvalidData,
-            "Invalid JSON format",
-        ))
-    })?;
-
-    Ok(air_public_input_str)
 }
