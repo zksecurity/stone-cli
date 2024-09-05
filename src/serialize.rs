@@ -59,7 +59,7 @@ fn parse_proof_file(
     proof_file: &Path,
 ) -> Result<(VecFelt252, VecFelt252, VecFelt252, VecFelt252), Error> {
     let proof_file_content = std::fs::read_to_string(proof_file)?;
-    let parsed = parse(proof_file_content).map_err(|e| Error::Parse(e.into()))?;
+    let parsed = parse(proof_file_content).map_err(Error::Parse)?;
     Ok((
         serde_json::from_str(&parsed.config.to_string())?,
         serde_json::from_str(&parsed.public_input.to_string())?,

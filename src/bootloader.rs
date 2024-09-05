@@ -63,21 +63,19 @@ pub fn run_bootloader(
     tmp_dir: &tempfile::TempDir,
 ) -> Result<CairoBootloaderRunResult, Error> {
     let bootloader_program = Program::from_bytes(BOOTLOADER_V0_13_1, Some("main"))?;
-    let program_paths = if let Some(paths) = &prove_bootloader_args.cairo_programs {
-        Some(paths.iter().map(|p| p.as_path()).collect::<Vec<_>>())
-    } else {
-        None
-    };
+    let program_paths = prove_bootloader_args
+        .cairo_programs
+        .as_ref()
+        .map(|paths| paths.iter().map(|p| p.as_path()).collect::<Vec<_>>());
     let program_inputs = Some(vec![
         HashMap::new();
         program_paths.as_ref().map_or(0, |p| p.len())
     ]);
 
-    let pie_paths = if let Some(paths) = &prove_bootloader_args.cairo_pies {
-        Some(paths.iter().map(|p| p.as_path()).collect::<Vec<_>>())
-    } else {
-        None
-    };
+    let pie_paths = prove_bootloader_args
+        .cairo_pies
+        .as_ref()
+        .map(|paths| paths.iter().map(|p| p.as_path()).collect::<Vec<_>>());
 
     let tasks = make_bootloader_tasks(
         program_paths.as_deref(),
@@ -210,7 +208,7 @@ fn cairo_run_bootloader_in_proof_mode(
     insert_bootloader_input(&mut exec_scopes, bootloader_input);
 
     cairo_run_program_with_initial_scope(
-        &bootloader_program,
+        bootloader_program,
         &cairo_run_config,
         &mut hint_processor,
         exec_scopes,

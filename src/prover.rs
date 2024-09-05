@@ -78,6 +78,7 @@ pub fn run_stone_prover_bootloader(
     Ok(())
 }
 
+#[allow(clippy::too_many_arguments)]
 fn run_stone_prover_internal(
     parameter_config: &ProverParametersConfig,
     parameter_file: Option<&PathBuf>,
@@ -96,7 +97,7 @@ fn run_stone_prover_internal(
         let air_public_input_json: PublicInput =
             serde_json::from_str(&fs::read_to_string(air_public_input)?).unwrap();
         let prover_parameters =
-            ProverParametersConfig::new(air_public_input_json.n_steps, &parameter_config).unwrap();
+            ProverParametersConfig::new(air_public_input_json.n_steps, parameter_config).unwrap();
         write_json_to_file(prover_parameters, &tmp_prover_parameters_path)?;
         &tmp_prover_parameters_path
     };
@@ -106,7 +107,7 @@ fn run_stone_prover_internal(
     let prover_config_path = if let Some(prover_config_file) = &prover_config_file {
         prover_config_file
     } else {
-        let prover_config = ProverConfig::new(&prover_config).unwrap();
+        let prover_config = ProverConfig::new(prover_config).unwrap();
         write_json_to_file(prover_config, &tmp_prover_config_path)?;
         &tmp_prover_config_path
     };

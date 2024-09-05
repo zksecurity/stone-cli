@@ -100,7 +100,7 @@ impl FileWriter {
 // This function converts it to a JSON string and formats the "public_memory" array
 // by prefixing each value with "0x" if it doesn't already start with "0x".
 pub fn get_formatted_air_public_input(air_public_input: &str) -> Result<String, Error> {
-    let mut air_public_input: serde_json::Value = serde_json::from_str(&air_public_input)
+    let mut air_public_input: serde_json::Value = serde_json::from_str(air_public_input)
         .map_err(|_| (Error::new(io::ErrorKind::InvalidData, "Invalid JSON format")))?;
 
     // Check if "public_memory" exists and is an array
