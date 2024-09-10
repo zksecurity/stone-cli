@@ -72,11 +72,11 @@ Currently, only `linux/amd64` with `AVX` is supported.
 
 Using `--network starknet` serializes the Cairo proof into a format that can be verified on the Cairo verifier deployed on Starknet. Please refer to the [integrity documentation](https://github.com/HerodotusDev/integrity) for more information on how to use the calldata to send a transaction to Starknet.
 
-Using `--network ethereum` serializes the Cairo proof into a format that can be verified on the Cairo verifier deployed on Ethereum. Please refer to the [the next section](#how-to-create-proofs-and-verify-them-on-ethereum) for more information on how to create proofs that can be verified on Ethereum.
+Using `--network ethereum` serializes the Cairo proof into a format that can be verified on the Solidity verifier deployed on Ethereum. Please refer to the [the next section](#how-to-create-proofs-and-verify-them-on-ethereum) for more information on how to create proofs that can be verified on Ethereum.
 
 ### How to create proofs and verify them on Ethereum
 
-Currently there is a Cairo verifier deployed on Ethereum, which are mainly used to verify SHARP proofs created by L2 Starknet nodes. The Cairo verifier checks the validity of a Cairo program named `bootloader`, which recursively verifies multiple Cairo programs or a Cairo PIEs (Position Independent Executable) and allows a single proof to prove executions of multiple Cairo programs. Once we create a bootloader proof, we need to serialize it to a format that works for the Cairo verifier on Ethereum.
+Currently there is a Solidity verifier deployed on Ethereum, which is mainly used to verify SHARP proofs created by L2 Starknet nodes. The Solidity verifier checks the validity of a Cairo program named `bootloader`, which can prove the execution of multiple Cairo programs or Cairo PIEs (Position Independent Executable) either by executing them directly in the program or by running a Cairo verifier that recursively verifies (i.e. verify a proof inside the program) a bootloader proof. The bootloader program dramatically lowers the cost of verification as proving a new Cairo program will grow the size of the proof logarithmically as opposed to linearly. Once we create a bootloader proof, we need to serialize it to a format that works for the Cairo verifier on Ethereum.
 
 Here are the specific steps for the above process:
 
