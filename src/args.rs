@@ -93,10 +93,10 @@ pub struct VerifyArgs {
     #[clap(long = "proof", value_parser)]
     pub proof: PathBuf,
 
-    #[clap(long = "annotation_file", value_hint=ValueHint::FilePath)]
+    #[clap(long = "annotation_file", value_hint=ValueHint::FilePath, help = "Path to the output file that will contain elements generated from the interaction between the prover and verifier")]
     pub annotation_file: Option<PathBuf>,
 
-    #[clap(long = "extra_output_file", value_hint=ValueHint::FilePath)]
+    #[clap(long = "extra_output_file", value_hint=ValueHint::FilePath, help = "Path to the output file that will contain additional interaction elements necessary for generating split proofs")]
     pub extra_output_file: Option<PathBuf>,
 }
 
@@ -179,14 +179,14 @@ pub struct SerializeArgs {
 
     #[clap(
         long = "annotation_file",
-        help = "Required for serializing proofs for Ethereum",
+        help = "Path to the file containing elements generated from the interaction between the prover and verifier",
         value_hint=ValueHint::FilePath
     )]
     pub annotation_file: Option<PathBuf>,
 
     #[clap(
         long = "extra_output_file",
-        help = "Required for serializing proofs for Ethereum",
+        help = "Path to the file containing additional interaction elements necessary for generating split proofs",
         value_hint=ValueHint::FilePath
     )]
     pub extra_output_file: Option<PathBuf>,
