@@ -112,8 +112,7 @@ pub fn run_cairo0(
     let air_public_input_path = tmp_dir
         .path()
         .join(format!("{}_air_public_input.json", filename));
-    let air_public_input_json = runner.get_air_public_input()?.serialize_json()?;
-    let air_public_input_str = get_formatted_air_public_input(&air_public_input_json)?;
+    let air_public_input_str = get_formatted_air_public_input(&runner.get_air_public_input()?)?;
     std::fs::write(air_public_input_path.clone(), air_public_input_str)?;
 
     let air_private_input_path = tmp_dir

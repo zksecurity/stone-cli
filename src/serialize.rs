@@ -28,29 +28,35 @@ pub enum Error {
 
 pub fn serialize_proof(args: SerializeArgs) -> Result<(), Error> {
     let proof_file = args.proof.clone();
-    if args.network == Network::ethereum {
-        let proof_with_annotations_json =
-            parse_bootloader_proof_file(&proof_file, args.annotation_file, args.extra_output_file)?;
+    match args.network {
+        Network::ethereum => {
+            let proof_with_annotations_json = parse_bootloader_proof_file(
+                &proof_file,
+                args.annotation_file,
+                args.extra_output_file,
+            )?;
 
-        std::fs::write(args.output.clone(), proof_with_annotations_json).unwrap();
-    } else if args.network == Network::starknet {
-        let (config, public_input, unsent_commitment, witness) = parse_proof_file(&proof_file)?;
+            std::fs::write(args.output.clone(), proof_with_annotations_json).unwrap();
+        }
+        Network::starknet => {
+            let (config, public_input, unsent_commitment, witness) = parse_proof_file(&proof_file)?;
 
-        let proof = chain!(
-            config.into_iter(),
-            public_input.into_iter(),
-            unsent_commitment.into_iter(),
-            witness.into_iter()
-        );
+            let proof = chain!(
+                config.into_iter(),
+                public_input.into_iter(),
+                unsent_commitment.into_iter(),
+                witness.into_iter()
+            );
 
-        let calldata = chain!(proof, std::iter::once(Felt252::from(1)));
+            let calldata = chain!(proof, std::iter::once(Felt252::from(1)));
 
-        let calldata_string = calldata
-            .map(|f| f.to_string())
-            .collect::<Vec<_>>()
-            .join(" ");
+            let calldata_string = calldata
+                .map(|f| f.to_string())
+                .collect::<Vec<_>>()
+                .join(" ");
 
-        fs::write(args.output.clone(), calldata_string)?;
+            fs::write(args.output.clone(), calldata_string)?;
+        }
     }
     Ok(())
 }

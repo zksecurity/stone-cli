@@ -1,7 +1,8 @@
 use bincode::enc::write::Writer;
+use cairo_vm::air_public_input::{PublicInput, PublicInputError};
 use serde::Serialize;
 use std::fs::File;
-use std::io::{self, BufWriter, Error, Write};
+use std::io::{self, BufWriter, Write};
 use std::path::Path;
 
 #[macro_export]
@@ -99,9 +100,11 @@ impl FileWriter {
 // `CairoRunner.get_air_public_input()` returns a `PublicInput` object.
 // This function converts it to a JSON string and formats the "public_memory" array
 // by prefixing each value with "0x" if it doesn't already start with "0x".
-pub fn get_formatted_air_public_input(air_public_input: &str) -> Result<String, Error> {
-    let mut air_public_input: serde_json::Value = serde_json::from_str(air_public_input)
-        .map_err(|_| (Error::new(io::ErrorKind::InvalidData, "Invalid JSON format")))?;
+pub fn get_formatted_air_public_input(
+    air_public_input: &PublicInput,
+) -> Result<String, PublicInputError> {
+    let mut air_public_input: serde_json::Value =
+        serde_json::from_str(&air_public_input.serialize_json()?)?;
 
     // Check if "public_memory" exists and is an array
     if let Some(public_memory) = air_public_input
@@ -121,8 +124,7 @@ pub fn get_formatted_air_public_input(air_public_input: &str) -> Result<String, 
         }
     }
     // Convert the modified JSON back to a string
-    let air_public_input_str = serde_json::to_string(&air_public_input)
-        .map_err(|_| Error::new(io::ErrorKind::InvalidData, "Invalid JSON format"))?;
+    let air_public_input_str = serde_json::to_string(&air_public_input)?;
 
     Ok(air_public_input_str)
 }

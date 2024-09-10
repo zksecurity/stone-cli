@@ -26,6 +26,30 @@ use std::path::PathBuf;
 use thiserror::Error;
 
 const BOOTLOADER_V0_13_1: &[u8] = include_bytes!("../resources/bootloader-0.13.1.json");
+// Hash of the simple bootloader program
+// Value is taken from data stored on-chain:
+//     https://etherscan.io/address/0xd51A3D50d4D2f99a345a66971E650EEA064DD8dF#readContract#F6
+const SIMPLE_BOOTLOADER_PROGRAM_HASH: &str =
+    "382450030162484995497251732956824096484321811411123989415157331925872358847";
+// Hashes of Cairo verifier programs that can be used to recursively verify a simple bootloader program proof
+// Pre-image data for the hash stored on-chain:
+//     https://etherscan.io/address/0xd51A3D50d4D2f99a345a66971E650EEA064DD8dF#readContract#F6
+const CAIRO_VERIFIER_PROGRAM_HASHES: &[&str] = &[
+    "0x97e831fcc22602fa025e89c9c6b7e7272686398de428136cf52f3f006a845e",
+    "0x7b2acdc57670aff4eac1f72b41ef759f003c122ed6cece634b76581966eade2",
+    "0x24a3890c0d0ee8f7dfed5d1f89e3991bbc1b20d506c0700b24977f16f4487",
+    "0x49904b6ecb9e083a42a1f50eb336ecc7e7a7c3ce06aabea405847cf0e2c1b2",
+    "0x64b111ddda7af6661f2d1e6255ad7576ce8281ec701b166f07debca3bd7a0eb",
+    "0x29a7e7366aa18c837867443aed5975f55107a8fdb6f33c418b81463a4156abf",
+    "0x1fbfa8a63b6197519c5fbbf3b9090b6fadea637c8afba051c7419fd1d3d7fb3",
+    "0x7d9c440b45a189c29e5d544d5b3ed167d089e3dd21e154abede91f90afb35ca",
+    "0x41e6fdf682dca5b1e1194a93da5312fe66c06f08550a62c9e27645ca3874483",
+    "0x3b58154a414a8e66fb65b1f6f612cd4ca21d68815fb0c6252930d4ddb04c72c",
+    "0x2c47af88d90c4acd90fa663713e02a1f0a8b1239882d2f6b58dc964529540c9",
+    "0x571ed7fb8805802da530fcac931794462cb7909479ec0ffd24766913a88636c",
+    "0x6ad5606d7e4e7bc01b38a36d3fdca7afcf24d5db25ed4d050a4e77c31c5527b",
+    "0x323c8251dbd935f45105bc241765a5082d9a985cbc3bffece3382708fb88dc5",
+];
 
 pub struct CairoBootloaderRunResult {
     pub air_public_input: PathBuf,
@@ -109,8 +133,7 @@ pub fn run_bootloader(
     memory_writer.flush()?;
 
     let air_public_input_path = tmp_dir.path().join("bootloader_air_public_input.json");
-    let air_public_input_json = runner.get_air_public_input()?.serialize_json()?;
-    let air_public_input_str = get_formatted_air_public_input(&air_public_input_json)?;
+    let air_public_input_str = get_formatted_air_public_input(&runner.get_air_public_input()?)?;
     std::fs::write(air_public_input_path.clone(), air_public_input_str)?;
 
     let air_private_input_path = tmp_dir.path().join("bootloader_air_private_input.json");
@@ -164,27 +187,8 @@ fn cairo_run_bootloader_in_proof_mode(
         allow_missing_builtins: None,
     };
 
-    let program_hash = Felt252::from_dec_str(
-        "382450030162484995497251732956824096484321811411123989415157331925872358847",
-    )
-    .unwrap();
-    let verifier_hashes_hex = vec![
-        "0x97e831fcc22602fa025e89c9c6b7e7272686398de428136cf52f3f006a845e",
-        "0x7b2acdc57670aff4eac1f72b41ef759f003c122ed6cece634b76581966eade2",
-        "0x24a3890c0d0ee8f7dfed5d1f89e3991bbc1b20d506c0700b24977f16f4487",
-        "0x49904b6ecb9e083a42a1f50eb336ecc7e7a7c3ce06aabea405847cf0e2c1b2",
-        "0x64b111ddda7af6661f2d1e6255ad7576ce8281ec701b166f07debca3bd7a0eb",
-        "0x29a7e7366aa18c837867443aed5975f55107a8fdb6f33c418b81463a4156abf",
-        "0x1fbfa8a63b6197519c5fbbf3b9090b6fadea637c8afba051c7419fd1d3d7fb3",
-        "0x7d9c440b45a189c29e5d544d5b3ed167d089e3dd21e154abede91f90afb35ca",
-        "0x41e6fdf682dca5b1e1194a93da5312fe66c06f08550a62c9e27645ca3874483",
-        "0x3b58154a414a8e66fb65b1f6f612cd4ca21d68815fb0c6252930d4ddb04c72c",
-        "0x2c47af88d90c4acd90fa663713e02a1f0a8b1239882d2f6b58dc964529540c9",
-        "0x571ed7fb8805802da530fcac931794462cb7909479ec0ffd24766913a88636c",
-        "0x6ad5606d7e4e7bc01b38a36d3fdca7afcf24d5db25ed4d050a4e77c31c5527b",
-        "0x323c8251dbd935f45105bc241765a5082d9a985cbc3bffece3382708fb88dc5",
-    ];
-    let verifier_hashes = verifier_hashes_hex
+    let program_hash = Felt252::from_dec_str(SIMPLE_BOOTLOADER_PROGRAM_HASH).unwrap();
+    let verifier_hashes = CAIRO_VERIFIER_PROGRAM_HASHES
         .iter()
         .map(|h| Felt252::from_hex(h).unwrap())
         .collect();
