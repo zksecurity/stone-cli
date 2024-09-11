@@ -1,3 +1,5 @@
+use std::env::consts::{ARCH, OS};
+use std::ffi::OsStr;
 use std::fs::{metadata, remove_file, set_permissions};
 use std::os::unix::fs::PermissionsExt;
 use std::path::Path;
@@ -7,9 +9,11 @@ const CONFIG: &str = include_str!("configs/env.json");
 #[derive(serde::Deserialize)]
 struct Config {
     download_dir: String,
-    url: String,
+    linux_x86_64_url: String,
+    macos_aarch64_url: String,
     file_names: Vec<String>,
-    sha256_sums: Vec<String>,
+    sha256_sums_linux_x86_64: Vec<String>,
+    sha256_sums_macos_aarch64: Vec<String>,
     #[allow(dead_code)]
     env_names: Vec<String>,
 }
@@ -33,14 +37,27 @@ fn download_executables(config: &Config) {
     {
         return;
     }
-    let download_file_name = Path::new(&config.url)
+
+    let url = match (OS, ARCH) {
+        ("linux", "x86_64") => &config.linux_x86_64_url,
+        ("macos", "aarch64") => &config.macos_aarch64_url,
+        _ => panic!("Unsupported operating system or architecture: only supports linux/x86_64 and macos/aarch64"),
+    };
+    let download_file_name = Path::new(url)
         .file_name()
         .expect("Failed to get the last path of the URL");
     let download_file_path = download_dir.join(download_file_name);
-    download_from_url(&config.url, &download_file_path);
+    download_from_url(url, &download_file_path);
     unzip_file(&download_file_path, &download_dir);
+    move_files(&download_dir, &download_file_name, &config.file_names);
     remove_file(&download_file_path).expect("Failed to remove tar file");
-    validate_unpacked_files(&download_dir, &config.file_names, &config.sha256_sums);
+
+    let sha256_sums = match (OS, ARCH) {
+        ("linux", "x86_64") => &config.sha256_sums_linux_x86_64,
+        ("macos", "aarch64") => &config.sha256_sums_macos_aarch64,
+        _ => panic!("Unsupported operating system or architecture: only supports linux/x86_64 and macos/aarch64"),
+    };
+    validate_unpacked_files(&download_dir, &config.file_names, &sha256_sums);
     set_execute_permissions(config);
 }
 
@@ -100,6 +117,36 @@ fn unzip_file(download_file_path: &Path, download_dir: &Path) {
     archive
         .unpack(download_dir)
         .expect("Failed to unpack tar.gz file");
+}
+
+fn move_files(download_dir: &Path, download_file_name: &OsStr, file_names: &[String]) {
+    // file name has the following syntax ("stone-cli-macos-aarch64.tar.gz"), so we need to split by "." and take the last element
+    let files_dir = download_file_name
+        .to_str()
+        .expect("Failed to convert OsStr to str")
+        .split('.')
+        .next()
+        .unwrap();
+    let download_dir = Path::new(env!("HOME")).join(download_dir);
+    for filename in file_names.iter() {
+        let file_path = download_dir.join(files_dir).join(filename);
+        if !file_path.exists() {
+            panic!("File {} does not exist", file_path.display());
+        }
+        let new_file_path = download_dir.join(filename);
+        std::fs::rename(&file_path, &new_file_path).expect("Failed to move file");
+    }
+    // Remove the directory containing the unpacked files
+    let files_dir_path = download_dir.join(files_dir);
+    if files_dir_path.exists() {
+        std::fs::remove_dir_all(&files_dir_path).unwrap_or_else(|e| {
+            panic!(
+                "Failed to remove directory {}: {}",
+                files_dir_path.display(),
+                e
+            )
+        });
+    }
 }
 
 fn validate_unpacked_files(download_dir: &Path, file_names: &[String], sha256_sums: &[String]) {

@@ -43,10 +43,15 @@ pub fn cleanup_tmp_files(tmp_dir: &tempfile::TempDir) {
 pub struct Config {
     download_dir: String,
     #[allow(dead_code)]
-    url: String,
+    linux_x86_64_url: String,
+    #[allow(dead_code)]
+    macos_aarch64_url: String,
     file_names: Vec<String>,
     #[allow(dead_code)]
-    sha256_sums: Vec<String>,
+    sha256_sums_linux_x86_64: Vec<String>,
+    #[allow(dead_code)]
+    sha256_sums_macos_aarch64: Vec<String>,
+    #[allow(dead_code)]
     env_names: Vec<String>,
 }
 
