@@ -1,1 +1,0 @@
-../big_struct.cairo

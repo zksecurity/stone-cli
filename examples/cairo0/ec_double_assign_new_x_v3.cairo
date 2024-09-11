@@ -1,1 +1,0 @@
-../ec_double_assign_new_x_v3.cairo

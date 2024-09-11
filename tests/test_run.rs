@@ -448,34 +448,22 @@ fn test_run_cairo_e2e(
         extra_output_file: None,
     };
 
-    let run_result = match cairo_version {
-        CairoVersion::cairo0 => run_cairo0(&prove_args, &tmp_dir).map_err(|e| anyhow::anyhow!(e)),
-        CairoVersion::cairo1 => run_cairo1(&prove_args, &tmp_dir),
+    match cairo_version {
+        CairoVersion::cairo0 => run_cairo0(&prove_args, &tmp_dir).expect("Failed to run cairo0"),
+        CairoVersion::cairo1 => run_cairo1(&prove_args, &tmp_dir).expect("Failed to run cairo1"),
     };
 
-    match run_result {
-        Ok(_) => {
-            let filename = program_file.file_stem().unwrap().to_str().unwrap();
-            let air_public_input = tmp_dir
-                .path()
-                .join(format!("{}_air_public_input.json", filename));
-            let air_private_input = tmp_dir
-                .path()
-                .join(format!("{}_air_private_input.json", filename));
+    let filename = program_file.file_stem().unwrap().to_str().unwrap();
+    let air_public_input = tmp_dir
+        .path()
+        .join(format!("{}_air_public_input.json", filename));
+    let air_private_input = tmp_dir
+        .path()
+        .join(format!("{}_air_private_input.json", filename));
 
-            match run_stone_prover(&prove_args, &air_public_input, &air_private_input, &tmp_dir) {
-                Ok(_) => match run_stone_verifier(verify_args) {
-                    Ok(_) => {
-                        println!("Successfully ran stone verifier");
-                    }
-                    Err(e) => panic!("Expected a successful result but got an error: {:?}", e),
-                },
-                Err(e) => panic!("Expected a successful result but got an error: {:?}", e),
-            }
-        }
-        Err(e) => panic!("Expected a successful result but got an error: {:?}", e),
-    }
-
+    run_stone_prover(&prove_args, &air_public_input, &air_private_input, &tmp_dir)
+        .expect("Failed to run stone prover");
+    run_stone_verifier(&verify_args).expect("Failed to run stone verifier");
     check_tmp_files(&tmp_dir, &program_file);
 }
 

@@ -1,1 +1,0 @@
-../assert_nn.cairo

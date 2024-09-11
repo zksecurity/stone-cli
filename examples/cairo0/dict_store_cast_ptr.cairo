@@ -1,1 +1,0 @@
-../dict_store_cast_ptr.cairo
