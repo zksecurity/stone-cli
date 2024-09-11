@@ -463,7 +463,7 @@ fn test_run_cairo_e2e(
 
     run_stone_prover(&prove_args, &air_public_input, &air_private_input, &tmp_dir)
         .expect("Failed to run stone prover");
-    run_stone_verifier(&verify_args).expect("Failed to run stone verifier");
+    run_stone_verifier(verify_args).expect("Failed to run stone verifier");
     check_tmp_files(&tmp_dir, &program_file);
 }
 
