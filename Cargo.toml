@@ -5,8 +5,12 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0.86"
+bincode = { version = "2.0.0-rc.3", default-features = false, features = [
+    "serde",
+] }
 cairo-felt = "0.9.1"
 cairo-proof-parser = { git = "https://github.com/Okm165/cairo-proof-parser", rev = "97a04bbee07330311b38d6f4cecfed3acb237626"}
+cairo-vm = "1.0.1"
 clap = { version = "4.3.10", features = ["derive"] }
 itertools = "0.13.0"
 num-bigint = "0.4.6"

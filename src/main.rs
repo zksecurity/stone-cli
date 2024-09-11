@@ -1,6 +1,6 @@
 use clap::Parser;
 use stone_cli::args::Cli;
-use stone_cli::cairo1::run_cairo1;
+use stone_cli::cairo::run_cairo;
 use stone_cli::prover::run_stone_prover;
 use stone_cli::serialize::serialize_proof;
 use stone_cli::utils::{cleanup_tmp_files, parse, set_env_vars};
@@ -20,13 +20,13 @@ fn main() -> anyhow::Result<()> {
                 .prefix("stone-cli-")
                 .tempdir()
                 .map_err(|e| anyhow::anyhow!("Failed to create temp dir: {}", e))?;
-            let result = run_cairo1(&args, &tmp_dir)
+            let result = run_cairo(&args, &tmp_dir)
                 .map_err(|e| anyhow::anyhow!("Failed to run cairo1: {}", e))
-                .and_then(|run_cairo1_result| {
+                .and_then(|run_cairo_result| {
                     run_stone_prover(
                         &args,
-                        &run_cairo1_result.air_public_input,
-                        &run_cairo1_result.air_private_input,
+                        &run_cairo_result.air_public_input,
+                        &run_cairo_result.air_private_input,
                         &tmp_dir,
                     )
                     .map_err(|e| anyhow::anyhow!("Failed to run stone prover: {}", e))

@@ -1,4 +1,6 @@
+use bincode::enc::write::Writer;
 use std::fs::File;
+use std::io::{self, BufWriter, Write};
 use std::path::Path;
 
 use serde::Serialize;
@@ -6,7 +8,7 @@ use serde::Serialize;
 #[macro_export]
 macro_rules! define_enum {
     ($name:ident, $($variant:ident => $str:expr),+ $(,)?) => {
-        #[derive(Serialize, Deserialize, Debug, Clone, clap::ValueEnum)]
+        #[derive(Serialize, Deserialize, Debug, Clone, clap::ValueEnum, PartialEq, Eq)]
         #[allow(non_camel_case_types)]
         pub enum $name {
             $($variant),+
@@ -56,6 +58,41 @@ pub fn set_env_vars(config: &Config) {
     let download_dir = Path::new(env!("HOME")).join(&config.download_dir);
     for (env_name, filename) in config.env_names.iter().zip(config.file_names.iter()) {
         let full_path = download_dir.join(filename);
-        std::env::set_var(env_name, full_path.clone());
+        unsafe {
+            std::env::set_var(env_name, full_path.clone());
+        }
+    }
+}
+
+pub struct FileWriter {
+    buf_writer: BufWriter<std::fs::File>,
+    bytes_written: usize,
+}
+
+impl Writer for FileWriter {
+    fn write(&mut self, bytes: &[u8]) -> Result<(), bincode::error::EncodeError> {
+        self.buf_writer
+            .write_all(bytes)
+            .map_err(|e| bincode::error::EncodeError::Io {
+                inner: e,
+                index: self.bytes_written,
+            })?;
+
+        self.bytes_written += bytes.len();
+
+        Ok(())
+    }
+}
+
+impl FileWriter {
+    pub fn new(buf_writer: BufWriter<std::fs::File>) -> Self {
+        Self {
+            buf_writer,
+            bytes_written: 0,
+        }
+    }
+
+    pub fn flush(&mut self) -> io::Result<()> {
+        self.buf_writer.flush()
     }
 }

@@ -23,6 +23,9 @@ pub enum Cli {
 #[derive(Args, Debug)]
 #[command(version)]
 pub struct ProveArgs {
+    #[clap(long = "cairo_version", value_enum, default_value = "cairo1")]
+    pub cairo_version: CairoVersion,
+
     #[clap(long = "cairo_program", value_hint=ValueHint::FilePath)]
     pub cairo_program: PathBuf,
 
@@ -58,6 +61,12 @@ pub struct ProveArgs {
 pub struct VerifyArgs {
     #[clap(long = "proof", value_parser)]
     pub proof: PathBuf,
+}
+
+define_enum! {
+    CairoVersion,
+    cairo0 => "cairo0",
+    cairo1 => "cairo1",
 }
 
 define_enum! {
