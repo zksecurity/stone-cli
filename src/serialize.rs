@@ -4,6 +4,7 @@ use crate::args::{Network, SerializeArgs};
 use anyhow::Result;
 use cairo_felt::Felt252;
 use cairo_proof_parser::parse;
+use clap::ValueEnum;
 use itertools::chain;
 use std::fs;
 use std::io::BufRead;
@@ -11,6 +12,21 @@ use std::path::Path;
 use std::path::PathBuf;
 use thiserror::Error;
 use vec252::VecFelt252;
+
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
+pub enum CairoVersion {
+    Cairo0 = 0,
+    Cairo1 = 1,
+}
+
+impl From<CairoVersion> for Felt252 {
+    fn from(value: CairoVersion) -> Self {
+        match value {
+            CairoVersion::Cairo0 => Felt252::from(0),
+            CairoVersion::Cairo1 => Felt252::from(1),
+        }
+    }
+}
 
 #[derive(Debug, Error)]
 pub enum Error {
@@ -48,7 +64,7 @@ pub fn serialize_proof(args: SerializeArgs) -> Result<(), Error> {
                 witness.into_iter()
             );
 
-            let calldata = chain!(proof, std::iter::once(Felt252::from(1)));
+            let calldata = chain!(proof, std::iter::once(CairoVersion::Cairo1.into()));
 
             let calldata_string = calldata
                 .map(|f| f.to_string())
