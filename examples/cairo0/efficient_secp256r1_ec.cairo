@@ -1,1 +1,0 @@
-../efficient_secp256r1_ec.cairo

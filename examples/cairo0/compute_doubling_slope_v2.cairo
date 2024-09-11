@@ -1,1 +1,0 @@
-../compute_doubling_slope_v2.cairo

@@ -1,1 +1,0 @@
-../relocate_segments.cairo
