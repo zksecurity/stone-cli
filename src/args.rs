@@ -10,7 +10,7 @@ use std::path::PathBuf;
 #[command(
     name = "stone-cli",
     version = "0.1.0-alpha",
-    about = "CLI for proving Cairo 1 programs on Starknet"
+    about = "CLI for proving Cairo programs and serializing proofs for Starknet and Ethereum"
 )]
 #[command(bin_name = "stone-cli")]
 #[allow(clippy::large_enum_variant)]
