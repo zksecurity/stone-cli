@@ -1,19 +1,94 @@
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::env::consts::{ARCH, OS};
 use std::ffi::OsStr;
 use std::fs::{metadata, remove_file, set_permissions};
 use std::os::unix::fs::PermissionsExt;
 use std::path::Path;
+use std::sync::LazyLock;
+use thiserror::Error;
 
 const CONFIG: &str = include_str!("configs/env.json");
 
-#[derive(serde::Deserialize)]
+static DISTS: LazyLock<HashMap<(Os, Arch), Artifacts>> = LazyLock::new(|| {
+    let mut m = HashMap::new();
+    m.insert((Os::Linux, Arch::Amd64), Artifacts {
+        url: "https://github.com/zksecurity/stone-cli/releases/download/v0.1.0-alpha/stone-cli-linux-x86_64.tar.gz".to_string(),
+        sha256_sums: vec![
+            "4a45808fd5ace7a88bfaa2b921baeb49f381d38afaa67e795b1038dd5a6adeff".to_string(),
+            "d5345e3e72a6180dabcec79ef35cefc735ea72864742e1cc117869da7d122ee5".to_string(),
+            "8ed3cad6cf3fb10f5a600af861c28b8f427244b0c2de920f1c18ea78371a66a9".to_string(),
+            "672dbec290a5ab55a4e90d54d556d5d6f33f5ae9fdf8fd635b555172fdf6a34a".to_string(),
+        ],
+    });
+    m.insert((Os::MacOS, Arch::Aarch64), Artifacts {
+        url: "https://github.com/zksecurity/stone-cli/releases/download/v0.1.0-alpha/stone-cli-macos-aarch64.tar.gz".to_string(),
+        sha256_sums: vec![
+            "37029e44bf8812b2fb38afebb3f47b0decfcf00b8ac29af6698615a507932511".to_string(),
+            "d91e8328b7a228445dda0b9d1acb21a86ab894727737e2d70a0210179b90f00e".to_string(),
+            "fc4090e3395e101f3481efc247ad590e5db7704c31321480522904d68ba5d009".to_string(),
+            "672dbec290a5ab55a4e90d54d556d5d6f33f5ae9fdf8fd635b555172fdf6a34a".to_string(),
+        ],
+    });
+    m
+});
+
+#[derive(Debug, Error)]
+enum ConversionError {
+    #[error("Unsupported architecture: {0}")]
+    UnsupportedArchitecture(String),
+    #[error("Unsupported operating system: {0}")]
+    UnsupportedOperatingSystem(String),
+}
+
+#[derive(Debug, Eq, PartialEq, Hash, Serialize, Deserialize)]
+enum Os {
+    Linux,
+    MacOS,
+}
+
+impl TryInto<Os> for &str {
+    type Error = ConversionError;
+
+    fn try_into(self) -> Result<Os, Self::Error> {
+        match self {
+            "linux" => Ok(Os::Linux),
+            "macos" => Ok(Os::MacOS),
+            _ => Err(ConversionError::UnsupportedOperatingSystem(
+                self.to_string(),
+            )),
+        }
+    }
+}
+
+#[derive(Debug, Eq, PartialEq, Hash, Serialize, Deserialize)]
+enum Arch {
+    Aarch64,
+    Amd64,
+}
+
+impl TryInto<Arch> for &str {
+    type Error = ConversionError;
+
+    fn try_into(self) -> Result<Arch, Self::Error> {
+        match self {
+            "aarch64" => Ok(Arch::Aarch64),
+            "x86_64" => Ok(Arch::Amd64),
+            _ => Err(ConversionError::UnsupportedArchitecture(self.to_string())),
+        }
+    }
+}
+
+#[derive(Deserialize)]
+struct Artifacts {
+    url: String,
+    sha256_sums: Vec<String>,
+}
+
+#[derive(Deserialize)]
 struct Config {
     download_dir: String,
-    linux_x86_64_url: String,
-    macos_aarch64_url: String,
     file_names: Vec<String>,
-    sha256_sums_linux_x86_64: Vec<String>,
-    sha256_sums_macos_aarch64: Vec<String>,
     #[allow(dead_code)]
     env_names: Vec<String>,
 }
@@ -38,11 +113,8 @@ fn download_executables(config: &Config) {
         return;
     }
 
-    let url = match (OS, ARCH) {
-        ("linux", "x86_64") => &config.linux_x86_64_url,
-        ("macos", "aarch64") => &config.macos_aarch64_url,
-        _ => panic!("Unsupported operating system or architecture: only supports linux/x86_64 and macos/aarch64"),
-    };
+    let dist = &DISTS[&(OS.try_into().unwrap(), ARCH.try_into().unwrap())];
+    let url = &dist.url;
     let download_file_name = Path::new(url)
         .file_name()
         .expect("Failed to get the last path of the URL");
@@ -52,11 +124,7 @@ fn download_executables(config: &Config) {
     move_files(&download_dir, &download_file_name, &config.file_names);
     remove_file(&download_file_path).expect("Failed to remove tar file");
 
-    let sha256_sums = match (OS, ARCH) {
-        ("linux", "x86_64") => &config.sha256_sums_linux_x86_64,
-        ("macos", "aarch64") => &config.sha256_sums_macos_aarch64,
-        _ => panic!("Unsupported operating system or architecture: only supports linux/x86_64 and macos/aarch64"),
-    };
+    let sha256_sums = &dist.sha256_sums;
     validate_unpacked_files(&download_dir, &config.file_names, &sha256_sums);
     set_execute_permissions(config);
 }
