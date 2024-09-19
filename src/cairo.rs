@@ -1,5 +1,5 @@
 use crate::args::{CairoVersion, LayoutName, ProveArgs};
-use crate::utils::FileWriter;
+use crate::utils::{get_formatted_air_public_input, FileWriter};
 use cairo_vm::air_public_input::PublicInputError;
 use cairo_vm::cairo_run::{
     cairo_run_program, write_encoded_memory, write_encoded_trace, CairoRunConfig, EncodeTraceError,
@@ -112,8 +112,8 @@ pub fn run_cairo0(
     let air_public_input_path = tmp_dir
         .path()
         .join(format!("{}_air_public_input.json", filename));
-    let air_public_input = runner.get_air_public_input()?.serialize_json()?;
-    std::fs::write(air_public_input_path.clone(), air_public_input)?;
+    let air_public_input_str = get_formatted_air_public_input(&runner.get_air_public_input()?)?;
+    std::fs::write(air_public_input_path.clone(), air_public_input_str)?;
 
     let air_private_input_path = tmp_dir
         .path()

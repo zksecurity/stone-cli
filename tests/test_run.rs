@@ -1,13 +1,19 @@
 use rstest::{fixture, rstest};
+use serde::{Deserialize, Serialize};
 use std::{
     path::{Path, PathBuf},
     str::FromStr,
 };
 use stone_cli::{
-    args::{CairoVersion, LayoutName, ProveArgs, VerifyArgs},
+    args::{
+        CairoVersion, LayoutName, Network, ProveArgs, ProveBootloaderArgs, SerializeArgs,
+        VerifyArgs,
+    },
+    bootloader::run_bootloader,
     cairo::{run_cairo0, run_cairo1},
     config::{ProverConfig, ProverParametersConfig},
     prover::run_stone_prover,
+    serialize::serialize_proof,
     utils::{parse, set_env_vars},
     verifier::run_stone_verifier,
 };
@@ -196,7 +202,9 @@ fn test_run_cairo0_success(
     };
 
     match run_cairo0(&prove_args, &tmp_dir) {
-        Ok(result) => println!("Successfully ran cairo0: {:?}", result),
+        Ok(_) => {
+            println!("Successfully ran cairo0");
+        }
         Err(e) => panic!("Expected a successful result but got an error: {:?}", e),
     }
 
@@ -436,6 +444,8 @@ fn test_run_cairo_e2e(
     };
     let verify_args = VerifyArgs {
         proof: tmp_dir.path().join("proof.json"),
+        annotation_file: None,
+        extra_output_file: None,
     };
 
     match cairo_version {
@@ -453,8 +463,167 @@ fn test_run_cairo_e2e(
 
     run_stone_prover(&prove_args, &air_public_input, &air_private_input, &tmp_dir)
         .expect("Failed to run stone prover");
-    run_stone_verifier(&verify_args).expect("Failed to run stone verifier");
+    run_stone_verifier(verify_args).expect("Failed to run stone verifier");
     check_tmp_files(&tmp_dir, &program_file);
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct FactTopologies {
+    fact_topologies: Vec<Topology>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct Topology {
+    tree_structure: [u32; 2],
+    page_sizes: [u32; 1],
+}
+
+#[rstest]
+#[case(vec!["bitwise_output.json"], vec![], FactTopologies { fact_topologies: vec![Topology { tree_structure: [1,0], page_sizes: [1] }] })]
+#[case(vec![], vec!["fibonacci_with_output.zip"], FactTopologies { fact_topologies: vec![Topology { tree_structure: [1,0], page_sizes: [2] }] })]
+#[case(vec!["bitwise_output.json"], vec!["fibonacci_with_output.zip"], FactTopologies { fact_topologies: vec![Topology { tree_structure: [1,0], page_sizes: [1] }, Topology { tree_structure: [1,0], page_sizes: [2] }] })]
+#[case(vec!["bitwise_output.json", "bitwise_output.json"], vec!["fibonacci_with_output.zip", "fibonacci_with_output.zip"], FactTopologies { fact_topologies: vec![Topology { tree_structure: [1,0], page_sizes: [1] }, Topology { tree_structure: [1,0], page_sizes: [1] }, Topology { tree_structure: [1,0], page_sizes: [2] }, Topology { tree_structure: [1,0], page_sizes: [2] }] })]
+fn test_run_bootloader(
+    #[from(setup)] _path: (),
+    #[case(cairo_programs)] cairo_programs: Vec<&str>,
+    #[case(cairo_pies)] cairo_pies: Vec<&str>,
+    #[case(fact_topologies)] expected_fact_topologies: FactTopologies,
+) {
+    let tmp_dir = tempfile::Builder::new()
+        .prefix("stone-cli-test-")
+        .tempdir()
+        .expect("Failed to create temp dir");
+
+    let program_files = if cairo_programs.is_empty() {
+        None
+    } else {
+        Some(
+            cairo_programs
+                .iter()
+                .map(|cairo_program| {
+                    Path::new(env!("CARGO_MANIFEST_DIR"))
+                        .join("examples")
+                        .join("cairo0")
+                        .join(cairo_program)
+                })
+                .collect(),
+        )
+    };
+    let cairo_pie_files = if cairo_pies.is_empty() {
+        None
+    } else {
+        Some(
+            cairo_pies
+                .iter()
+                .map(|cairo_pie| {
+                    Path::new(env!("CARGO_MANIFEST_DIR"))
+                        .join("examples")
+                        .join("cairo_pie")
+                        .join(cairo_pie)
+                })
+                .collect(),
+        )
+    };
+    let bootloader_params_file = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests")
+        .join("configs")
+        .join("bootloader_cpu_air_params.json");
+    let prove_bootloader_args = ProveBootloaderArgs {
+        cairo_programs: program_files,
+        cairo_pies: cairo_pie_files,
+        layout: LayoutName::starknet,
+        prover_config_file: None,
+        parameter_file: Some(bootloader_params_file.clone()),
+        output: tmp_dir.path().join("bootloader_proof.json"),
+        parameter_config: ProverParametersConfig::default(),
+        prover_config: ProverConfig::default(),
+        fact_topologies_output: tmp_dir.path().join("fact_topologies.json"),
+    };
+
+    match run_bootloader(&prove_bootloader_args, &tmp_dir) {
+        Ok(_) => {
+            let fact_topologies_content =
+                std::fs::read_to_string(&prove_bootloader_args.fact_topologies_output)
+                    .expect("Failed to read fact_topologies file");
+            let fact_topologies: FactTopologies = serde_json::from_str(&fact_topologies_content)
+                .expect("Failed to parse fact_topologies JSON");
+
+            for (expected_fact_topology, actual_fact_topology) in expected_fact_topologies
+                .fact_topologies
+                .iter()
+                .zip(fact_topologies.fact_topologies.iter())
+            {
+                assert_eq!(
+                    expected_fact_topology.tree_structure,
+                    actual_fact_topology.tree_structure
+                );
+                assert_eq!(
+                    expected_fact_topology.page_sizes,
+                    actual_fact_topology.page_sizes
+                );
+            }
+        }
+        Err(e) => panic!(
+            "Expected a successful result but got an error while running bootloader: {:?}",
+            e
+        ),
+    }
+}
+
+#[rstest]
+fn test_run_serialize(#[from(setup)] _path: ()) {
+    let tmp_dir = tempfile::Builder::new()
+        .prefix("stone-cli-test-")
+        .tempdir()
+        .expect("Failed to create temp dir");
+
+    let proof_file = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests")
+        .join("resources")
+        .join("bootloader_proof.json");
+    let annotation_file = tmp_dir.path().join("bootloader_annotation.json");
+    let extra_output_file = tmp_dir.path().join("bootloader_extra_output.json");
+
+    let serialized_proof_file = tmp_dir.path().join("bootloader_proof_serialized.json");
+    let expected_serialized_proof_file = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests")
+        .join("resources")
+        .join("bootloader_proof_serialized.json");
+
+    let verify_args = VerifyArgs {
+        proof: proof_file.clone(),
+        annotation_file: Some(annotation_file.clone()),
+        extra_output_file: Some(extra_output_file.clone()),
+    };
+
+    let serialize_args = SerializeArgs {
+        proof: proof_file,
+        network: Network::ethereum,
+        annotation_file: Some(annotation_file),
+        extra_output_file: Some(extra_output_file),
+        output: serialized_proof_file.clone(),
+    };
+
+    match run_stone_verifier(verify_args) {
+        Ok(_) => match serialize_proof(serialize_args) {
+            Ok(_) => {
+                let expected_serialized_proof_content =
+                    std::fs::read_to_string(expected_serialized_proof_file)
+                        .expect("Failed to read expected serialized proof file");
+                let serialized_proof_content = std::fs::read_to_string(serialized_proof_file)
+                    .expect("Failed to read serialized proof file");
+                assert_eq!(serialized_proof_content, expected_serialized_proof_content);
+            }
+            Err(e) => panic!(
+                "Expected a successful result but got an error while serializing proof: {:?}",
+                e
+            ),
+        },
+        Err(e) => panic!(
+            "Expected a successful result but got an error while running verifier: {:?}",
+            e
+        ),
+    }
 }
 
 fn assert_error_msg_eq(e: &anyhow::Error, expected: &str) {
