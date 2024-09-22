@@ -484,22 +484,44 @@ struct FactTopologies {
     fact_topologies: Vec<Topology>,
 }
 
+impl FactTopologies {
+    fn new(fact_topologies: Vec<([u32; 2], [u32; 1])>) -> Self {
+        let mut topologies = Vec::new();
+        for topology in fact_topologies {
+            topologies.push(Topology::new(topology.0, topology.1));
+        }
+        Self {
+            fact_topologies: topologies,
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 struct Topology {
     tree_structure: [u32; 2],
     page_sizes: [u32; 1],
 }
 
+impl Topology {
+    fn new(tree_structure: [u32; 2], page_sizes: [u32; 1]) -> Self {
+        Self {
+            tree_structure,
+            page_sizes,
+        }
+    }
+}
+
 #[rstest]
-#[case(vec!["bitwise_output.json"], vec![], FactTopologies { fact_topologies: vec![Topology { tree_structure: [1,0], page_sizes: [1] }] })]
-#[case(vec![], vec!["fibonacci_with_output.zip"], FactTopologies { fact_topologies: vec![Topology { tree_structure: [1,0], page_sizes: [2] }] })]
-#[case(vec!["bitwise_output.json"], vec!["fibonacci_with_output.zip"], FactTopologies { fact_topologies: vec![Topology { tree_structure: [1,0], page_sizes: [1] }, Topology { tree_structure: [1,0], page_sizes: [2] }] })]
-#[case(vec!["bitwise_output.json", "bitwise_output.json"], vec!["fibonacci_with_output.zip", "fibonacci_with_output.zip"], FactTopologies { fact_topologies: vec![Topology { tree_structure: [1,0], page_sizes: [1] }, Topology { tree_structure: [1,0], page_sizes: [1] }, Topology { tree_structure: [1,0], page_sizes: [2] }, Topology { tree_structure: [1,0], page_sizes: [2] }] })]
+#[case(vec!["bitwise_output.json"], vec![], vec![([1,0], [1])])]
+#[case(vec![], vec!["fibonacci_with_output.zip"], vec![([1,0], [2])])]
+#[case(vec!["bitwise_output.json"], vec!["fibonacci_with_output.zip"], vec![([1,0], [1]), ([1,0], [2])])]
+#[case(vec!["bitwise_output.json", "bitwise_output.json"], vec!["fibonacci_with_output.zip", "fibonacci_with_output.zip"], vec![([1,0], [1]), ([1,0], [1]), ([1,0], [2]), ([1,0], [2])])]
+#[case(vec!["abs_value_array.json", "assert_250_bit_element_array.json", "recover_y.json"], vec![], vec![([1,0], [0]), ([1,0], [0]), ([1,0], [0])])] // Cairo0 programs with hints
 fn test_run_bootloader(
     #[from(setup)] _path: (),
     #[case(cairo_programs)] cairo_programs: Vec<&str>,
     #[case(cairo_pies)] cairo_pies: Vec<&str>,
-    #[case(fact_topologies)] expected_fact_topologies: FactTopologies,
+    #[case(expected_fact_topologies)] expected_fact_topologies: Vec<([u32; 2], [u32; 1])>,
 ) {
     let tmp_dir = tempfile::Builder::new()
         .prefix("stone-cli-test-")
@@ -559,6 +581,7 @@ fn test_run_bootloader(
                     .expect("Failed to read fact_topologies file");
             let fact_topologies: FactTopologies = serde_json::from_str(&fact_topologies_content)
                 .expect("Failed to parse fact_topologies JSON");
+            let expected_fact_topologies = FactTopologies::new(expected_fact_topologies);
 
             for (expected_fact_topology, actual_fact_topology) in expected_fact_topologies
                 .fact_topologies
