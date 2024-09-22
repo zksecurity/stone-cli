@@ -1,1 +1,0 @@
-../dict_squash.cairo

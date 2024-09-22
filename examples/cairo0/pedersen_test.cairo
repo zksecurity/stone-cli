@@ -1,1 +1,0 @@
-../pedersen_test.cairo

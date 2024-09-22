@@ -1,1 +1,0 @@
-../split_xx_hint.cairo

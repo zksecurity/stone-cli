@@ -1,1 +1,0 @@
-../array_sum.cairo

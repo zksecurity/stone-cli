@@ -1,1 +1,0 @@
-../ec_negate.cairo
