@@ -42,11 +42,7 @@ pub fn cleanup_tmp_files(tmp_dir: &tempfile::TempDir) {
 #[derive(serde::Deserialize)]
 pub struct Config {
     download_dir: String,
-    #[allow(dead_code)]
-    url: String,
     file_names: Vec<String>,
-    #[allow(dead_code)]
-    sha256_sums: Vec<String>,
     env_names: Vec<String>,
 }
 
