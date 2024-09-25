@@ -1,1 +1,0 @@
-../keccak_alternative_hint.cairo

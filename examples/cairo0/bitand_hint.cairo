@@ -1,1 +1,0 @@
-../bitand_hint.cairo

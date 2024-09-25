@@ -1,1 +1,0 @@
-../is_zero_pack.cairo
