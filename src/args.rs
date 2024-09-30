@@ -4,6 +4,7 @@ pub use crate::prover;
 use clap::{Args, Parser, ValueHint};
 use prover::config::{ProverConfig, ProverParametersConfig};
 use serde::{Deserialize, Serialize};
+use std::fmt;
 use std::path::PathBuf;
 
 #[derive(Parser, Debug)]
@@ -121,6 +122,12 @@ define_enum! {
     dynamic => "all_cairo",
 }
 
+impl fmt::Display for LayoutName {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
+
 impl std::str::FromStr for LayoutName {
     type Err = ();
 
@@ -174,8 +181,11 @@ pub struct SerializeArgs {
     #[clap(long = "network", value_enum)]
     pub network: Network,
 
-    #[clap(long = "output")]
+    #[clap(long = "output", value_hint=ValueHint::DirPath, default_value = "./serialized_proof")]
     pub output: PathBuf,
+
+    #[clap(long = "layout", default_value = "starknet", value_enum)]
+    pub layout: LayoutName,
 
     #[clap(
         long = "annotation_file",

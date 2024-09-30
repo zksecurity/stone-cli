@@ -612,9 +612,14 @@ fn test_run_serialize(#[from(setup)] _path: ()) {
         .tempdir()
         .expect("Failed to create temp dir");
 
+    let layout = LayoutName::starknet;
     let proof_file = Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("tests")
         .join("resources")
+        .join("proofs")
+        .join("ethereum")
+        .join("layouts")
+        .join(layout.clone().to_string())
         .join("bootloader_proof.json");
     let annotation_file = tmp_dir.path().join("bootloader_annotation.json");
     let extra_output_file = tmp_dir.path().join("bootloader_extra_output.json");
@@ -623,6 +628,10 @@ fn test_run_serialize(#[from(setup)] _path: ()) {
     let expected_serialized_proof_file = Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("tests")
         .join("resources")
+        .join("proofs")
+        .join("ethereum")
+        .join("layouts")
+        .join(layout.clone().to_string())
         .join("bootloader_proof_serialized.json");
 
     let verify_args = VerifyArgs {
@@ -634,6 +643,7 @@ fn test_run_serialize(#[from(setup)] _path: ()) {
     let serialize_args = SerializeArgs {
         proof: proof_file,
         network: Network::ethereum,
+        layout: layout.clone(),
         annotation_file: Some(annotation_file),
         extra_output_file: Some(extra_output_file),
         output: serialized_proof_file.clone(),
@@ -658,6 +668,84 @@ fn test_run_serialize(#[from(setup)] _path: ()) {
             "Expected a successful result but got an error while running verifier: {:?}",
             e
         ),
+    }
+}
+
+#[rstest]
+fn test_run_serialize_starknet(#[from(setup)] _path: ()) {
+    let tmp_dir = tempfile::Builder::new()
+        .prefix("stone-cli-test-")
+        .tempdir()
+        .expect("Failed to create temp dir");
+
+    let layout = LayoutName::starknet;
+    let proof_file = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests")
+        .join("resources")
+        .join("proofs")
+        .join("starknet")
+        .join("layouts")
+        .join(layout.clone().to_string())
+        .join("cairo0_example_proof.json");
+
+    std::fs::create_dir(tmp_dir.path().join("serialized_proofs"))
+        .expect("Failed to create serialized_proofs directory");
+    let actual_serialized_proof_dir = tmp_dir
+        .path()
+        .join("serialized_proofs")
+        .join(layout.clone().to_string());
+    std::fs::create_dir(&actual_serialized_proof_dir)
+        .expect("Failed to create serialized_proof directory");
+
+    let serialize_args = SerializeArgs {
+        proof: proof_file,
+        layout: layout.clone(),
+        network: Network::starknet,
+        annotation_file: None,
+        extra_output_file: None,
+        output: actual_serialized_proof_dir.clone(),
+    };
+    serialize_proof(serialize_args).expect("Failed to serialize proof");
+
+    let expected_serialized_proof_dir = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests")
+        .join("resources")
+        .join("proofs")
+        .join("starknet")
+        .join("layouts")
+        .join(layout.clone().to_string())
+        .join("serialized");
+    if let Ok(entries) = std::fs::read_dir(expected_serialized_proof_dir.clone()) {
+        for entry in entries {
+            if let Ok(entry) = entry {
+                let path = entry.path();
+                if path.is_file() {
+                    let file_name = path.file_name().unwrap();
+                    let expected_content = std::fs::read_to_string(path.clone()).expect(&format!(
+                        "Failed to read file: {}",
+                        file_name.to_str().unwrap()
+                    ));
+
+                    let actual_file = actual_serialized_proof_dir.join(file_name);
+                    let actual_content = std::fs::read_to_string(&actual_file).expect(&format!(
+                        "Failed to read file: {}",
+                        file_name.to_str().unwrap()
+                    ));
+
+                    assert_eq!(
+                        actual_content,
+                        expected_content,
+                        "Content mismatch for file: {}",
+                        file_name.to_str().unwrap()
+                    );
+                }
+            }
+        }
+    } else {
+        panic!(
+            "Failed to read serialized proof directory for layout: {}",
+            layout
+        );
     }
 }
 

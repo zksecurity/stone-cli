@@ -1,14 +1,21 @@
 mod vec252;
 
+use crate::args::LayoutName;
 use crate::args::{Network, SerializeArgs};
 use anyhow::Result;
 use cairo_felt::Felt252;
-use cairo_proof_parser::parse;
 use itertools::chain;
-use std::fs;
+use itertools::Itertools;
+use num_traits::Num;
+use starknet_crypto::Felt;
+use std::fs::write;
 use std::io::BufRead;
 use std::path::Path;
 use std::path::PathBuf;
+use swiftness_air::layout::*;
+use swiftness_fri::{CONST_STATE, VAR_STATE, WITNESS};
+use swiftness_proof_parser::{parse, parse_as_exprs, Expr};
+use swiftness_stark::stark;
 use thiserror::Error;
 use vec252::VecFelt252;
 
@@ -24,6 +31,10 @@ pub enum Error {
     AnnotationFileNotSpecified,
     #[error("Extra output file is required for serializing proofs for Ethereum")]
     ExtraOutputFileNotSpecified,
+    #[error("Failed to verify proof: {0}")]
+    Verify(#[from] stark::Error),
+    #[error("Serialization is not supported for the {0} layout")]
+    UnsupportedLayout(LayoutName),
 }
 
 pub fn serialize_proof(args: SerializeArgs) -> Result<(), Error> {
@@ -39,39 +50,121 @@ pub fn serialize_proof(args: SerializeArgs) -> Result<(), Error> {
             std::fs::write(args.output.clone(), proof_with_annotations_json).unwrap();
         }
         Network::starknet => {
-            let (config, public_input, unsent_commitment, witness) = parse_proof_file(&proof_file)?;
+            let input = std::fs::read_to_string(proof_file.clone())?;
+            let stark_proof = parse(input.clone())?;
+            let security_bits = stark_proof.config.security_bits();
 
-            let proof = chain!(
-                config.into_iter(),
-                public_input.into_iter(),
-                unsent_commitment.into_iter(),
-                witness.into_iter()
-            );
+            match args.layout {
+                LayoutName::dex => {
+                    stark_proof.verify::<dex::Layout>(security_bits)?;
+                }
+                LayoutName::recursive => {
+                    stark_proof.verify::<recursive::Layout>(security_bits)?;
+                }
+                LayoutName::recursive_with_poseidon => {
+                    stark_proof.verify::<recursive_with_poseidon::Layout>(security_bits)?;
+                }
+                LayoutName::small => {
+                    stark_proof.verify::<small::Layout>(security_bits)?;
+                }
+                LayoutName::starknet => {
+                    stark_proof.verify::<starknet::Layout>(security_bits)?;
+                }
+                LayoutName::starknet_with_keccak => {
+                    stark_proof.verify::<starknet_with_keccak::Layout>(security_bits)?;
+                }
+                layout @ (LayoutName::plain
+                | LayoutName::recursive_large_output
+                | LayoutName::all_solidity
+                | LayoutName::all_cairo
+                | LayoutName::dynamic) => {
+                    return Err(Error::UnsupportedLayout(layout));
+                }
+            }
 
-            let calldata = chain!(proof, std::iter::once(Felt252::from(1)));
-
-            let calldata_string = calldata
-                .map(|f| f.to_string())
-                .collect::<Vec<_>>()
+            let (const_state, mut var_state, mut witness) =
+                unsafe { (CONST_STATE.clone(), VAR_STATE.clone(), WITNESS.clone()) };
+            let cairo_version = Felt252::from(0);
+            let initial = serialize(input, cairo_version)?
+                .split_whitespace()
+                .map(|s| Felt::from_dec_str(s).unwrap().to_hex_string())
                 .join(" ");
 
-            fs::write(args.output.clone(), calldata_string)?;
+            let final_ = format!(
+                "{} {} {}",
+                const_state,
+                var_state.pop().unwrap(),
+                witness.pop().unwrap()
+            );
+
+            std::fs::create_dir_all(&args.output)?;
+
+            write(args.output.join("initial"), initial)?;
+            write(args.output.join("final"), final_)?;
+
+            for (i, (v, w)) in var_state.iter().zip(witness.iter()).enumerate() {
+                write(
+                    args.output.join(format!("step{}", i + 1)),
+                    format!("{} {} {}", const_state, v, w),
+                )?;
+            }
         }
     }
     Ok(())
 }
 
-fn parse_proof_file(
-    proof_file: &Path,
-) -> Result<(VecFelt252, VecFelt252, VecFelt252, VecFelt252), Error> {
-    let proof_file_content = std::fs::read_to_string(proof_file)?;
-    let parsed = parse(proof_file_content).map_err(Error::Parse)?;
-    Ok((
-        serde_json::from_str(&parsed.config.to_string())?,
-        serde_json::from_str(&parsed.public_input.to_string())?,
-        serde_json::from_str(&parsed.unsent_commitment.to_string())?,
-        serde_json::from_str(&parsed.witness.to_string())?,
-    ))
+fn serialize(input: String, cairo_version: Felt252) -> Result<String, Error> {
+    let mut parsed = parse_as_exprs(input)?;
+
+    let config: VecFelt252 = serde_json::from_str(&parsed.config.to_string()).unwrap();
+    let public_input: VecFelt252 = serde_json::from_str(&parsed.public_input.to_string()).unwrap();
+    let unsent_commitment: VecFelt252 =
+        serde_json::from_str(&parsed.unsent_commitment.to_string()).unwrap();
+
+    let fri_witness = match parsed.witness.0.pop().unwrap() {
+        Expr::Array(witness) => witness,
+        _ => panic!("Expected witness to be an array"),
+    };
+    let mut fri_layers = vec![];
+    let mut i = Felt252::from(0);
+    let mut reach_0_count = 2;
+    fri_witness.into_iter().for_each(|elem| {
+        let elem = match elem {
+            Expr::Value(s) => <Felt252 as Num>::from_str_radix(s.as_str(), 10).unwrap(),
+            _ => panic!("Expected value"),
+        };
+        if i == Felt252::from(0) {
+            if reach_0_count == 2 {
+                fri_layers.push(vec![]);
+                reach_0_count = 0;
+            }
+            reach_0_count += 1;
+
+            i = elem.clone();
+        } else {
+            i -= Felt252::from(1);
+        }
+        fri_layers.last_mut().unwrap().push(elem);
+    });
+
+    parsed.witness.0.push(Expr::Array(vec![]));
+    let witness: VecFelt252 = serde_json::from_str(&parsed.witness.to_string()).unwrap();
+
+    let proof = chain!(
+        config.into_iter(),
+        public_input.into_iter(),
+        unsent_commitment.into_iter(),
+        witness.into_iter()
+    );
+
+    let calldata = chain!(proof, vec![cairo_version].into_iter());
+
+    let calldata_string = calldata
+        .map(|f| f.to_string())
+        .collect::<Vec<String>>()
+        .join(" ");
+
+    Ok(calldata_string)
 }
 
 fn parse_bootloader_proof_file(
