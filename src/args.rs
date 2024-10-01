@@ -191,7 +191,7 @@ pub struct SerializeArgs {
         long = "layout",
         help = "Only required for creating split proofs for Starknet",
         value_enum,
-        required_if_eq("serialization_type", "monolith")
+        required_if_eq("serialization_type", "split")
     )]
     pub layout: Option<LayoutName>,
 
