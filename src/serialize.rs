@@ -1,6 +1,6 @@
 mod vec252;
 
-use crate::args::LayoutName;
+use crate::args::{LayoutName, SerializationType};
 use crate::args::{Network, SerializeArgs};
 use anyhow::Result;
 use cairo_felt::Felt252;
@@ -14,7 +14,7 @@ use std::path::Path;
 use std::path::PathBuf;
 use swiftness_air::layout::*;
 use swiftness_fri::{CONST_STATE, VAR_STATE, WITNESS};
-use swiftness_proof_parser::{parse, parse_as_exprs, Expr};
+use swiftness_proof_parser::{parse, parse_as_exprs, Expr, ParseStarkProof};
 use swiftness_stark::stark;
 use thiserror::Error;
 use vec252::VecFelt252;
@@ -35,6 +35,8 @@ pub enum Error {
     Verify(#[from] stark::Error),
     #[error("Serialization is not supported for the {0} layout")]
     UnsupportedLayout(LayoutName),
+    #[error("Serialization type is not specified")]
+    SerializationTypeNotSpecified,
 }
 
 pub fn serialize_proof(args: SerializeArgs) -> Result<(), Error> {
@@ -47,68 +49,101 @@ pub fn serialize_proof(args: SerializeArgs) -> Result<(), Error> {
                 args.extra_output_file,
             )?;
 
-            std::fs::write(args.output.clone(), proof_with_annotations_json).unwrap();
+            std::fs::write(args.output.clone().unwrap(), proof_with_annotations_json).unwrap();
         }
-        Network::starknet => {
-            let input = std::fs::read_to_string(proof_file.clone())?;
-            let stark_proof = parse(input.clone())?;
-            let security_bits = stark_proof.config.security_bits();
+        Network::starknet => match args.serialization_type {
+            Some(SerializationType::monolith) => {
+                let output = args.output.clone().unwrap();
+                let input = std::fs::read_to_string(proof_file.clone())?;
+                let stark_proof: ParseStarkProof = parse_as_exprs(input)?;
+                let config: VecFelt252 =
+                    serde_json::from_str(&stark_proof.config.to_string()).unwrap();
+                let public_input: VecFelt252 =
+                    serde_json::from_str(&stark_proof.public_input.to_string()).unwrap();
+                let unsent_commitment: VecFelt252 =
+                    serde_json::from_str(&stark_proof.unsent_commitment.to_string()).unwrap();
+                let witness: VecFelt252 =
+                    serde_json::from_str(&stark_proof.witness.to_string()).unwrap();
 
-            match args.layout {
-                LayoutName::dex => {
-                    stark_proof.verify::<dex::Layout>(security_bits)?;
+                let proof = chain!(
+                    config.into_iter(),
+                    public_input.into_iter(),
+                    unsent_commitment.into_iter(),
+                    witness.into_iter()
+                );
+
+                let calldata_string = proof
+                    .into_iter()
+                    .map(|f| f.to_string())
+                    .collect::<Vec<String>>()
+                    .join(" ");
+
+                std::fs::write(output, calldata_string)?;
+            }
+            Some(SerializationType::split) => {
+                let output_dir = args.output_dir.clone().unwrap();
+                let layout = args.layout.unwrap();
+                let input = std::fs::read_to_string(proof_file.clone())?;
+                let stark_proof = parse(input.clone())?;
+                let security_bits = stark_proof.config.security_bits();
+
+                match layout {
+                    LayoutName::dex => {
+                        stark_proof.verify::<dex::Layout>(security_bits)?;
+                    }
+                    LayoutName::recursive => {
+                        stark_proof.verify::<recursive::Layout>(security_bits)?;
+                    }
+                    LayoutName::recursive_with_poseidon => {
+                        stark_proof.verify::<recursive_with_poseidon::Layout>(security_bits)?;
+                    }
+                    LayoutName::small => {
+                        stark_proof.verify::<small::Layout>(security_bits)?;
+                    }
+                    LayoutName::starknet => {
+                        stark_proof.verify::<starknet::Layout>(security_bits)?;
+                    }
+                    LayoutName::starknet_with_keccak => {
+                        stark_proof.verify::<starknet_with_keccak::Layout>(security_bits)?;
+                    }
+                    layout @ (LayoutName::plain
+                    | LayoutName::recursive_large_output
+                    | LayoutName::all_solidity
+                    | LayoutName::all_cairo
+                    | LayoutName::dynamic) => {
+                        return Err(Error::UnsupportedLayout(layout));
+                    }
                 }
-                LayoutName::recursive => {
-                    stark_proof.verify::<recursive::Layout>(security_bits)?;
-                }
-                LayoutName::recursive_with_poseidon => {
-                    stark_proof.verify::<recursive_with_poseidon::Layout>(security_bits)?;
-                }
-                LayoutName::small => {
-                    stark_proof.verify::<small::Layout>(security_bits)?;
-                }
-                LayoutName::starknet => {
-                    stark_proof.verify::<starknet::Layout>(security_bits)?;
-                }
-                LayoutName::starknet_with_keccak => {
-                    stark_proof.verify::<starknet_with_keccak::Layout>(security_bits)?;
-                }
-                layout @ (LayoutName::plain
-                | LayoutName::recursive_large_output
-                | LayoutName::all_solidity
-                | LayoutName::all_cairo
-                | LayoutName::dynamic) => {
-                    return Err(Error::UnsupportedLayout(layout));
+
+                let (const_state, mut var_state, mut witness) =
+                    unsafe { (CONST_STATE.clone(), VAR_STATE.clone(), WITNESS.clone()) };
+                let cairo_version = Felt252::from(0);
+                let initial = serialize(input, cairo_version)?
+                    .split_whitespace()
+                    .map(|s| Felt::from_dec_str(s).unwrap().to_hex_string())
+                    .join(" ");
+
+                let final_ = format!(
+                    "{} {} {}",
+                    const_state,
+                    var_state.pop().unwrap(),
+                    witness.pop().unwrap()
+                );
+
+                std::fs::create_dir_all(&output_dir)?;
+
+                write(output_dir.join("initial"), initial)?;
+                write(output_dir.join("final"), final_)?;
+
+                for (i, (v, w)) in var_state.iter().zip(witness.iter()).enumerate() {
+                    write(
+                        output_dir.join(format!("step{}", i + 1)),
+                        format!("{} {} {}", const_state, v, w),
+                    )?;
                 }
             }
-
-            let (const_state, mut var_state, mut witness) =
-                unsafe { (CONST_STATE.clone(), VAR_STATE.clone(), WITNESS.clone()) };
-            let cairo_version = Felt252::from(0);
-            let initial = serialize(input, cairo_version)?
-                .split_whitespace()
-                .map(|s| Felt::from_dec_str(s).unwrap().to_hex_string())
-                .join(" ");
-
-            let final_ = format!(
-                "{} {} {}",
-                const_state,
-                var_state.pop().unwrap(),
-                witness.pop().unwrap()
-            );
-
-            std::fs::create_dir_all(&args.output)?;
-
-            write(args.output.join("initial"), initial)?;
-            write(args.output.join("final"), final_)?;
-
-            for (i, (v, w)) in var_state.iter().zip(witness.iter()).enumerate() {
-                write(
-                    args.output.join(format!("step{}", i + 1)),
-                    format!("{} {} {}", const_state, v, w),
-                )?;
-            }
-        }
+            None => return Err(Error::SerializationTypeNotSpecified),
+        },
     }
     Ok(())
 }
