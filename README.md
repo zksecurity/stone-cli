@@ -62,17 +62,19 @@ Currently, only `linux/amd64` with `AVX` is supported.
   - `--annotation_file`
   - `--extra_output_file`
 
+`--annotation_file` and `--extra_output_file` arguments are required when serializing a proof for Ethereum.
+
 ### Serialize Proof
 
-- Serialize a proof to a file
-- `stone-cli serialize-proof --proof <proof-path> --network <network> --output <output-path>`
-- Additional args:
-  - `--annotation_file`
-  - `--extra_output_file`
-
-Using `--network starknet` serializes the Cairo proof into a format that can be verified on the Cairo verifier deployed on Starknet. Please refer to the [integrity documentation](https://github.com/HerodotusDev/integrity) for more information on how to use the calldata to send a transaction to Starknet.
-
-Using `--network ethereum` serializes the Cairo proof into a format that can be verified on the Solidity verifier deployed on Ethereum. Please refer to the [the next section](#how-to-create-proofs-and-verify-them-on-ethereum) for more information on how to create proofs that can be verified on Ethereum.
+- Serialize a proof to be verified on Starknet or Ethereum
+- Ethereum
+  - `stone-cli serialize-proof --proof <proof-path> --network ethereum --annotation_file <annotation-path> --extra_output_file <extra-output-path> --output <output-path>`
+- Starknet
+  - [integrity](https://github.com/HerodotusDev/integrity) provides two types of serializations for Starknet
+  - monolith type (supports only `recursive` layout)
+    - `stone-cli serialize-proof --proof <proof-path> --network starknet --serialization_type monolith --output <output-path>`
+  - split type (supports `dex`, `small`, `recursive`, `recursive_with_poseidon`, `starknet`, and `starknet_with_keccak` layouts)
+    - `stone-cli serialize-proof --proof <proof-path> --network starknet --serialization_type split --output_dir <output-dir> --layout starknet`
 
 ### How to create proofs and verify them on Ethereum
 
@@ -89,6 +91,14 @@ Here are the specific steps for the above process:
 3. Call `stone-cli serialize-proof --proof bootloader_proof.json --annotation_file annotation.json --extra_output_file extra_output.json --network ethereum --output bootloader_serialized_proof.json`
 
 4. Verify on Ethereum with the [evm-adapter CLI](https://github.com/zksecurity/stark-evm-adapter/tree/add-build-configs?tab=readme-ov-file#using-existing-proof) using the `bootloader_serialized_proof.json` and `fact_topologies.json` files as inputs
+
+### How to create proofs and verify them on Starknet
+
+1. Call `stone-cli prove --cairo_program <program-path> --layout <layout>` with a layout that is supported by either the `monolith` or `split` serialization types
+
+2. Call `stone-cli serialize-proof --proof <proof-path> --network starknet --serialization_type monolith --output <output-path>` or `stone-cli serialize-proof --proof <proof-path> --network starknet --serialization_type split --output_dir <output-dir> --layout <layout>`
+
+3. Verify on Starknet with [integrity](https://github.com/HerodotusDev/integrity) using the `output` file or files in the `output_dir` as input
 
 #### Notes
 
