@@ -1,9 +1,6 @@
 use rstest::{fixture, rstest};
 use serde::{Deserialize, Serialize};
-use std::{
-    path::{Path, PathBuf},
-    str::FromStr,
-};
+use std::{path::Path, str::FromStr};
 use stone_cli::{
     args::{
         CairoVersion, LayoutName, Network, ProveArgs, ProveBootloaderArgs, SerializationType,
@@ -732,28 +729,32 @@ fn test_run_serialize_starknet_split(#[from(setup)] _path: ()) {
     let expected_serialized_proof_dir = test_dir.join("serialized");
     let entries = std::fs::read_dir(expected_serialized_proof_dir.clone())
         .expect("Failed to read serialized proof directory");
-    for entry in entries {
-        if let Ok(entry) = entry {
-            let path = entry.path();
-            let file_name = path.file_name().unwrap();
-            let expected_content = std::fs::read_to_string(path.clone()).expect(&format!(
-                "Failed to read file: {}",
-                file_name.to_str().unwrap()
-            ));
+    for entry in entries.flatten() {
+        let path = entry.path();
+        let file_name = path.file_name().unwrap();
+        let expected_content = std::fs::read_to_string(path.clone()).unwrap_or_else(|e| {
+            panic!(
+                "Failed to read file: {}: {}",
+                file_name.to_str().unwrap(),
+                e
+            )
+        });
 
-            let actual_file = actual_serialized_proof_dir.join(file_name);
-            let actual_content = std::fs::read_to_string(&actual_file).expect(&format!(
-                "Failed to read file: {}",
-                file_name.to_str().unwrap()
-            ));
+        let actual_file = actual_serialized_proof_dir.join(file_name);
+        let actual_content = std::fs::read_to_string(&actual_file).unwrap_or_else(|e| {
+            panic!(
+                "Failed to read file: {}: {}",
+                file_name.to_str().unwrap(),
+                e
+            )
+        });
 
-            assert_eq!(
-                actual_content,
-                expected_content,
-                "Content mismatch for file: {}",
-                file_name.to_str().unwrap()
-            );
-        }
+        assert_eq!(
+            actual_content,
+            expected_content,
+            "Content mismatch for file: {}",
+            file_name.to_str().unwrap()
+        );
     }
 }
 
@@ -761,7 +762,7 @@ fn assert_error_msg_eq(e: &anyhow::Error, expected: &str) {
     assert_eq!(e.to_string(), expected);
 }
 
-fn check_tmp_files(tmp_dir: &TempDir, program_file: &PathBuf) {
+fn check_tmp_files(tmp_dir: &TempDir, program_file: &Path) {
     let filename = program_file.file_stem().unwrap().to_str().unwrap();
     let trace_file = tmp_dir.path().join(format!("{}_trace.json", filename));
     assert!(trace_file.exists(), "Trace file does not exist");

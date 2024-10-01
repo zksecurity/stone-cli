@@ -19,7 +19,7 @@ use swiftness_stark::stark;
 use thiserror::Error;
 use vec252::VecFelt252;
 
-#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum CairoVersion {
     Cairo0 = 0,
     Cairo1 = 1,

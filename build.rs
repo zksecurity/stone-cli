@@ -121,11 +121,11 @@ fn download_executables(config: &Config) {
     let download_file_path = download_dir.join(download_file_name);
     download_from_url(url, &download_file_path);
     unzip_file(&download_file_path, &download_dir);
-    move_files(&download_dir, &download_file_name, &config.file_names);
+    move_files(&download_dir, download_file_name, &config.file_names);
     remove_file(&download_file_path).expect("Failed to remove tar file");
 
     let sha256_sums = &dist.sha256_sums;
-    validate_unpacked_files(&download_dir, &config.file_names, &sha256_sums);
+    validate_unpacked_files(&download_dir, &config.file_names, sha256_sums);
     set_execute_permissions(config);
 }
 
