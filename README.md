@@ -100,13 +100,13 @@ Here are the specific steps for the above process:
 
 ### List of supported builtins per layout
 
-| Layout      | dex | recursive | recursive_with_poseidon | small | starknet | starknet_with_keccak |
-| ----------- | :-: | :-------: | :---------------------: | :---: | :------: | :------------------: |
-| output      |  O  |     O     |            O            |   O   |    O     |          O           |
-| pedersen    |  O  |     O     |            O            |   O   |    O     |          O           |
-| range_check |  O  |     O     |            O            |   O   |    O     |          O           |
-| bitwise     |  O  |     O     |            O            |       |    O     |          O           |
-| ecdsa       |  O  |           |                         |       |    O     |          O           |
-| poseidon    |     |           |            O            |       |          |                      |
-| ec_op       |     |           |                         |       |    O     |          O           |
-| keccak      |     |           |                         |       |          |          O           |
+|             | small | recursive | dex | recursive_with_poseidon | starknet | starknet_with_keccak |
+| ----------- | :---: | :-------: | :-: | :---------------------: | :------: | :------------------: |
+| output      |   O   |     O     |  O  |            O            |    O     |          O           |
+| pedersen    |   O   |     O     |  O  |            O            |    O     |          O           |
+| range_check |   O   |     O     |  O  |            O            |    O     |          O           |
+| bitwise     |       |     O     |     |            O            |    O     |          O           |
+| ecdsa       |       |           |  O  |                         |    O     |          O           |
+| poseidon    |       |           |     |            O            |    O     |          O           |
+| ec_op       |       |           |     |                         |    O     |          O           |
+| keccak      |       |           |     |                         |          |          O           |
