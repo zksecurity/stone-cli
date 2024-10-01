@@ -1,0 +1,57 @@
+on:
+  workflow_dispatch:
+
+env:
+  stone-commit: 7ac17c8ba63a789604350e501558ef0ab990fd88
+
+jobs:
+  build-stone:
+    name: Build Stone Prover/Verifier
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout the stone prover (https://github.com/starkware-libs/stone-prover)
+        run: |
+          git clone https://github.com/starkware-libs/stone-prover
+          cd stone-prover
+          git checkout ${{ env.stone-commit }}
+
+      - name: Install additional dependencies
+        run: |
+          sudo apt update && sudo apt install -y \
+          python3-dev \
+          python3-pip \
+          python-is-python3 \
+          elfutils \
+          libasm-dev \
+          libelf-dev \
+          libdw-dev
+
+      - name: run docker_common_deps.shc
+        run: |
+          curl -L -o /tmp/bazel_install.sh https://github.com/bazelbuild/bazel/releases/download/5.4.0/bazel-5.4.0-installer-linux-x86_64.sh
+          chmod +x /tmp/bazel_install.sh
+          sudo /tmp/bazel_install.sh
+
+      - name: bazel build //...
+        run: |
+          cd stone-prover
+          bazel build //...
+
+      - name: copy prover/verifier
+        run: |
+          cp stone-prover/build/bazelbin/src/starkware/main/cpu/cpu_air_prover ~/cpu_air_prover 
+          cp stone-prover/build/bazelbin/src/starkware/main/cpu/cpu_air_verifier ~/cpu_air_verifier
+
+      - name: upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: stone-prover
+          path: |
+            ~/cpu_air_prover
+            ~/cpu_air_verifier
+
+      - name: Compute hashes of binaries
+        run: |
+          sha256sum ~/cpu_air_prover
+          sha256sum ~/cpu_air_verifier
+          cd ~/ && ls -al

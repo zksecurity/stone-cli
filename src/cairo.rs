@@ -122,13 +122,15 @@ pub fn run_cairo0(
         .as_path()
         .canonicalize()
         .unwrap_or(trace_path.clone())
-        .to_string_lossy()
+        .to_str()
+        .unwrap()
         .to_string();
     let memory_absolute_path = memory_path
         .as_path()
         .canonicalize()
         .unwrap_or(memory_path.clone())
-        .to_string_lossy()
+        .to_str()
+        .unwrap()
         .to_string();
     let air_private_input = runner
         .get_air_private_input()
