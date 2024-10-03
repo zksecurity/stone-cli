@@ -503,15 +503,17 @@ dependencies = [
 
 [[package]]
 name = "cairo-proof-parser"
-version = "0.1.2"
-source = "git+https://github.com/Okm165/cairo-proof-parser?rev=97a04bbee07330311b38d6f4cecfed3acb237626#97a04bbee07330311b38d6f4cecfed3acb237626"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2e453b4f5548816666ad56a05e0e0dc57a55116570a74093fc6b5856fea3069b"
 dependencies = [
  "anyhow",
- "clap 4.5.18",
+ "itertools 0.12.1",
  "num-bigint",
  "regex",
  "serde",
  "serde_json",
+ "starknet-crypto",
 ]
 
 [[package]]
@@ -2190,6 +2192,15 @@ name = "itertools"
 version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b1c173a5686ce8bfa551b3563d0c2170bf24ca44da99c7ca4bfdab5418c3fe57"
+dependencies = [
+ "either",
+]
+
+[[package]]
+name = "itertools"
+version = "0.12.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ba291022dbbd398a455acf126c1e341954079855bc60dfdda641363bd6922569"
 dependencies = [
  "either",
 ]

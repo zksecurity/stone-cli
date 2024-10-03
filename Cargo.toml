@@ -10,7 +10,7 @@ bincode = { version = "2.0.0-rc.3", default-features = false, features = [
 ] }
 cairo-bootloader = { git = "https://github.com/zksecurity/cairo-bootloader" }
 cairo-felt = "0.9.1"
-cairo-proof-parser = { git = "https://github.com/Okm165/cairo-proof-parser", rev = "97a04bbee07330311b38d6f4cecfed3acb237626"}
+cairo-proof-parser = "0.3.0"
 cairo-vm = { git = "https://github.com/zksecurity/cairo-vm", features = ["extensive_hints"] }
 clap = { version = "4.3.10", features = ["derive"] }
 itertools = "0.13.0"
