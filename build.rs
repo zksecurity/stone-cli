@@ -18,7 +18,6 @@ static DISTS: LazyLock<HashMap<(Os, Arch), Artifacts>> = LazyLock::new(|| {
             "4a45808fd5ace7a88bfaa2b921baeb49f381d38afaa67e795b1038dd5a6adeff".to_string(),
             "039d81f62004613f34bfb39b10c4b6b234e22a2b26c8b68c07701e5edaa98a33".to_string(),
             "a13a1ae5a5f4109489bbe93f78a12778ec99a896e9f4fbe3c88f38d1f61612b2".to_string(),
-            "672dbec290a5ab55a4e90d54d556d5d6f33f5ae9fdf8fd635b555172fdf6a34a".to_string(),
         ],
     });
     m.insert((Os::MacOS, Arch::Aarch64), Artifacts {
@@ -27,7 +26,6 @@ static DISTS: LazyLock<HashMap<(Os, Arch), Artifacts>> = LazyLock::new(|| {
             "37029e44bf8812b2fb38afebb3f47b0decfcf00b8ac29af6698615a507932511".to_string(),
             "9d56eaa56eda5caa6853761f93d363dc3e9e9af27cf142cd0178dbcd4f61d405".to_string(),
             "bfd92c9f8c6be41a0486c936b0f12df153ee2743edbf782e21f15fa56e3bdb70".to_string(),
-            "672dbec290a5ab55a4e90d54d556d5d6f33f5ae9fdf8fd635b555172fdf6a34a".to_string(),
         ],
     });
     m
