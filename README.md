@@ -110,3 +110,7 @@ Here are the specific steps for the above process:
 | poseidon    |     |           |            O            |       |          |                      |
 | ec_op       |     |           |                         |       |    O     |          O           |
 | keccak      |     |           |                         |       |          |          O           |
+
+### Commands diagram
+
+![Commands Diagram](./assets/commands-diagram.svg)
