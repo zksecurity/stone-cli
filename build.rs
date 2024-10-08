@@ -15,19 +15,17 @@ static DISTS: LazyLock<HashMap<(Os, Arch), Artifacts>> = LazyLock::new(|| {
     m.insert((Os::Linux, Arch::Amd64), Artifacts {
         url: "https://github.com/zksecurity/stone-cli/releases/download/v0.1.0-alpha/stone-cli-linux-x86_64.tar.gz".to_string(),
         sha256_sums: vec![
-            "4a45808fd5ace7a88bfaa2b921baeb49f381d38afaa67e795b1038dd5a6adeff".to_string(),
-            "d5345e3e72a6180dabcec79ef35cefc735ea72864742e1cc117869da7d122ee5".to_string(),
-            "8ed3cad6cf3fb10f5a600af861c28b8f427244b0c2de920f1c18ea78371a66a9".to_string(),
-            "672dbec290a5ab55a4e90d54d556d5d6f33f5ae9fdf8fd635b555172fdf6a34a".to_string(),
+            "2a100342be0660fc8363e7ac6230ffd9ea0937e7afc35265b7af1595d64dcff4".to_string(),
+            "039d81f62004613f34bfb39b10c4b6b234e22a2b26c8b68c07701e5edaa98a33".to_string(),
+            "a13a1ae5a5f4109489bbe93f78a12778ec99a896e9f4fbe3c88f38d1f61612b2".to_string(),
         ],
     });
     m.insert((Os::MacOS, Arch::Aarch64), Artifacts {
         url: "https://github.com/zksecurity/stone-cli/releases/download/v0.1.0-alpha/stone-cli-macos-aarch64.tar.gz".to_string(),
         sha256_sums: vec![
-            "37029e44bf8812b2fb38afebb3f47b0decfcf00b8ac29af6698615a507932511".to_string(),
-            "d91e8328b7a228445dda0b9d1acb21a86ab894727737e2d70a0210179b90f00e".to_string(),
-            "fc4090e3395e101f3481efc247ad590e5db7704c31321480522904d68ba5d009".to_string(),
-            "672dbec290a5ab55a4e90d54d556d5d6f33f5ae9fdf8fd635b555172fdf6a34a".to_string(),
+            "22b3d5a9d9c9bbaab6196a3ff4d372e765fa75c50272d20fc562917849974a2b".to_string(),
+            "9d56eaa56eda5caa6853761f93d363dc3e9e9af27cf142cd0178dbcd4f61d405".to_string(),
+            "bfd92c9f8c6be41a0486c936b0f12df153ee2743edbf782e21f15fa56e3bdb70".to_string(),
         ],
     });
     m
@@ -121,11 +119,11 @@ fn download_executables(config: &Config) {
     let download_file_path = download_dir.join(download_file_name);
     download_from_url(url, &download_file_path);
     unzip_file(&download_file_path, &download_dir);
-    move_files(&download_dir, &download_file_name, &config.file_names);
+    move_files(&download_dir, download_file_name, &config.file_names);
     remove_file(&download_file_path).expect("Failed to remove tar file");
 
     let sha256_sums = &dist.sha256_sums;
-    validate_unpacked_files(&download_dir, &config.file_names, &sha256_sums);
+    validate_unpacked_files(&download_dir, &config.file_names, sha256_sums);
     set_execute_permissions(config);
 }
 
@@ -147,7 +145,7 @@ fn set_execute_permissions(config: &Config) {
 fn download_corelib_repo() {
     let download_dir = Path::new(env!("HOME")).join(".stone-cli");
     let corelib_dir = Path::new(env!("HOME")).join(download_dir.join("corelib"));
-    let url = "https://github.com/starkware-libs/cairo/releases/download/v2.6.3/release-x86_64-unknown-linux-musl.tar.gz";
+    let url = "https://github.com/starkware-libs/cairo/releases/download/v2.8.4/release-x86_64-unknown-linux-musl.tar.gz";
     let download_file_path = download_dir.join("release-x86_64-unknown-linux-musl.tar.gz");
     if !corelib_dir.exists() {
         download_from_url(url, &download_file_path);
