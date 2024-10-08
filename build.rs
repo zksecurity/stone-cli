@@ -15,7 +15,7 @@ static DISTS: LazyLock<HashMap<(Os, Arch), Artifacts>> = LazyLock::new(|| {
     m.insert((Os::Linux, Arch::Amd64), Artifacts {
         url: "https://github.com/zksecurity/stone-cli/releases/download/v0.1.0-alpha/stone-cli-linux-x86_64.tar.gz".to_string(),
         sha256_sums: vec![
-            "4a45808fd5ace7a88bfaa2b921baeb49f381d38afaa67e795b1038dd5a6adeff".to_string(),
+            "2a100342be0660fc8363e7ac6230ffd9ea0937e7afc35265b7af1595d64dcff4".to_string(),
             "039d81f62004613f34bfb39b10c4b6b234e22a2b26c8b68c07701e5edaa98a33".to_string(),
             "a13a1ae5a5f4109489bbe93f78a12778ec99a896e9f4fbe3c88f38d1f61612b2".to_string(),
         ],
@@ -23,7 +23,7 @@ static DISTS: LazyLock<HashMap<(Os, Arch), Artifacts>> = LazyLock::new(|| {
     m.insert((Os::MacOS, Arch::Aarch64), Artifacts {
         url: "https://github.com/zksecurity/stone-cli/releases/download/v0.1.0-alpha/stone-cli-macos-aarch64.tar.gz".to_string(),
         sha256_sums: vec![
-            "37029e44bf8812b2fb38afebb3f47b0decfcf00b8ac29af6698615a507932511".to_string(),
+            "22b3d5a9d9c9bbaab6196a3ff4d372e765fa75c50272d20fc562917849974a2b".to_string(),
             "9d56eaa56eda5caa6853761f93d363dc3e9e9af27cf142cd0178dbcd4f61d405".to_string(),
             "bfd92c9f8c6be41a0486c936b0f12df153ee2743edbf782e21f15fa56e3bdb70".to_string(),
         ],
@@ -145,7 +145,7 @@ fn set_execute_permissions(config: &Config) {
 fn download_corelib_repo() {
     let download_dir = Path::new(env!("HOME")).join(".stone-cli");
     let corelib_dir = Path::new(env!("HOME")).join(download_dir.join("corelib"));
-    let url = "https://github.com/starkware-libs/cairo/releases/download/v2.6.3/release-x86_64-unknown-linux-musl.tar.gz";
+    let url = "https://github.com/starkware-libs/cairo/releases/download/v2.8.4/release-x86_64-unknown-linux-musl.tar.gz";
     let download_file_path = download_dir.join("release-x86_64-unknown-linux-musl.tar.gz");
     if !corelib_dir.exists() {
         download_from_url(url, &download_file_path);
