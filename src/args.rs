@@ -4,6 +4,7 @@ pub use crate::prover;
 use clap::{Args, Parser, ValueHint};
 use prover::config::{ProverConfig, ProverParametersConfig};
 use serde::{Deserialize, Serialize};
+use std::fmt;
 use std::path::PathBuf;
 
 #[derive(Parser, Debug)]
@@ -121,6 +122,12 @@ define_enum! {
     dynamic => "all_cairo",
 }
 
+impl fmt::Display for LayoutName {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
+
 impl std::str::FromStr for LayoutName {
     type Err = ();
 
@@ -174,26 +181,53 @@ pub struct SerializeArgs {
     #[clap(long = "network", value_enum)]
     pub network: Network,
 
-    #[clap(long = "output")]
-    pub output: PathBuf,
+    #[clap(long = "output", value_hint=ValueHint::FilePath, required_if_eq_any([("serialization_type", "monolith"), ("network", "ethereum")]))]
+    pub output: Option<PathBuf>,
+
+    #[clap(long = "output_dir", value_hint=ValueHint::DirPath, help="Output directory for storing split proof files. Required for creating split proofs for Starknet", required_if_eq("serialization_type", "split"))]
+    pub output_dir: Option<PathBuf>,
+
+    #[clap(
+        long = "layout",
+        help = "Only required for creating split proofs for Starknet",
+        value_enum,
+        required_if_eq("serialization_type", "split")
+    )]
+    pub layout: Option<LayoutName>,
 
     #[clap(
         long = "annotation_file",
-        help = "Path to the file containing elements generated from the interaction between the prover and verifier",
-        value_hint=ValueHint::FilePath
+        help = "Path to the file containing elements generated from the interaction between the prover and verifier. Required to verify on Ethereum",
+        value_hint=ValueHint::FilePath,
+        required_if_eq("network", "ethereum")
     )]
     pub annotation_file: Option<PathBuf>,
 
     #[clap(
         long = "extra_output_file",
-        help = "Path to the file containing additional interaction elements necessary for generating split proofs",
-        value_hint=ValueHint::FilePath
+        help = "Path to the file containing additional interaction elements necessary for generating split proofs. Required to verify on Ethereum",
+        value_hint=ValueHint::FilePath,
+        required_if_eq("network", "ethereum")
     )]
     pub extra_output_file: Option<PathBuf>,
+
+    #[clap(
+        long = "serialization_type",
+        help = "Whether to split the proof or not to verify on Starknet. See https://github.com/HerodotusDev/integrity for more details",
+        value_enum,
+        required_if_eq("network", "starknet")
+    )]
+    pub serialization_type: Option<SerializationType>,
 }
 
 define_enum! {
     Network,
     starknet => "starknet",
     ethereum => "ethereum",
+}
+
+define_enum! {
+    SerializationType,
+    monolith => "monolith",
+    split => "split",
 }

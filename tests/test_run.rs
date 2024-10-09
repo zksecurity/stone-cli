@@ -1,13 +1,10 @@
 use rstest::{fixture, rstest};
 use serde::{Deserialize, Serialize};
-use std::{
-    path::{Path, PathBuf},
-    str::FromStr,
-};
+use std::{path::Path, str::FromStr};
 use stone_cli::{
     args::{
-        CairoVersion, LayoutName, Network, ProveArgs, ProveBootloaderArgs, SerializeArgs,
-        VerifyArgs,
+        CairoVersion, LayoutName, Network, ProveArgs, ProveBootloaderArgs, SerializationType,
+        SerializeArgs, VerifyArgs,
     },
     bootloader::run_bootloader,
     cairo::{run_cairo0, run_cairo1},
@@ -594,24 +591,25 @@ fn test_run_bootloader(
 }
 
 #[rstest]
-fn test_run_serialize(#[from(setup)] _path: ()) {
+fn test_run_serialize_ethereum(#[from(setup)] _path: ()) {
     let tmp_dir = tempfile::Builder::new()
         .prefix("stone-cli-test-")
         .tempdir()
         .expect("Failed to create temp dir");
 
-    let proof_file = Path::new(env!("CARGO_MANIFEST_DIR"))
+    let test_dir = Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("tests")
         .join("resources")
-        .join("bootloader_proof.json");
+        .join("proofs")
+        .join("ethereum")
+        .join("layouts")
+        .join("starknet");
+    let proof_file = test_dir.join("bootloader_proof.json");
     let annotation_file = tmp_dir.path().join("bootloader_annotation.json");
     let extra_output_file = tmp_dir.path().join("bootloader_extra_output.json");
 
     let serialized_proof_file = tmp_dir.path().join("bootloader_proof_serialized.json");
-    let expected_serialized_proof_file = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("tests")
-        .join("resources")
-        .join("bootloader_proof_serialized.json");
+    let expected_serialized_proof_file = test_dir.join("bootloader_proof_serialized.json");
 
     let verify_args = VerifyArgs {
         proof: proof_file.clone(),
@@ -622,9 +620,12 @@ fn test_run_serialize(#[from(setup)] _path: ()) {
     let serialize_args = SerializeArgs {
         proof: proof_file,
         network: Network::ethereum,
+        layout: None,
         annotation_file: Some(annotation_file),
         extra_output_file: Some(extra_output_file),
-        output: serialized_proof_file.clone(),
+        output: Some(serialized_proof_file.clone()),
+        output_dir: None,
+        serialization_type: None,
     };
 
     match run_stone_verifier(verify_args) {
@@ -649,11 +650,119 @@ fn test_run_serialize(#[from(setup)] _path: ()) {
     }
 }
 
+#[rstest]
+fn test_run_serialize_starknet_monolith(#[from(setup)] _path: ()) {
+    let tmp_dir = tempfile::Builder::new()
+        .prefix("stone-cli-test-")
+        .tempdir()
+        .expect("Failed to create temp dir");
+
+    let test_dir = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests")
+        .join("resources")
+        .join("proofs")
+        .join("starknet")
+        .join("monolith");
+    let proof_file = test_dir.join("cairo0_stone5_keccak_160_lsb_example_proof.json");
+    let serialized_proof_file = tmp_dir.path().join("serialized");
+    let expected_serialized_proof_file = test_dir.join("serialized");
+
+    let serialize_args = SerializeArgs {
+        proof: proof_file,
+        layout: None,
+        network: Network::starknet,
+        annotation_file: None,
+        extra_output_file: None,
+        output: Some(serialized_proof_file.clone()),
+        output_dir: None,
+        serialization_type: Some(SerializationType::monolith),
+    };
+    serialize_proof(serialize_args).expect("Failed to serialize proof");
+
+    assert_eq!(
+        std::fs::read_to_string(serialized_proof_file)
+            .expect("Failed to read serialized proof file"),
+        std::fs::read_to_string(expected_serialized_proof_file)
+            .expect("Failed to read expected serialized proof file")
+    );
+}
+
+#[rstest]
+fn test_run_serialize_starknet_split(#[from(setup)] _path: ()) {
+    let tmp_dir = tempfile::Builder::new()
+        .prefix("stone-cli-test-")
+        .tempdir()
+        .expect("Failed to create temp dir");
+
+    let layout = LayoutName::starknet;
+    let test_dir = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests")
+        .join("resources")
+        .join("proofs")
+        .join("starknet")
+        .join("split")
+        .join("layouts")
+        .join(layout.clone().to_string());
+    let proof_file = test_dir.join("cairo0_example_proof.json");
+
+    std::fs::create_dir(tmp_dir.path().join("serialized_proofs"))
+        .expect("Failed to create serialized_proofs directory");
+    let actual_serialized_proof_dir = tmp_dir
+        .path()
+        .join("serialized_proofs")
+        .join(layout.clone().to_string());
+    std::fs::create_dir(&actual_serialized_proof_dir)
+        .expect("Failed to create serialized_proof directory");
+
+    let serialize_args = SerializeArgs {
+        proof: proof_file,
+        layout: Some(layout.clone()),
+        network: Network::starknet,
+        annotation_file: None,
+        extra_output_file: None,
+        output: None,
+        output_dir: Some(actual_serialized_proof_dir.clone()),
+        serialization_type: Some(SerializationType::split),
+    };
+    serialize_proof(serialize_args).expect("Failed to serialize proof");
+
+    let expected_serialized_proof_dir = test_dir.join("serialized");
+    let entries = std::fs::read_dir(expected_serialized_proof_dir.clone())
+        .expect("Failed to read serialized proof directory");
+    for entry in entries.flatten() {
+        let path = entry.path();
+        let file_name = path.file_name().unwrap();
+        let expected_content = std::fs::read_to_string(path.clone()).unwrap_or_else(|e| {
+            panic!(
+                "Failed to read file: {}: {}",
+                file_name.to_str().unwrap(),
+                e
+            )
+        });
+
+        let actual_file = actual_serialized_proof_dir.join(file_name);
+        let actual_content = std::fs::read_to_string(&actual_file).unwrap_or_else(|e| {
+            panic!(
+                "Failed to read file: {}: {}",
+                file_name.to_str().unwrap(),
+                e
+            )
+        });
+
+        assert_eq!(
+            actual_content,
+            expected_content,
+            "Content mismatch for file: {}",
+            file_name.to_str().unwrap()
+        );
+    }
+}
+
 fn assert_error_msg_eq(e: &anyhow::Error, expected: &str) {
     assert_eq!(e.to_string(), expected);
 }
 
-fn check_tmp_files(tmp_dir: &TempDir, program_file: &PathBuf) {
+fn check_tmp_files(tmp_dir: &TempDir, program_file: &Path) {
     let filename = program_file.file_stem().unwrap().to_str().unwrap();
     let trace_file = tmp_dir.path().join(format!("{}_trace.json", filename));
     assert!(trace_file.exists(), "Trace file does not exist");
