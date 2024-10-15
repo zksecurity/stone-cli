@@ -1,3 +1,4 @@
+use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::env::consts::{ARCH, OS};
@@ -5,12 +6,11 @@ use std::ffi::OsStr;
 use std::fs::{metadata, remove_file, set_permissions};
 use std::os::unix::fs::PermissionsExt;
 use std::path::Path;
-use std::sync::LazyLock;
 use thiserror::Error;
 
 const CONFIG: &str = include_str!("configs/env.json");
 
-static DISTS: LazyLock<HashMap<(Os, Arch), Artifacts>> = LazyLock::new(|| {
+static DISTS: Lazy<HashMap<(Os, Arch), Artifacts>> = Lazy::new(|| {
     let mut m = HashMap::new();
     m.insert((Os::Linux, Arch::Amd64), Artifacts {
         url: "https://github.com/zksecurity/stone-cli/releases/download/v0.1.0-alpha/stone-cli-linux-x86_64.tar.gz".to_string(),

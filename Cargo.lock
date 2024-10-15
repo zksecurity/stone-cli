@@ -4060,6 +4060,7 @@ dependencies = [
  "itertools 0.13.0",
  "num-bigint",
  "num-traits",
+ "once_cell",
  "predicates",
  "reqwest 0.12.7",
  "rstest",
