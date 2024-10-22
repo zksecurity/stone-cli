@@ -111,7 +111,14 @@ fn download_executables(config: &Config) {
         return;
     }
 
-    let dist = &DISTS[&(OS.try_into().unwrap(), ARCH.try_into().unwrap())];
+    // look up the stone-prover distribution for the current OS and architecture
+    let os = OS.try_into().unwrap();
+    let arch = ARCH.try_into().unwrap();
+    let dist = match DISTS.get(&(os, arch)) {
+        Some(dist) => dist,
+        None => panic!("Unsupported OS or architecture {}/{}", OS, ARCH),
+    };
+
     let url = &dist.url;
     let download_file_name = Path::new(url)
         .file_name()
