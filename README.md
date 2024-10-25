@@ -46,6 +46,7 @@ Additional args:
 - `--prover_config_file`
 - `--parameter_file`
 - `--output`
+- `--stone_version`: [v5](https://github.com/starkware-libs/stone-prover/commit/7ac17c8ba63a789604350e501558ef0ab990fd88) and [v6](https://github.com/starkware-libs/stone-prover/commit/1414a545e4fb38a85391289abe91dd4467d268e1) are not compatible because they calculate the public input hash differently
 
 Additional args for prover parameters. Most of them are related to optimizations or the security level of the proof. You can refer to the [RFC](https://zksecurity.github.io/RFCs/) for more details on some of them.
 
@@ -119,7 +120,7 @@ Additional args:
 
 ![Proving and verifying on Ethereum](./assets/stone-cli-workflow2.svg)
 
-Currently there is a Solidity verifier deployed on Ethereum, which is mainly used to verify SHARP proofs created by L2 Starknet nodes. The Solidity verifier checks the validity of a Cairo program named `bootloader`, which can prove the execution of multiple Cairo programs or Cairo PIEs (Position Independent Executable) either by executing them directly in the program or by running a Cairo verifier that recursively verifies (i.e. verify a proof inside the program) a bootloader proof. The bootloader program dramatically lowers the cost of verification as proving a new Cairo program will grow the size of the proof logarithmically as opposed to linearly. Once we create a bootloader proof, we need to serialize it to a format that works for the Cairo verifier on Ethereum. (Note: Recursive verification is not supported yet)
+Currently there is a Solidity verifier deployed on Ethereum, which is mainly used to verify SHARP proofs created by L2 Starknet nodes. The Solidity verifier checks the validity of a Cairo program named `bootloader`, which can prove the execution of multiple Cairo programs or Cairo PIEs (Position Independent Executable) either by executing them directly in the program or by running a Cairo verifier that recursively verifies (i.e. verify a proof inside the program) a bootloader proof. The bootloader program dramatically lowers the cost of verification as proving a new Cairo program will grow the size of the proof logarithmically as opposed to linearly. Once we create a bootloader proof, we need to serialize it to a format that works for the Cairo verifier on Ethereum. (Note: the Solidity verifier is based on Stone version `v5`, so the `--stone_version` argument needs to be set to `v5`)
 
 Here are the specific steps for the above process:
 
@@ -127,7 +128,7 @@ Here are the specific steps for the above process:
 
    - Can also provide multiple programs and pies by providing a space-separated list of paths
 
-2. Call `stone-cli verify --proof bootloader_proof.json --annotation_file annotation.json --extra_output_file extra_output.json`
+2. Call `stone-cli verify --proof bootloader_proof.json --annotation_file annotation.json --extra_output_file extra_output.json --stone_version v5`
 
 3. Call `stone-cli serialize-proof --proof bootloader_proof.json --annotation_file annotation.json --extra_output_file extra_output.json --network ethereum --output bootloader_serialized_proof.json`
 
