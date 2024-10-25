@@ -17,7 +17,7 @@ fn run_verifier_from_command_line(
     annotation_file: Option<PathBuf>,
     extra_output_file: Option<PathBuf>,
 ) -> Result<(), VerifierError> {
-    let verifier_run_path = std::env::var("CPU_AIR_VERIFIER").unwrap();
+    let verifier_run_path = std::env::var("CPU_AIR_VERIFIER_V6").unwrap();
 
     let mut command = std::process::Command::new(verifier_run_path);
     command.arg("--in_file").arg(in_file);
