@@ -10,24 +10,58 @@ use thiserror::Error;
 
 const CONFIG: &str = include_str!("configs/env.json");
 
-static DISTS: Lazy<HashMap<(Os, Arch), Artifacts>> = Lazy::new(|| {
+static DISTS: Lazy<HashMap<(Os, Arch), Vec<Artifacts>>> = Lazy::new(|| {
     let mut m = HashMap::new();
-    m.insert((Os::Linux, Arch::Amd64), Artifacts {
-        url: "https://github.com/zksecurity/stone-cli/releases/download/v0.1.0-alpha/stone-cli-linux-x86_64.tar.gz".to_string(),
-        sha256_sums: vec![
-            "2a100342be0660fc8363e7ac6230ffd9ea0937e7afc35265b7af1595d64dcff4".to_string(),
-            "039d81f62004613f34bfb39b10c4b6b234e22a2b26c8b68c07701e5edaa98a33".to_string(),
-            "a13a1ae5a5f4109489bbe93f78a12778ec99a896e9f4fbe3c88f38d1f61612b2".to_string(),
+    m.insert(
+        (Os::Linux, Arch::Amd64),
+        vec![
+            Artifacts {
+                url: "https://github.com/zksecurity/stone-cli/releases/download/v0.1.0-alpha/cairo1-run-159f67d-x86_64.tar.gz".to_string(),
+                sha256_sum: "47080a3b597f26a4f0a8e1f39c5c83071cb9efee051fbad7f3a46eab2536e14e".to_string(),
+            },
+            Artifacts {
+                url: "https://github.com/dipdup-io/stone-packaging/releases/download/v3.0.1/cpu_air_prover-x86_64".to_string(),
+                sha256_sum: "d5345e3e72a6180dabcec79ef35cefc735ea72864742e1cc117869da7d122ee5".to_string(),
+            },
+            Artifacts {
+                url: "https://github.com/dipdup-io/stone-packaging/releases/download/v3.0.1/cpu_air_verifier-x86_64".to_string(),
+                sha256_sum: "8ed3cad6cf3fb10f5a600af861c28b8f427244b0c2de920f1c18ea78371a66a9".to_string(),
+            },
+            Artifacts {
+                url: "https://github.com/dipdup-io/stone-packaging/releases/download/v3.0.2/cpu_air_prover-x86_64".to_string(),
+                sha256_sum: "ec33129a15b888b7946f17fe46ca888bfed2f4d86ac4e3fc7fae787f8162ca9e".to_string(),
+            },
+            Artifacts {
+                url: "https://github.com/dipdup-io/stone-packaging/releases/download/v3.0.2/cpu_air_verifier-x86_64".to_string(),
+                sha256_sum: "f83d66f5f9cd60c070fee02524d4ccb86b1c37865d75c022fbd54c349d7d972b".to_string(),
+            },
         ],
-    });
-    m.insert((Os::MacOS, Arch::Aarch64), Artifacts {
-        url: "https://github.com/zksecurity/stone-cli/releases/download/v0.1.0-alpha/stone-cli-macos-aarch64.tar.gz".to_string(),
-        sha256_sums: vec![
-            "22b3d5a9d9c9bbaab6196a3ff4d372e765fa75c50272d20fc562917849974a2b".to_string(),
-            "9d56eaa56eda5caa6853761f93d363dc3e9e9af27cf142cd0178dbcd4f61d405".to_string(),
-            "bfd92c9f8c6be41a0486c936b0f12df153ee2743edbf782e21f15fa56e3bdb70".to_string(),
+    );
+    m.insert(
+        (Os::MacOS, Arch::Aarch64),
+        vec![
+            Artifacts {
+                url: "https://github.com/zksecurity/stone-cli/releases/download/v0.1.0-alpha/cairo1-run-159f67d-aarch64.tar.gz".to_string(),
+                sha256_sum: "7d801417d6123c5c25b8e61a5d89af1ab459c63d4179b0ac0ec17d5ec645b85a".to_string(),
+            },
+            Artifacts {
+                url: "https://github.com/dipdup-io/stone-packaging/releases/download/v3.0.1/cpu_air_prover-arm64".to_string(),
+                sha256_sum: "d91e8328b7a228445dda0b9d1acb21a86ab894727737e2d70a0210179b90f00e".to_string(),
+            },
+            Artifacts {
+                url: "https://github.com/dipdup-io/stone-packaging/releases/download/v3.0.1/cpu_air_verifier-arm64".to_string(),
+                sha256_sum: "fc4090e3395e101f3481efc247ad590e5db7704c31321480522904d68ba5d009".to_string(),
+            },
+            Artifacts {
+                url: "https://github.com/dipdup-io/stone-packaging/releases/download/v3.0.2/cpu_air_prover-arm64".to_string(),
+                sha256_sum: "9d56eaa56eda5caa6853761f93d363dc3e9e9af27cf142cd0178dbcd4f61d405".to_string(),
+            },
+            Artifacts {
+                url: "https://github.com/dipdup-io/stone-packaging/releases/download/v3.0.2/cpu_air_verifier-arm64".to_string(),
+                sha256_sum: "bfd92c9f8c6be41a0486c936b0f12df153ee2743edbf782e21f15fa56e3bdb70".to_string(),
+            },
         ],
-    });
+    );
     m
 });
 
@@ -80,7 +114,7 @@ impl TryInto<Arch> for &str {
 #[derive(Deserialize)]
 struct Artifacts {
     url: String,
-    sha256_sums: Vec<String>,
+    sha256_sum: String,
 }
 
 #[derive(Deserialize)]
@@ -112,40 +146,58 @@ fn download_executables(config: &Config) {
     }
 
     let dist = &DISTS[&(OS.try_into().unwrap(), ARCH.try_into().unwrap())];
-    let url = &dist.url;
-    let download_file_name = Path::new(url)
+    let cairo1_run_artifact = &dist[0];
+    let cairo1_run_url = &cairo1_run_artifact.url;
+    let cairo1_run_sha256_sum = &cairo1_run_artifact.sha256_sum;
+    let cairo1_run_file_name = &config.file_names[0];
+    let cairo1_run_zip_file_name = Path::new(cairo1_run_url)
         .file_name()
         .expect("Failed to get the last path of the URL");
-    let download_file_path = download_dir.join(download_file_name);
-    download_from_url(url, &download_file_path);
-    unzip_file(&download_file_path, &download_dir);
-    move_files(&download_dir, download_file_name, &config.file_names);
-    remove_file(&download_file_path).expect("Failed to remove tar file");
+    let cairo1_run_zip_file_path = download_dir.join(cairo1_run_zip_file_name);
+    download_from_url(&cairo1_run_url, &cairo1_run_zip_file_path);
+    unzip_file(&cairo1_run_zip_file_path, &download_dir);
+    move_file(
+        &download_dir,
+        cairo1_run_zip_file_name,
+        cairo1_run_file_name,
+    );
+    remove_file(&cairo1_run_zip_file_path).expect("Failed to remove tar file");
+    let cairo1_run_file_path = download_dir.join(cairo1_run_file_name);
+    validate_file(&cairo1_run_file_path, &cairo1_run_sha256_sum);
+    set_execute_permissions(&cairo1_run_file_path);
 
-    let sha256_sums = &dist.sha256_sums;
-    validate_unpacked_files(&download_dir, &config.file_names, sha256_sums);
-    set_execute_permissions(config);
+    for i in 1..dist.len() {
+        let artifact = &dist[i];
+        let url = &artifact.url;
+        let sha256_sum = &artifact.sha256_sum;
+        let new_file_name = &config.file_names[i];
+        let download_file_name = Path::new(url)
+            .file_name()
+            .expect("Failed to get the last path of the URL");
+        let download_file_path = download_dir.join(download_file_name);
+        download_from_url(url, &download_file_path);
+        let new_file_path = download_dir.join(new_file_name);
+        std::fs::rename(&download_file_path, &new_file_path).expect("Failed to move file");
+        validate_file(&new_file_path, sha256_sum);
+        set_execute_permissions(&new_file_path);
+    }
 }
 
-fn set_execute_permissions(config: &Config) {
-    let download_dir = Path::new(env!("HOME")).join(&config.download_dir);
-    for filename in config.file_names.iter() {
-        let file_path = download_dir.join(filename);
-        if !file_path.exists() {
-            panic!("File {} does not exist", file_path.display());
-        }
-        let mut permissions = metadata(&file_path)
-            .expect("Failed to get file metadata")
-            .permissions();
-        permissions.set_mode(0o755);
-        set_permissions(&file_path, permissions).expect("Failed to set file permissions");
+fn set_execute_permissions(file_path: &Path) {
+    if !file_path.exists() {
+        panic!("File {} does not exist", file_path.display());
     }
+    let mut permissions = metadata(&file_path)
+        .expect("Failed to get file metadata")
+        .permissions();
+    permissions.set_mode(0o755);
+    set_permissions(&file_path, permissions).expect("Failed to set file permissions");
 }
 
 fn download_corelib_repo() {
     let download_dir = Path::new(env!("HOME")).join(".stone-cli");
     let corelib_dir = Path::new(env!("HOME")).join(download_dir.join("corelib"));
-    let url = "https://github.com/starkware-libs/cairo/releases/download/v2.8.4/release-x86_64-unknown-linux-musl.tar.gz";
+    let url = "https://github.com/starkware-libs/cairo/releases/download/v2.9.0-dev.0/release-x86_64-unknown-linux-musl.tar.gz";
     let download_file_path = download_dir.join("release-x86_64-unknown-linux-musl.tar.gz");
     if !corelib_dir.exists() {
         download_from_url(url, &download_file_path);
@@ -185,8 +237,8 @@ fn unzip_file(download_file_path: &Path, download_dir: &Path) {
         .expect("Failed to unpack tar.gz file");
 }
 
-fn move_files(download_dir: &Path, download_file_name: &OsStr, file_names: &[String]) {
-    // file name has the following syntax ("stone-cli-macos-aarch64.tar.gz"), so we need to split by "." and take the last element
+fn move_file(download_dir: &Path, download_file_name: &OsStr, file_name: &str) {
+    // file name has the following syntax ("cairo1-run-159f67d-x86_64.tar.gz"), so we need to split by "." and take the first element
     let files_dir = download_file_name
         .to_str()
         .expect("Failed to convert OsStr to str")
@@ -194,14 +246,12 @@ fn move_files(download_dir: &Path, download_file_name: &OsStr, file_names: &[Str
         .next()
         .unwrap();
     let download_dir = Path::new(env!("HOME")).join(download_dir);
-    for filename in file_names.iter() {
-        let file_path = download_dir.join(files_dir).join(filename);
-        if !file_path.exists() {
-            panic!("File {} does not exist", file_path.display());
-        }
-        let new_file_path = download_dir.join(filename);
-        std::fs::rename(&file_path, &new_file_path).expect("Failed to move file");
+    let file_path = download_dir.join(files_dir).join(file_name);
+    if !file_path.exists() {
+        panic!("File {} does not exist", file_path.display());
     }
+    let new_file_path = download_dir.join(file_name);
+    std::fs::rename(&file_path, &new_file_path).expect("Failed to move file");
     // Remove the directory containing the unpacked files
     let files_dir_path = download_dir.join(files_dir);
     if files_dir_path.exists() {
@@ -215,36 +265,10 @@ fn move_files(download_dir: &Path, download_file_name: &OsStr, file_names: &[Str
     }
 }
 
-fn validate_unpacked_files(download_dir: &Path, file_names: &[String], sha256_sums: &[String]) {
-    let unpacked_files: Vec<_> = std::fs::read_dir(download_dir)
-        .expect("Failed to read download directory")
-        .map(|entry| {
-            entry
-                .expect("Failed to read directory entry")
-                .file_name()
-                .into_string()
-                .expect("Failed to convert OsString to String")
-        })
-        .collect();
-
-    for unpacked_file in unpacked_files {
-        if !file_names.contains(&unpacked_file) {
-            panic!(
-                "Unexpected file {} found in download directory",
-                unpacked_file
-            );
-        }
-
-        let index = file_names
-            .iter()
-            .position(|name| name == &unpacked_file)
-            .unwrap();
-        let sha256_sum = &sha256_sums[index];
-        let file_path = download_dir.join(unpacked_file);
-        let calculated_sha256 = sha256::try_digest(&file_path).unwrap();
-        if calculated_sha256 != *sha256_sum {
-            panic!("File {} has incorrect sha256 sum", file_path.display());
-        }
+fn validate_file(file_path: &Path, sha256_sum: &str) {
+    let calculated_sha256 = sha256::try_digest(&file_path).unwrap();
+    if calculated_sha256 != *sha256_sum {
+        panic!("File {} has incorrect sha256 sum", file_path.display());
     }
 }
 
