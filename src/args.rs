@@ -58,7 +58,7 @@ pub struct ProveArgs {
     #[clap(flatten)]
     pub prover_config: ProverConfig,
 
-    #[clap(long = "stone_version", default_value = "V6", value_enum)]
+    #[clap(long = "stone_version", default_value = "v6", value_enum)]
     pub stone_version: StoneVersion,
 }
 
@@ -103,7 +103,7 @@ pub struct VerifyArgs {
     #[clap(long = "extra_output_file", value_hint=ValueHint::FilePath, help = "Path to the output file that will contain additional interaction elements necessary for generating split proofs")]
     pub extra_output_file: Option<PathBuf>,
 
-    #[clap(long = "stone_version", default_value = "V6", value_enum)]
+    #[clap(long = "stone_version", default_value = "v6", value_enum)]
     pub stone_version: StoneVersion,
 }
 
