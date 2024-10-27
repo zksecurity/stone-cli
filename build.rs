@@ -2,8 +2,7 @@ use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::env::consts::{ARCH, OS};
-use std::ffi::OsStr;
-use std::fs::{metadata, remove_file, set_permissions};
+use std::fs::{metadata, remove_dir_all, remove_file, set_permissions};
 use std::os::unix::fs::PermissionsExt;
 use std::path::Path;
 use thiserror::Error;
@@ -153,37 +152,49 @@ fn download_executables(config: &Config) {
         None => panic!("Unsupported OS or architecture {}/{}", OS, ARCH),
     };
 
-    let cairo1_run_artifact = &dist[0];
-    let cairo1_run_url = &cairo1_run_artifact.url;
-    let cairo1_run_sha256_sum = &cairo1_run_artifact.sha256_sum;
-    let cairo1_run_file_name = &config.file_names[0];
+    let cairo1_run_url = &dist[0].url;
+    let cairo1_run_sha256_sum = &dist[0].sha256_sum;
     let cairo1_run_zip_file_name = Path::new(cairo1_run_url)
         .file_name()
         .expect("Failed to get the last path of the URL");
     let cairo1_run_zip_file_path = download_dir.join(cairo1_run_zip_file_name);
-    download_from_url(&cairo1_run_url, &cairo1_run_zip_file_path);
+    download_from_url(cairo1_run_url, &cairo1_run_zip_file_path);
     unzip_file(&cairo1_run_zip_file_path, &download_dir);
-    move_file(
-        &download_dir,
-        cairo1_run_zip_file_name,
-        cairo1_run_file_name,
-    );
+    // file name has the following syntax ("cairo1-run-159f67d-x86_64.tar.gz"), so we need to split by "." and take the first element
+    let cairo1_run_unzip_dir_name = cairo1_run_zip_file_name
+        .to_str()
+        .expect("Failed to convert OsStr to str")
+        .split('.')
+        .next()
+        .unwrap();
+    let cairo1_run_file_name = &config.file_names[0];
+    let cairo1_run_new_file_path = download_dir.join(cairo1_run_file_name);
+    // move the file from the unzip directory to the download directory
+    std::fs::rename(
+        download_dir
+            .join(cairo1_run_unzip_dir_name)
+            .join(cairo1_run_file_name),
+        &cairo1_run_new_file_path,
+    )
+    .expect("Failed to move file");
+    remove_dir_all(download_dir.join(cairo1_run_unzip_dir_name))
+        .expect("Failed to remove the directory containing the unpacked files");
     remove_file(&cairo1_run_zip_file_path).expect("Failed to remove tar file");
-    let cairo1_run_file_path = download_dir.join(cairo1_run_file_name);
-    validate_file(&cairo1_run_file_path, &cairo1_run_sha256_sum);
-    set_execute_permissions(&cairo1_run_file_path);
+    validate_file(&cairo1_run_new_file_path, cairo1_run_sha256_sum);
+    set_execute_permissions(&cairo1_run_new_file_path);
 
-    for i in 1..dist.len() {
-        let artifact = &dist[i];
-        let url = &artifact.url;
-        let sha256_sum = &artifact.sha256_sum;
-        let new_file_name = &config.file_names[i];
+    // download the stone prover and verifier binaries
+    for (i, item) in dist.iter().enumerate().skip(1) {
+        let url = &item.url;
+        let sha256_sum = &item.sha256_sum;
         let download_file_name = Path::new(url)
             .file_name()
             .expect("Failed to get the last path of the URL");
         let download_file_path = download_dir.join(download_file_name);
         download_from_url(url, &download_file_path);
+        let new_file_name = &config.file_names[i];
         let new_file_path = download_dir.join(new_file_name);
+        // move the file from the unzip directory to the download directory
         std::fs::rename(&download_file_path, &new_file_path).expect("Failed to move file");
         validate_file(&new_file_path, sha256_sum);
         set_execute_permissions(&new_file_path);
@@ -194,11 +205,11 @@ fn set_execute_permissions(file_path: &Path) {
     if !file_path.exists() {
         panic!("File {} does not exist", file_path.display());
     }
-    let mut permissions = metadata(&file_path)
+    let mut permissions = metadata(file_path)
         .expect("Failed to get file metadata")
         .permissions();
     permissions.set_mode(0o755);
-    set_permissions(&file_path, permissions).expect("Failed to set file permissions");
+    set_permissions(file_path, permissions).expect("Failed to set file permissions");
 }
 
 fn download_corelib_repo() {
@@ -242,34 +253,6 @@ fn unzip_file(download_file_path: &Path, download_dir: &Path) {
     archive
         .unpack(download_dir)
         .expect("Failed to unpack tar.gz file");
-}
-
-fn move_file(download_dir: &Path, download_file_name: &OsStr, file_name: &str) {
-    // file name has the following syntax ("cairo1-run-159f67d-x86_64.tar.gz"), so we need to split by "." and take the first element
-    let files_dir = download_file_name
-        .to_str()
-        .expect("Failed to convert OsStr to str")
-        .split('.')
-        .next()
-        .unwrap();
-    let download_dir = Path::new(env!("HOME")).join(download_dir);
-    let file_path = download_dir.join(files_dir).join(file_name);
-    if !file_path.exists() {
-        panic!("File {} does not exist", file_path.display());
-    }
-    let new_file_path = download_dir.join(file_name);
-    std::fs::rename(&file_path, &new_file_path).expect("Failed to move file");
-    // Remove the directory containing the unpacked files
-    let files_dir_path = download_dir.join(files_dir);
-    if files_dir_path.exists() {
-        std::fs::remove_dir_all(&files_dir_path).unwrap_or_else(|e| {
-            panic!(
-                "Failed to remove directory {}: {}",
-                files_dir_path.display(),
-                e
-            )
-        });
-    }
 }
 
 fn validate_file(file_path: &Path, sha256_sum: &str) {
