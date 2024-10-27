@@ -46,7 +46,7 @@ Additional args:
 - `--prover_config_file`
 - `--parameter_file`
 - `--output`
-- `--stone_version`: [v5](https://github.com/starkware-libs/stone-prover/commit/7ac17c8ba63a789604350e501558ef0ab990fd88) and [v6](https://github.com/starkware-libs/stone-prover/commit/1414a545e4fb38a85391289abe91dd4467d268e1) are not compatible because they calculate the public input hash differently
+- `--stone_version`: [v5](https://github.com/starkware-libs/stone-prover/commit/7ac17c8ba63a789604350e501558ef0ab990fd88) and [v6](https://github.com/starkware-libs/stone-prover/commit/1414a545e4fb38a85391289abe91dd4467d268e1) are not compatible because v6 additionally [includes the `n_verifier_friendly_commitment_layers` value](https://github.com/starkware-libs/stone-prover/commit/1414a545e4fb38a85391289abe91dd4467d268e1#diff-ed7255be97fbeb539a95132b4f2dea9753b8a40f9f59ea220f3c2eeb3afd1fc1R94) when calculating the public input hash.
 
 Additional args for prover parameters. Most of them are related to optimizations or the security level of the proof. You can refer to the [RFC](https://zksecurity.github.io/RFCs/) for more details on some of them.
 
