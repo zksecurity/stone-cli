@@ -15,8 +15,8 @@ static DISTS: Lazy<HashMap<(Os, Arch), Vec<Artifacts>>> = Lazy::new(|| {
         (Os::Linux, Arch::Amd64),
         vec![
             Artifacts {
-                url: "https://github.com/zksecurity/stone-cli/releases/download/v0.1.0-alpha/cairo1-run-159f67d-x86_64.tar.gz".to_string(),
-                sha256_sum: "47080a3b597f26a4f0a8e1f39c5c83071cb9efee051fbad7f3a46eab2536e14e".to_string(),
+                url: "https://github.com/zksecurity/stone-cli/releases/download/v0.1.0-alpha/cairo1-run-v2.0.0-rc0-x86_64.tar.gz".to_string(),
+                sha256_sum: "3c15ed3a8b9fce2e18c7923a0c9c5e07058f3432a2f6d2ef3f66384ad0298e23".to_string(),
             },
             Artifacts {
                 url: "https://github.com/dipdup-io/stone-packaging/releases/download/v3.0.1/cpu_air_prover-x86_64".to_string(),
@@ -40,8 +40,8 @@ static DISTS: Lazy<HashMap<(Os, Arch), Vec<Artifacts>>> = Lazy::new(|| {
         (Os::MacOS, Arch::Aarch64),
         vec![
             Artifacts {
-                url: "https://github.com/zksecurity/stone-cli/releases/download/v0.1.0-alpha/cairo1-run-159f67d-aarch64.tar.gz".to_string(),
-                sha256_sum: "7d801417d6123c5c25b8e61a5d89af1ab459c63d4179b0ac0ec17d5ec645b85a".to_string(),
+                url: "https://github.com/zksecurity/stone-cli/releases/download/v0.1.0-alpha/cairo1-run-v2.0.0-rc0-aarch64.tar.gz".to_string(),
+                sha256_sum: "136dbf856b5909a3f4197a038ad57dc10b34201e8f97a3045a0699592d2442db".to_string(),
             },
             Artifacts {
                 url: "https://github.com/dipdup-io/stone-packaging/releases/download/v3.0.1/cpu_air_prover-arm64".to_string(),
@@ -153,19 +153,28 @@ fn download_executables(config: &Config) {
     let cairo1_run_zip_file_path = download_dir.join(cairo1_run_zip_file_name);
     download_from_url(cairo1_run_url, &cairo1_run_zip_file_path);
     unzip_file(&cairo1_run_zip_file_path, &download_dir);
-    // file name has the following syntax ("cairo1-run-159f67d-x86_64.tar.gz"), so we need to split by "." and take the first element
+    // file name has the following syntax `cairo1-run-v2.0.0-rc0-x86_64.tar.gz`, so we need to split by "." and remove the last two elements
     let cairo1_run_unzip_dir_name = cairo1_run_zip_file_name
         .to_str()
         .expect("Failed to convert OsStr to str")
         .split('.')
-        .next()
-        .unwrap();
+        .collect::<Vec<&str>>()
+        .split_at(
+            cairo1_run_zip_file_name
+                .to_str()
+                .unwrap()
+                .split('.')
+                .count()
+                - 2,
+        )
+        .0
+        .join(".");
     let cairo1_run_file_name = &config.file_names[0];
     let cairo1_run_new_file_path = download_dir.join(cairo1_run_file_name);
     // move the file from the unzip directory to the download directory
     std::fs::rename(
         download_dir
-            .join(cairo1_run_unzip_dir_name)
+            .join(&cairo1_run_unzip_dir_name)
             .join(cairo1_run_file_name),
         &cairo1_run_new_file_path,
     )
