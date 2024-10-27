@@ -68,7 +68,6 @@ fn run_verifier_from_command_line(
     let output = command.output()?;
 
     if !output.status.success() {
-        println!("output: {:?}", output);
         return Err(VerifierError::CommandError(VerifierCommandError {
             output,
             stone_version: stone_version.clone(),
