@@ -2,7 +2,7 @@ use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::env::consts::{ARCH, OS};
-use std::fs::{metadata, remove_dir_all, remove_file, set_permissions};
+use std::fs::{metadata, remove_dir_all, set_permissions};
 use std::os::unix::fs::PermissionsExt;
 use std::path::Path;
 use thiserror::Error;
@@ -267,7 +267,7 @@ fn download_corelib_repo(config: &Config, tmp_dir_path: &Path) {
     let url = "https://github.com/starkware-libs/cairo/releases/download/v2.9.0-dev.0/release-x86_64-unknown-linux-musl.tar.gz";
     let tmp_download_file_path = tmp_dir_path.join("release-x86_64-unknown-linux-musl.tar.gz");
     download_from_url(url, &tmp_download_file_path);
-    unzip_file(&tmp_download_file_path, &tmp_dir_path);
+    unzip_file(&tmp_download_file_path, tmp_dir_path);
 
     if !std::process::Command::new("cp")
         .args([
@@ -294,7 +294,7 @@ fn download_corelib_repo(config: &Config, tmp_dir_path: &Path) {
     }
 
     // clean up temporary directory
-    remove_dir_all(&tmp_dir_path).expect("Failed to remove temporary directory");
+    remove_dir_all(tmp_dir_path).expect("Failed to remove temporary directory");
 }
 
 fn unzip_file(download_file_path: &Path, download_dir: &Path) {
