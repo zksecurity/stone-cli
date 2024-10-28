@@ -126,23 +126,33 @@ struct Config {
 
 fn main() {
     let config: Config = serde_json::from_str(CONFIG).expect("Failed to parse config file");
-    download_executables(&config);
-    download_corelib_repo();
+    let tmp_dir = tempfile::Builder::new()
+        .prefix("stone-cli-")
+        .tempdir()
+        .expect("Failed to create temp dir");
+    download_executables(&config, tmp_dir.path());
+    download_corelib_repo(&config, tmp_dir.path());
 }
 
-fn download_executables(config: &Config) {
-    let download_dir = Path::new(env!("HOME")).join(&config.download_dir);
-    if !download_dir.exists() {
-        std::fs::create_dir_all(&download_dir).expect("Failed to create download directory");
+fn download_executables(config: &Config, tmp_dir_path: &Path) {
+    let download_dir = Path::new(env!("HOME"))
+        .join(&config.download_dir)
+        .join("executables");
+    if download_dir.exists() {
+        if config
+            .file_names
+            .iter()
+            .all(|filename| download_dir.join(filename).exists())
+        {
+            return;
+        } else {
+            std::fs::remove_dir_all(&download_dir)
+                .expect("Failed to remove existing download directory");
+        }
     }
 
-    if config
-        .file_names
-        .iter()
-        .all(|filename| download_dir.join(filename).exists())
-    {
-        return;
-    }
+    let tmp_download_dir = tmp_dir_path.join("executables");
+    std::fs::create_dir_all(&tmp_download_dir).expect("Failed to create tmp_download_dir");
 
     let dist = &DISTS[&(OS.try_into().unwrap(), ARCH.try_into().unwrap())];
     let cairo1_run_url = &dist[0].url;
@@ -150,9 +160,9 @@ fn download_executables(config: &Config) {
     let cairo1_run_zip_file_name = Path::new(cairo1_run_url)
         .file_name()
         .expect("Failed to get the last path of the URL");
-    let cairo1_run_zip_file_path = download_dir.join(cairo1_run_zip_file_name);
+    let cairo1_run_zip_file_path = tmp_download_dir.join(cairo1_run_zip_file_name);
     download_from_url(cairo1_run_url, &cairo1_run_zip_file_path);
-    unzip_file(&cairo1_run_zip_file_path, &download_dir);
+    unzip_file(&cairo1_run_zip_file_path, &tmp_download_dir);
     // file name has the following syntax `cairo1-run-v2.0.0-rc0-x86_64.tar.gz`, so we need to split by "." and remove the last two elements
     let cairo1_run_unzip_dir_name = cairo1_run_zip_file_name
         .to_str()
@@ -170,18 +180,15 @@ fn download_executables(config: &Config) {
         .0
         .join(".");
     let cairo1_run_file_name = &config.file_names[0];
-    let cairo1_run_new_file_path = download_dir.join(cairo1_run_file_name);
+    let cairo1_run_new_file_path = tmp_download_dir.join(cairo1_run_file_name);
     // move the file from the unzip directory to the download directory
     std::fs::rename(
-        download_dir
+        tmp_download_dir
             .join(&cairo1_run_unzip_dir_name)
             .join(cairo1_run_file_name),
         &cairo1_run_new_file_path,
     )
     .expect("Failed to move file");
-    remove_dir_all(download_dir.join(cairo1_run_unzip_dir_name))
-        .expect("Failed to remove the directory containing the unpacked files");
-    remove_file(&cairo1_run_zip_file_path).expect("Failed to remove tar file");
     validate_file(&cairo1_run_new_file_path, cairo1_run_sha256_sum);
     set_execute_permissions(&cairo1_run_new_file_path);
 
@@ -192,15 +199,44 @@ fn download_executables(config: &Config) {
         let download_file_name = Path::new(url)
             .file_name()
             .expect("Failed to get the last path of the URL");
-        let download_file_path = download_dir.join(download_file_name);
+        let download_file_path = tmp_download_dir.join(download_file_name);
         download_from_url(url, &download_file_path);
         let new_file_name = &config.file_names[i];
-        let new_file_path = download_dir.join(new_file_name);
+        let new_file_path = tmp_download_dir.join(new_file_name);
         // move the file from the unzip directory to the download directory
         std::fs::rename(&download_file_path, &new_file_path).expect("Failed to move file");
         validate_file(&new_file_path, sha256_sum);
         set_execute_permissions(&new_file_path);
     }
+
+    // copy all files from tmp_download_dir to download_dir
+    std::fs::create_dir_all(&download_dir).expect("Failed to create download directory");
+    for entry in std::fs::read_dir(&tmp_download_dir).expect("Failed to read tmp directory") {
+        let entry = entry.expect("Failed to get directory entry");
+        let file_name = entry.file_name();
+        let source = entry.path();
+        let destination = download_dir.join(&file_name);
+        std::fs::copy(&source, &destination).unwrap_or_else(|_| {
+            // In case of failure, remove all existing files in download_dir
+            for entry in
+                std::fs::read_dir(&download_dir).expect("Failed to read download directory")
+            {
+                let entry = entry.expect("Failed to get directory entry");
+                let path = entry.path();
+                if path.is_file() {
+                    std::fs::remove_file(&path).expect("Failed to remove existing file");
+                }
+            }
+            panic!(
+                "Failed to copy {} to {}",
+                source.display(),
+                destination.display()
+            )
+        });
+    }
+
+    // clean up temporary directory
+    remove_dir_all(&tmp_download_dir).expect("Failed to remove temporary directory");
 }
 
 fn set_execute_permissions(file_path: &Path) {
@@ -214,38 +250,44 @@ fn set_execute_permissions(file_path: &Path) {
     set_permissions(file_path, permissions).expect("Failed to set file permissions");
 }
 
-fn download_corelib_repo() {
-    let download_dir = Path::new(env!("HOME")).join(".stone-cli");
-    let corelib_dir = Path::new(env!("HOME")).join(download_dir.join("corelib"));
-    let url = "https://github.com/starkware-libs/cairo/releases/download/v2.9.0-dev.0/release-x86_64-unknown-linux-musl.tar.gz";
-    let download_file_path = download_dir.join("release-x86_64-unknown-linux-musl.tar.gz");
-    if !corelib_dir.exists() {
-        download_from_url(url, &download_file_path);
-        unzip_file(&download_file_path, &download_dir);
-        remove_file(&download_file_path).expect("Failed to remove tar file");
-
-        if !std::process::Command::new("cp")
-            .args([
-                "-r",
-                &download_dir.join("cairo").join("corelib").to_string_lossy(),
-                &download_dir.to_string_lossy(),
-            ])
-            .status()
-            .expect("Failed to copy corelib directory")
-            .success()
-        {
-            panic!("Failed to copy corelib directory. Please check if the directory exists in the current directory.");
-        }
-
-        if !std::process::Command::new("rm")
-            .args(["-rf", &download_dir.join("cairo").to_string_lossy()])
-            .status()
-            .expect("Failed to remove the repository")
-            .success()
-        {
-            panic!("Failed to remove the repository. Please check your permissions and try again.");
-        }
+fn download_corelib_repo(config: &Config, tmp_dir_path: &Path) {
+    let download_dir = Path::new(env!("HOME")).join(&config.download_dir);
+    let corelib_dir = download_dir.join("corelib");
+    if corelib_dir.exists() {
+        return;
     }
+
+    let url = "https://github.com/starkware-libs/cairo/releases/download/v2.9.0-dev.0/release-x86_64-unknown-linux-musl.tar.gz";
+    let tmp_download_file_path = tmp_dir_path.join("release-x86_64-unknown-linux-musl.tar.gz");
+    download_from_url(url, &tmp_download_file_path);
+    unzip_file(&tmp_download_file_path, &tmp_dir_path);
+
+    if !std::process::Command::new("cp")
+        .args([
+            "-r",
+            &tmp_dir_path.join("cairo").join("corelib").to_string_lossy(),
+            &download_dir.to_string_lossy(),
+        ])
+        .status()
+        .expect("Failed to copy corelib directory")
+        .success()
+    {
+        panic!("Failed to copy corelib directory. Please check if the directory exists in the current directory.");
+    }
+
+    if !std::process::Command::new("rm")
+        .args(["-rf", &tmp_dir_path.join("cairo").to_string_lossy()])
+        .status()
+        .expect("Failed to remove the repository")
+        .success()
+    {
+        panic!(
+            "Failed to remove the cairo directory. Please check your permissions and try again."
+        );
+    }
+
+    // clean up temporary directory
+    remove_dir_all(&tmp_dir_path).expect("Failed to remove temporary directory");
 }
 
 fn unzip_file(download_file_path: &Path, download_dir: &Path) {

@@ -51,7 +51,9 @@ pub fn parse(config: &str) -> Config {
 }
 
 pub fn set_env_vars(config: &Config) {
-    let download_dir = Path::new(env!("HOME")).join(&config.download_dir);
+    let download_dir = Path::new(env!("HOME"))
+        .join(&config.download_dir)
+        .join("executables");
     for (env_name, filename) in config.env_names.iter().zip(config.file_names.iter()) {
         let full_path = download_dir.join(filename);
         unsafe {
