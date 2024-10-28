@@ -2,7 +2,7 @@ use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::env::consts::{ARCH, OS};
-use std::fs::{metadata, remove_dir_all, set_permissions};
+use std::fs::{metadata, remove_dir_all, remove_file, set_permissions};
 use std::os::unix::fs::PermissionsExt;
 use std::path::Path;
 use thiserror::Error;
@@ -189,6 +189,9 @@ fn download_executables(config: &Config, tmp_dir_path: &Path) {
         &cairo1_run_new_file_path,
     )
     .expect("Failed to move file");
+    remove_dir_all(tmp_download_dir.join(cairo1_run_unzip_dir_name))
+        .expect("Failed to remove the directory containing the unpacked files");
+    remove_file(&cairo1_run_zip_file_path).expect("Failed to remove tar file");
     validate_file(&cairo1_run_new_file_path, cairo1_run_sha256_sum);
     set_execute_permissions(&cairo1_run_new_file_path);
 
