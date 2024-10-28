@@ -598,7 +598,22 @@ fn test_run_bootloader(
 }
 
 #[rstest]
-fn test_run_serialize_ethereum(#[from(setup)] _path: ()) {
+#[case(
+    "v6",
+    "bootloader_proof_v6.json",
+    "bootloader_proof_v6_serialized.json"
+)]
+#[case(
+    "v5",
+    "bootloader_proof_v5.json",
+    "bootloader_proof_v5_serialized.json"
+)]
+fn test_run_serialize_ethereum(
+    #[from(setup)] _path: (),
+    #[case(stone_version)] stone_version: &str,
+    #[case(proof)] proof: &str,
+    #[case(serialized)] serialized: &str,
+) {
     let tmp_dir = tempfile::Builder::new()
         .prefix("stone-cli-test-")
         .tempdir()
@@ -611,18 +626,24 @@ fn test_run_serialize_ethereum(#[from(setup)] _path: ()) {
         .join("ethereum")
         .join("layouts")
         .join("starknet");
-    let proof_file = test_dir.join("bootloader_proof.json");
+    let proof_file = test_dir.join(proof);
     let annotation_file = tmp_dir.path().join("bootloader_annotation.json");
     let extra_output_file = tmp_dir.path().join("bootloader_extra_output.json");
 
-    let serialized_proof_file = tmp_dir.path().join("bootloader_proof_serialized.json");
-    let expected_serialized_proof_file = test_dir.join("bootloader_proof_serialized.json");
+    let serialized_proof_file = tmp_dir.path().join(serialized);
+    let expected_serialized_proof_file = test_dir.join(serialized);
+
+    let stone_version = if stone_version == "v6" {
+        StoneVersion::V6
+    } else {
+        StoneVersion::V5
+    };
 
     let verify_args = VerifyArgs {
         proof: proof_file.clone(),
         annotation_file: Some(annotation_file.clone()),
         extra_output_file: Some(extra_output_file.clone()),
-        stone_version: StoneVersion::V5,
+        stone_version,
     };
 
     let serialize_args = SerializeArgs {
