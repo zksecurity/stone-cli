@@ -154,6 +154,11 @@ Here are the specific steps for the above process:
 
 Before running the tests, make sure to increase the Rust default stack size via `export RUST_MIN_STACK=4194304`. After that, you can run `cargo test` to run all the tests.
 
+## Versioning guide
+
+- Minor version changes should be made when the underlying `cairo1-run` binary built from [cairo-vm](https://github.com/lambdaclass/cairo-vm) is updated.
+- When updating the `cairo1-run` binary, the `cairo` release version specified in `build.rs` should also be updated to a compatible version.
+
 ## Additional Resources
 
 ### List of supported builtins per layout
