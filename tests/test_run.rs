@@ -4,7 +4,7 @@ use std::{path::Path, str::FromStr};
 use stone_cli::{
     args::{
         CairoVersion, LayoutName, Network, ProveArgs, ProveBootloaderArgs, SerializationType,
-        SerializeArgs, VerifyArgs,
+        SerializeArgs, StoneVersion, VerifyArgs,
     },
     bootloader::run_bootloader,
     cairo::{run_cairo0, run_cairo1},
@@ -196,6 +196,7 @@ fn test_run_cairo0_success(
         output: tmp_dir.path().join("proof.json"),
         parameter_config: ProverParametersConfig::default(),
         prover_config: ProverConfig::default(),
+        stone_version: StoneVersion::V5,
     };
 
     match run_cairo0(&prove_args, &tmp_dir) {
@@ -233,6 +234,7 @@ fn test_run_cairo1_fail(
         output: tmp_dir.path().join("proof.json"),
         parameter_config: ProverParametersConfig::default(),
         prover_config: ProverConfig::default(),
+        stone_version: StoneVersion::V6,
     };
     match run_cairo1(&prove_args, &tmp_dir) {
         Ok(result) => panic!(
@@ -310,6 +312,7 @@ fn test_run_cairo1_success(
         output: tmp_dir.path().join("proof.json"),
         parameter_config: ProverParametersConfig::default(),
         prover_config: ProverConfig::default(),
+        stone_version: StoneVersion::V6,
     };
     match run_cairo1(&prove_args, &tmp_dir) {
         Ok(result) => println!("Successfully ran cairo1: {:?}", result),
@@ -355,6 +358,7 @@ fn test_run_cairo1_with_input_file(
         output: tmp_dir.path().join("proof.json"),
         parameter_config: ProverParametersConfig::default(),
         prover_config: ProverConfig::default(),
+        stone_version: StoneVersion::V6,
     };
 
     match run_cairo1(&prove_args, &tmp_dir) {
@@ -396,6 +400,7 @@ fn test_run_cairo1_with_inputs(
         output: tmp_dir.path().join("proof.json"),
         parameter_config: ProverParametersConfig::default(),
         prover_config: ProverConfig::default(),
+        stone_version: StoneVersion::V6,
     };
 
     match run_cairo1(&prove_args, &tmp_dir) {
@@ -438,11 +443,13 @@ fn test_run_cairo_e2e(
         output: tmp_dir.path().join("proof.json"),
         parameter_config: ProverParametersConfig::default(),
         prover_config: ProverConfig::default(),
+        stone_version: StoneVersion::V6,
     };
     let verify_args = VerifyArgs {
         proof: tmp_dir.path().join("proof.json"),
         annotation_file: None,
         extra_output_file: None,
+        stone_version: StoneVersion::V6,
     };
 
     match cairo_version {
@@ -591,7 +598,22 @@ fn test_run_bootloader(
 }
 
 #[rstest]
-fn test_run_serialize_ethereum(#[from(setup)] _path: ()) {
+#[case(
+    "v6",
+    "bootloader_proof_v6.json",
+    "bootloader_proof_v6_serialized.json"
+)]
+#[case(
+    "v5",
+    "bootloader_proof_v5.json",
+    "bootloader_proof_v5_serialized.json"
+)]
+fn test_run_serialize_ethereum(
+    #[from(setup)] _path: (),
+    #[case(stone_version)] stone_version: &str,
+    #[case(proof)] proof: &str,
+    #[case(serialized)] serialized: &str,
+) {
     let tmp_dir = tempfile::Builder::new()
         .prefix("stone-cli-test-")
         .tempdir()
@@ -604,17 +626,24 @@ fn test_run_serialize_ethereum(#[from(setup)] _path: ()) {
         .join("ethereum")
         .join("layouts")
         .join("starknet");
-    let proof_file = test_dir.join("bootloader_proof.json");
+    let proof_file = test_dir.join(proof);
     let annotation_file = tmp_dir.path().join("bootloader_annotation.json");
     let extra_output_file = tmp_dir.path().join("bootloader_extra_output.json");
 
-    let serialized_proof_file = tmp_dir.path().join("bootloader_proof_serialized.json");
-    let expected_serialized_proof_file = test_dir.join("bootloader_proof_serialized.json");
+    let serialized_proof_file = tmp_dir.path().join(serialized);
+    let expected_serialized_proof_file = test_dir.join(serialized);
+
+    let stone_version = if stone_version == "v6" {
+        StoneVersion::V6
+    } else {
+        StoneVersion::V5
+    };
 
     let verify_args = VerifyArgs {
         proof: proof_file.clone(),
         annotation_file: Some(annotation_file.clone()),
         extra_output_file: Some(extra_output_file.clone()),
+        stone_version,
     };
 
     let serialize_args = SerializeArgs {
