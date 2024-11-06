@@ -25,8 +25,8 @@ if [ "$(uname)" = "Linux" ]; then
 fi
 
 if [ "$(uname)" = "Darwin" ]; then
-    cp ./tests/cli/resources/bootloader_proof.json bootloader_proof.json
-    cp ./tests/cli/resources/fact_topologies.json fact_topologies.json
+    cp ./tests/cli/resources/macos-testing-proofs/bootloader_proof.json bootloader_proof.json
+    cp ./tests/cli/resources/macos-testing-proofs/fact_topologies.json fact_topologies.json
     echo "Proof copied"
 fi
 
@@ -69,7 +69,7 @@ if [ "$(uname)" = "Linux" ]; then
 fi
 
 if [ "$(uname)" = "Darwin" ]; then
-    cp ./tests/cli/resources/cairo0_fibonacci_recursive_builtins_stone5_keccak_160_lsb.json cairo0_fibonacci_recursive_builtins_stone5_keccak_160_lsb.json
+    cp ./tests/cli/resources/macos-testing-proofs/cairo0_fibonacci_recursive_builtins_stone5_keccak_160_lsb.json cairo0_fibonacci_recursive_builtins_stone5_keccak_160_lsb.json
     echo "Proof copied"
 fi
 
