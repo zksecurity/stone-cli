@@ -160,7 +160,11 @@ echo "integrity-calldata-generator repo cloned"
 cp -r $MAIN_DIR/split_proofs/* $MAIN_DIR/integrity-calldata-generator/cli/calldata/
 
 # Generate random job id
-JOB_ID=$(shuf -i 1-10000000000000 -n 1)
+if [ "$(uname)" = "Linux" ]; then
+    JOB_ID=$(shuf -i 1-10000000000000 -n 1)
+elif [ "$(uname)" = "Darwin" ]; then
+    JOB_ID=$(jot -r 1 1 10000000000000)
+fi
 echo "Generated random job id: $JOB_ID"
 
 # Run verify.sh
