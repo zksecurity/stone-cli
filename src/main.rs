@@ -22,7 +22,7 @@ fn main() -> anyhow::Result<()> {
     match cli {
         Cli::Prove(args) => {
             let result = run_cairo(&args, &tmp_dir)
-                .map_err(|e| anyhow::anyhow!("Failed to run cairo1: {}", e))
+                .map_err(|e| anyhow::anyhow!("Failed to run cairo: {}", e))
                 .and_then(|run_cairo_result| {
                     run_stone_prover(
                         &args,
