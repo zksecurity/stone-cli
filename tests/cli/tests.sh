@@ -84,9 +84,9 @@ echo "Monolith proof serialized"
 # Clone integrity repo
 if [ ! -d "integrity" ]; then
     git clone https://github.com/HerodotusDev/integrity.git
+    echo "Integrity repo cloned"
 fi
 cd $MAIN_DIR/integrity/
-echo "Integrity repo cloned"
 
 # Install sncast if it doesn't exist
 if ! command -v sncast &> /dev/null; then
