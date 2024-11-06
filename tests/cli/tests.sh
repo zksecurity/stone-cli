@@ -60,7 +60,7 @@ cd $MAIN_DIR
 
 if [ "$(uname)" = "Linux" ]; then
     stone-cli prove \
-        --cairo_program tests/resources/integrity-programs/cairo0_fibonacci_recursive_builtins.json \
+        --cairo_program tests/cli/resources/integrity-programs/cairo0_fibonacci_recursive_builtins.json \
         --cairo_version cairo0 \
         --layout recursive \
         --output cairo0_fibonacci_recursive_builtins_stone5_keccak_160_lsb.json \
