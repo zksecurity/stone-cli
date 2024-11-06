@@ -16,11 +16,19 @@ cargo install --path .
 # Create and verify bootloader proof on Ethereum
 echo "Creating and verifying bootloader proof on Ethereum"
 
-stone-cli prove-bootloader \
-    --cairo_programs examples/cairo0/array_sum.json \
-    --parameter_file ./tests/configs/bootloader_cpu_air_params.json \
-    --output bootloader_proof.json
-echo "Proof generated"
+if [ "$(uname)" = "Linux" ]; then
+    stone-cli prove-bootloader \
+        --cairo_programs examples/cairo0/array_sum.json \
+        --parameter_file ./tests/configs/bootloader_cpu_air_params.json \
+        --output bootloader_proof.json
+    echo "Proof generated"
+fi
+
+if [ "$(uname)" = "Darwin" ]; then
+    cp ./tests/cli/resources/bootloader_proof.json bootloader_proof.json
+    cp ./tests/cli/resources/fact_topologies.json fact_topologies.json
+    echo "Proof copied"
+fi
 
 stone-cli verify \
     --proof bootloader_proof.json \
@@ -43,18 +51,27 @@ URL=https://rpc.tenderly.co/fork/f4839248-30b4-4451-b1da-93ebb124c73f \
 ANNOTATED_PROOF=../bootloader_serialized_proof.json \
 FACT_TOPOLOGIES=../fact_topologies.json \
 cargo run --example verify_stone_proof
+
 echo "Proof verified on Ethereum"
 
 # Create and verify proof on Starknet
 echo "Creating and verifying proof on Starknet"
 cd $MAIN_DIR
-stone-cli prove \
-    --cairo_program tests/resources/integrity-programs/cairo0_fibonacci_recursive_builtins.json \
-    --cairo_version cairo0 \
-    --layout recursive \
-    --output cairo0_fibonacci_recursive_builtins_stone5_keccak_160_lsb.json \
-    --stone_version v5
-echo "Proof generated"
+
+if [ "$(uname)" = "Linux" ]; then
+    stone-cli prove \
+        --cairo_program tests/resources/integrity-programs/cairo0_fibonacci_recursive_builtins.json \
+        --cairo_version cairo0 \
+        --layout recursive \
+        --output cairo0_fibonacci_recursive_builtins_stone5_keccak_160_lsb.json \
+        --stone_version v5
+    echo "Proof generated"
+fi
+
+if [ "$(uname)" = "Darwin" ]; then
+    cp ./tests/cli/resources/cairo0_fibonacci_recursive_builtins_stone5_keccak_160_lsb.json cairo0_fibonacci_recursive_builtins_stone5_keccak_160_lsb.json
+    echo "Proof copied"
+fi
 
 # Serialize proof
 stone-cli serialize-proof \
