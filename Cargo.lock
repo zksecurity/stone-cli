@@ -4086,6 +4086,7 @@ dependencies = [
  "stark_evm_adapter 0.1.5 (git+https://github.com/zksecurity/stark-evm-adapter.git?branch=add-build-configs)",
  "starknet-crypto 0.7.2",
  "stone-prover-sdk",
+ "swiftness",
  "swiftness_air",
  "swiftness_fri",
  "swiftness_proof_parser",
@@ -4185,14 +4186,40 @@ dependencies = [
 ]
 
 [[package]]
-name = "swiftness_air"
-version = "0.0.7"
-source = "git+https://github.com/zksecurity/integrity-calldata-generator#319dfe89a0ba65e3ea3d42b4f861213435f577ba"
+name = "swiftness"
+version = "0.1.2"
+source = "git+https://github.com/zksecurity/integrity-calldata-generator#6f2dd268274e40e5ea75e2f17aff6b8e53f8f499"
 dependencies = [
+ "anyhow",
+ "cairo-felt",
+ "clap 4.5.20",
+ "itertools 0.13.0",
+ "num-bigint",
+ "num-traits",
+ "serde",
+ "serde_json",
+ "starknet-crypto 0.7.2",
+ "swiftness_air",
+ "swiftness_commitment",
+ "swiftness_fri",
+ "swiftness_pow",
+ "swiftness_proof_parser",
+ "swiftness_stark",
+ "thiserror",
+ "thiserror-no-std",
+]
+
+[[package]]
+name = "swiftness_air"
+version = "0.1.2"
+source = "git+https://github.com/zksecurity/integrity-calldata-generator#6f2dd268274e40e5ea75e2f17aff6b8e53f8f499"
+dependencies = [
+ "num-bigint",
  "serde",
  "serde_with 3.11.0",
  "starknet-core",
  "starknet-crypto 0.7.2",
+ "starknet-types-core 0.1.7",
  "swiftness_commitment",
  "swiftness_transcript",
  "thiserror",
@@ -4201,10 +4228,11 @@ dependencies = [
 
 [[package]]
 name = "swiftness_commitment"
-version = "0.0.7"
-source = "git+https://github.com/zksecurity/integrity-calldata-generator#319dfe89a0ba65e3ea3d42b4f861213435f577ba"
+version = "0.1.2"
+source = "git+https://github.com/zksecurity/integrity-calldata-generator#6f2dd268274e40e5ea75e2f17aff6b8e53f8f499"
 dependencies = [
  "blake2",
+ "num-bigint",
  "serde",
  "serde_with 3.11.0",
  "sha3",
@@ -4218,9 +4246,10 @@ dependencies = [
 
 [[package]]
 name = "swiftness_fri"
-version = "0.0.7"
-source = "git+https://github.com/zksecurity/integrity-calldata-generator#319dfe89a0ba65e3ea3d42b4f861213435f577ba"
+version = "0.1.2"
+source = "git+https://github.com/zksecurity/integrity-calldata-generator#6f2dd268274e40e5ea75e2f17aff6b8e53f8f499"
 dependencies = [
+ "num-bigint",
  "serde",
  "serde_with 3.11.0",
  "sha3",
@@ -4234,14 +4263,15 @@ dependencies = [
 
 [[package]]
 name = "swiftness_pow"
-version = "0.0.7"
-source = "git+https://github.com/zksecurity/integrity-calldata-generator#319dfe89a0ba65e3ea3d42b4f861213435f577ba"
+version = "0.1.2"
+source = "git+https://github.com/zksecurity/integrity-calldata-generator#6f2dd268274e40e5ea75e2f17aff6b8e53f8f499"
 dependencies = [
  "blake2",
  "serde",
  "sha3",
  "starknet-crypto 0.7.2",
  "starknet-types-core 0.1.7",
+ "swiftness_commitment",
  "swiftness_transcript",
  "thiserror",
  "thiserror-no-std",
@@ -4249,8 +4279,8 @@ dependencies = [
 
 [[package]]
 name = "swiftness_proof_parser"
-version = "0.0.7"
-source = "git+https://github.com/zksecurity/integrity-calldata-generator#319dfe89a0ba65e3ea3d42b4f861213435f577ba"
+version = "0.1.2"
+source = "git+https://github.com/zksecurity/integrity-calldata-generator#6f2dd268274e40e5ea75e2f17aff6b8e53f8f499"
 dependencies = [
  "anyhow",
  "clap 4.5.20",
@@ -4258,20 +4288,15 @@ dependencies = [
  "regex",
  "serde",
  "serde_json",
+ "starknet-crypto 0.7.2",
  "starknet-types-core 0.1.7",
- "swiftness_air",
- "swiftness_commitment",
- "swiftness_fri",
- "swiftness_pow",
- "swiftness_stark",
- "swiftness_transcript",
  "thiserror",
 ]
 
 [[package]]
 name = "swiftness_stark"
-version = "0.0.7"
-source = "git+https://github.com/zksecurity/integrity-calldata-generator#319dfe89a0ba65e3ea3d42b4f861213435f577ba"
+version = "0.1.2"
+source = "git+https://github.com/zksecurity/integrity-calldata-generator#6f2dd268274e40e5ea75e2f17aff6b8e53f8f499"
 dependencies = [
  "serde",
  "serde_with 3.11.0",
@@ -4288,8 +4313,8 @@ dependencies = [
 
 [[package]]
 name = "swiftness_transcript"
-version = "0.0.7"
-source = "git+https://github.com/zksecurity/integrity-calldata-generator#319dfe89a0ba65e3ea3d42b4f861213435f577ba"
+version = "0.1.2"
+source = "git+https://github.com/zksecurity/integrity-calldata-generator#6f2dd268274e40e5ea75e2f17aff6b8e53f8f499"
 dependencies = [
  "starknet-crypto 0.7.2",
 ]
@@ -4983,7 +5008,7 @@ version = "0.1.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cf221c93e13a30d793f7645a0e7762c55d169dbb0a49671918a2319d289b10bb"
 dependencies = [
- "windows-sys 0.59.0",
+ "windows-sys 0.48.0",
 ]
 
 [[package]]

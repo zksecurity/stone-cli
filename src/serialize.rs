@@ -12,9 +12,11 @@ use std::fs::write;
 use std::io::BufRead;
 use std::path::Path;
 use std::path::PathBuf;
+use swiftness::transform::{Expr, StarkProofExprs};
+use swiftness::transform_stark::TransformTo;
 use swiftness_air::layout::*;
 use swiftness_fri::{CONST_STATE, VAR_STATE, WITNESS};
-use swiftness_proof_parser::{parse, parse_as_exprs, Expr, ParseStarkProof};
+use swiftness_proof_parser::parse;
 use swiftness_stark::stark;
 use thiserror::Error;
 use vec252::VecFelt252;
@@ -70,7 +72,7 @@ pub fn serialize_proof(args: SerializeArgs) -> Result<(), Error> {
             Some(SerializationType::monolith) => {
                 let output = args.output.clone().unwrap();
                 let input = std::fs::read_to_string(proof_file.clone())?;
-                let stark_proof: ParseStarkProof = parse_as_exprs(input)?;
+                let stark_proof: StarkProofExprs = parse(input)?.into();
                 let config: VecFelt252 =
                     serde_json::from_str(&stark_proof.config.to_string()).unwrap();
                 let public_input: VecFelt252 =
@@ -99,7 +101,7 @@ pub fn serialize_proof(args: SerializeArgs) -> Result<(), Error> {
                 let output_dir = args.output_dir.clone().unwrap();
                 let layout = args.layout.unwrap();
                 let input = std::fs::read_to_string(proof_file.clone())?;
-                let stark_proof = parse(input.clone())?;
+                let stark_proof = parse(input.clone())?.transform_to();
                 let security_bits = stark_proof.config.security_bits();
 
                 match layout {
@@ -132,8 +134,7 @@ pub fn serialize_proof(args: SerializeArgs) -> Result<(), Error> {
 
                 let (const_state, mut var_state, mut witness) =
                     unsafe { (CONST_STATE.clone(), VAR_STATE.clone(), WITNESS.clone()) };
-                let cairo_version = Felt252::from(0);
-                let initial = serialize(input, cairo_version)?
+                let initial = serialize(input)?
                     .split_whitespace()
                     .map(|s| Felt::from_dec_str(s).unwrap().to_hex_string())
                     .join(" ");
@@ -163,8 +164,8 @@ pub fn serialize_proof(args: SerializeArgs) -> Result<(), Error> {
     Ok(())
 }
 
-fn serialize(input: String, cairo_version: Felt252) -> Result<String, Error> {
-    let mut parsed = parse_as_exprs(input)?;
+fn serialize(input: String) -> Result<String, Error> {
+    let mut parsed: StarkProofExprs = parse(input)?.into();
 
     let config: VecFelt252 = serde_json::from_str(&parsed.config.to_string()).unwrap();
     let public_input: VecFelt252 = serde_json::from_str(&parsed.public_input.to_string()).unwrap();
@@ -200,14 +201,12 @@ fn serialize(input: String, cairo_version: Felt252) -> Result<String, Error> {
     parsed.witness.0.push(Expr::Array(vec![]));
     let witness: VecFelt252 = serde_json::from_str(&parsed.witness.to_string()).unwrap();
 
-    let proof = chain!(
+    let calldata = chain!(
         config.into_iter(),
         public_input.into_iter(),
         unsent_commitment.into_iter(),
         witness.into_iter()
     );
-
-    let calldata = chain!(proof, vec![cairo_version].into_iter());
 
     let calldata_string = calldata
         .map(|f| f.to_string())

@@ -2,12 +2,59 @@ on:
   push:
     branches:
       - main
+      - dev-ci
 
   pull_request:
     branches:
       - main
+      - dev-ci
 
 jobs:
+  build-and-test-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+          components: rustfmt, clippy
+
+      - name: Cache cargo
+        id: cache-cargo
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - if: steps.cache-cargo.outputs.cache-hit == 'true'
+        run: echo "cargo cache hit"
+
+      - if: steps.cache-cargo.outputs.cache-hit == 'false'
+        run: echo "cargo cache miss"
+
+      - name: Increase stack size
+        run: |
+          echo "Setting stack size to 8MB"
+          echo "RUST_MIN_STACK=8388608" >> $GITHUB_ENV
+
+      - name: Run cargo test
+        run: cargo test --all-features
+
+      - name: Run cargo build
+        run: cargo build --all
+
+      - name: Run cargo fmt
+        run: cargo fmt --all -- --check
+
+      - name: Run cargo clippy
+        run: cargo clippy --all -- -D warnings
+
+      - name: Build release
+        run: cargo build --release
+
+      - name: CLI Integration tests
+        run: ./tests/cli/tests.sh
+
   build-and-test-linux:
     runs-on: ubuntu-latest
     steps:
@@ -31,8 +78,8 @@ jobs:
 
       - name: Increase stack size
         run: |
-          echo "Setting stack size to 4MB"
-          echo "RUST_MIN_STACK=4194304" >> $GITHUB_ENV
+          echo "Setting stack size to 8MB"
+          echo "RUST_MIN_STACK=8388608" >> $GITHUB_ENV
 
       - name: Run cargo test
         run: cargo test --all-features
@@ -48,3 +95,6 @@ jobs:
 
       - name: Build release
         run: cargo build --release
+
+      - name: CLI Integration tests
+        run: ./tests/cli/tests.sh

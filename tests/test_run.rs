@@ -412,9 +412,10 @@ fn test_run_cairo1_with_inputs(
 }
 
 #[rstest]
+#[cfg(target_os = "linux")]
 #[case("small", "fibonacci.json", CairoVersion::cairo0)]
 #[case("small", "fibonacci.cairo", CairoVersion::cairo1)]
-fn test_run_cairo_e2e(
+fn test_run_cairo_e2e_linux(
     #[from(setup)] _path: (),
     #[case(layout)] layout: &str,
     #[case(program)] program: &str,
@@ -467,6 +468,92 @@ fn test_run_cairo_e2e(
 
     run_stone_prover(&prove_args, &air_public_input, &air_private_input, &tmp_dir)
         .expect("Failed to run stone prover");
+    run_stone_verifier(verify_args).expect("Failed to run stone verifier");
+    check_tmp_files(&tmp_dir, &program_file);
+}
+
+#[rstest]
+#[cfg(target_os = "macos")]
+#[case(
+    "small",
+    "fibonacci.json",
+    CairoVersion::cairo0,
+    StoneVersion::V5,
+    "fibonacci_cairo0_stone_v5_proof.json"
+)]
+#[case(
+    "small",
+    "fibonacci.cairo",
+    CairoVersion::cairo1,
+    StoneVersion::V5,
+    "fibonacci_cairo1_stone_v5_proof.json"
+)]
+#[case(
+    "small",
+    "fibonacci.json",
+    CairoVersion::cairo0,
+    StoneVersion::V6,
+    "fibonacci_cairo0_stone_v6_proof.json"
+)]
+#[case(
+    "small",
+    "fibonacci.cairo",
+    CairoVersion::cairo1,
+    StoneVersion::V6,
+    "fibonacci_cairo1_stone_v6_proof.json"
+)]
+fn test_run_cairo_e2e_macos(
+    #[from(setup)] _path: (),
+    #[case(layout)] layout: &str,
+    #[case(program)] program: &str,
+    #[case(cairo_version)] cairo_version: CairoVersion,
+    #[case(stone_version)] stone_version: StoneVersion,
+    #[case(proof)] proof: &str,
+) {
+    let tmp_dir = tempfile::Builder::new()
+        .prefix("stone-cli-test-")
+        .tempdir()
+        .expect("Failed to create temp dir");
+    let program_file = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("examples")
+        .join(if cairo_version == CairoVersion::cairo0 {
+            "cairo0"
+        } else {
+            ""
+        })
+        .join(program);
+    let proof_file = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests")
+        .join("resources")
+        .join("proofs")
+        .join("macos-testing")
+        .join(proof);
+    let prove_args = ProveArgs {
+        cairo_version: cairo_version.clone(),
+        cairo_program: program_file.clone(),
+        program_input: None,
+        program_input_file: None,
+        layout: LayoutName::from_str(layout).unwrap(),
+        prover_config_file: None,
+        parameter_file: None,
+        output: tmp_dir.path().join("proof.json"),
+        parameter_config: ProverParametersConfig::default(),
+        prover_config: ProverConfig::default(),
+        stone_version: stone_version.clone(),
+    };
+    let verify_args = VerifyArgs {
+        proof: proof_file.clone(),
+        annotation_file: None,
+        extra_output_file: None,
+        stone_version,
+    };
+
+    match cairo_version {
+        CairoVersion::cairo0 => run_cairo0(&prove_args, &tmp_dir).expect("Failed to run cairo0"),
+        CairoVersion::cairo1 => run_cairo1(&prove_args, &tmp_dir).expect("Failed to run cairo1"),
+    };
+
+    // Skip proving on macOS as it takes too long
     run_stone_verifier(verify_args).expect("Failed to run stone verifier");
     check_tmp_files(&tmp_dir, &program_file);
 }

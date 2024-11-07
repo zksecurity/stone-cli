@@ -154,7 +154,14 @@ fn download_executables(config: &Config, tmp_dir_path: &Path) {
     let tmp_download_dir = tmp_dir_path.join("executables");
     std::fs::create_dir_all(&tmp_download_dir).expect("Failed to create tmp_download_dir");
 
-    let dist = &DISTS[&(OS.try_into().unwrap(), ARCH.try_into().unwrap())];
+    // look up the stone-prover distribution for the current OS and architecture
+    let os = OS.try_into().unwrap();
+    let arch = ARCH.try_into().unwrap();
+    let dist = match DISTS.get(&(os, arch)) {
+        Some(dist) => dist,
+        None => panic!("Unsupported OS or architecture {}/{}", OS, ARCH),
+    };
+
     let cairo1_run_url = &dist[0].url;
     let cairo1_run_sha256_sum = &dist[0].sha256_sum;
     let cairo1_run_zip_file_name = Path::new(cairo1_run_url)

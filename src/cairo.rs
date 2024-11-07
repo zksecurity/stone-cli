@@ -26,7 +26,7 @@ pub struct CairoRunResult {
 pub enum Error {
     #[error("Failed to interact with the file system")]
     IO(#[from] std::io::Error),
-    #[error("The cairo program execution failed")]
+    #[error(transparent)]
     Runner(#[from] CairoRunError),
     #[error(transparent)]
     EncodeTrace(#[from] EncodeTraceError),

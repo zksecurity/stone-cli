@@ -31,7 +31,7 @@ jobs:
 
       - name: Increase stack size
         run: |
-          echo "Setting stack size to 4MB"
+          echo "Setting stack size to 8MB"
           echo "RUST_MIN_STACK=4194304" >> $GITHUB_ENV
 
       - name: Run cargo test

@@ -24,8 +24,9 @@ swiftness_air = { git = "https://github.com/zksecurity/integrity-calldata-genera
 swiftness_fri = { git = "https://github.com/zksecurity/integrity-calldata-generator" }
 swiftness_proof_parser = { git = "https://github.com/zksecurity/integrity-calldata-generator" }
 swiftness_stark = { git = "https://github.com/zksecurity/integrity-calldata-generator" }
+swiftness = { git = "https://github.com/zksecurity/integrity-calldata-generator" }
 starknet-crypto = "0.7.2"
-tempfile = "3.10.1"
+tempfile = "3.10.1" 
 thiserror = "1.0.61"
 uuid = "1.9.1"
 
