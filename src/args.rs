@@ -10,7 +10,7 @@ use std::path::PathBuf;
 #[derive(Parser, Debug)]
 #[command(
     name = "stone-cli",
-    version = "0.1.0-alpha",
+    version = "0.1.0",
     about = "CLI for proving Cairo programs and serializing proofs for Starknet and Ethereum"
 )]
 #[command(bin_name = "stone-cli")]

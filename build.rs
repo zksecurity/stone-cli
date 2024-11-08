@@ -15,7 +15,7 @@ static DISTS: Lazy<HashMap<(Os, Arch), Vec<Artifacts>>> = Lazy::new(|| {
         (Os::Linux, Arch::Amd64),
         vec![
             Artifacts {
-                url: "https://github.com/zksecurity/stone-cli/releases/download/v0.1.0-alpha/cairo1-run-v2.0.0-rc0-x86_64.tar.gz".to_string(),
+                url: "https://github.com/zksecurity/stone-cli/releases/download/v0.1.0/cairo1-run-v2.0.0-rc0-x86_64.tar.gz".to_string(),
                 sha256_sum: "3c15ed3a8b9fce2e18c7923a0c9c5e07058f3432a2f6d2ef3f66384ad0298e23".to_string(),
             },
             Artifacts {
@@ -40,7 +40,7 @@ static DISTS: Lazy<HashMap<(Os, Arch), Vec<Artifacts>>> = Lazy::new(|| {
         (Os::MacOS, Arch::Aarch64),
         vec![
             Artifacts {
-                url: "https://github.com/zksecurity/stone-cli/releases/download/v0.1.0-alpha/cairo1-run-v2.0.0-rc0-aarch64.tar.gz".to_string(),
+                url: "https://github.com/zksecurity/stone-cli/releases/download/v0.1.0/cairo1-run-v2.0.0-rc0-aarch64.tar.gz".to_string(),
                 sha256_sum: "136dbf856b5909a3f4197a038ad57dc10b34201e8f97a3045a0699592d2442db".to_string(),
             },
             Artifacts {
