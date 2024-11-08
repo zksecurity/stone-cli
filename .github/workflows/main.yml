@@ -9,6 +9,9 @@ on:
       - main
       - dev-ci
 
+  schedule:
+    - cron: '0 1 * * 0' # 1 AM UTC every Sunday
+
 jobs:
   build-and-test-macos:
     runs-on: macos-latest
