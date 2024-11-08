@@ -26,7 +26,7 @@ Run the following command to install the CLI:
 cargo install --path .
 ```
 
-Currently, `linux/amd64` with `AVX` and `macos/amd64` are supported.
+Currently, `linux/amd64` with `AVX` and `macos/arm64` are supported.
 
 ## Usage
 
