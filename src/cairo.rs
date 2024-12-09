@@ -4,14 +4,20 @@ use cairo_vm::air_public_input::PublicInputError;
 use cairo_vm::cairo_run::{
     cairo_run_program, write_encoded_memory, write_encoded_trace, CairoRunConfig, EncodeTraceError,
 };
-use cairo_vm::hint_processor::builtin_hint_processor::builtin_hint_processor_definition::BuiltinHintProcessor;
+use cairo_vm::hint_processor::builtin_hint_processor::builtin_hint_processor_definition::{
+    BuiltinHintProcessor, HintFunc,
+};
+use cairo_vm::hint_processor::builtin_hint_processor::hint_utils::insert_value_from_var_name;
 use cairo_vm::types::errors::program_errors::ProgramError;
 use cairo_vm::types::program::Program;
 use cairo_vm::vm::errors::cairo_run_errors::CairoRunError;
 use cairo_vm::vm::errors::trace_errors::TraceError;
+use cairo_vm::Felt252;
+use std::collections::HashMap;
 use std::io;
 use std::path::PathBuf;
 use std::process::Command;
+use std::rc::Rc;
 use thiserror::Error;
 
 #[derive(Debug)]
@@ -36,6 +42,8 @@ pub enum Error {
     PublicInput(#[from] PublicInputError),
     #[error(transparent)]
     Program(#[from] ProgramError),
+    #[error(transparent)]
+    ProgramInput(#[from] serde_json::Error),
 }
 
 pub fn run_cairo(
@@ -75,8 +83,36 @@ pub fn run_cairo0(
         .unwrap();
 
     let program = Program::from_file(&prove_args.cairo_program, Some("main"))?;
+    let program_input = if let Some(program_input_file) = prove_args.program_input_file.clone() {
+        let program_input_file_str = std::fs::read_to_string(program_input_file)?;
+        let program_input =
+            serde_json::from_str::<HashMap<String, serde_json::Value>>(&program_input_file_str)?;
+        program_input
+    } else {
+        HashMap::new()
+    };
 
     let mut hint_processor = BuiltinHintProcessor::new_empty();
+    hint_processor.add_hint(
+        "ids.fibonacci_claim_index = program_input['fibonacci_claim_index']".to_string(),
+        Rc::new(HintFunc(Box::new(
+            move |vm, _exec_scopes, ids_data, ap_tracking, _constants| {
+                let fibonacci_claim_index = program_input
+                    .get("fibonacci_claim_index")
+                    .unwrap()
+                    .as_u64()
+                    .unwrap();
+                insert_value_from_var_name(
+                    "fibonacci_claim_index",
+                    Felt252::from(fibonacci_claim_index),
+                    vm,
+                    ids_data,
+                    ap_tracking,
+                )?;
+                Ok(())
+            },
+        ))),
+    );
 
     let cairo_run_config = CairoRunConfig {
         entrypoint: "main",
