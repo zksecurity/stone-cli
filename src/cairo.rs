@@ -93,6 +93,7 @@ pub fn run_cairo0(
     };
 
     let mut hint_processor = BuiltinHintProcessor::new_empty();
+    let program_input_clone = program_input.clone();
     hint_processor.add_hint(
         "ids.fibonacci_claim_index = program_input['fibonacci_claim_index']".to_string(),
         Rc::new(HintFunc(Box::new(
@@ -105,6 +106,26 @@ pub fn run_cairo0(
                 insert_value_from_var_name(
                     "fibonacci_claim_index",
                     Felt252::from(fibonacci_claim_index),
+                    vm,
+                    ids_data,
+                    ap_tracking,
+                )?;
+                Ok(())
+            },
+        ))),
+    );
+    hint_processor.add_hint(
+        "ids.iterations = program_input['iterations']".to_string(),
+        Rc::new(HintFunc(Box::new(
+            move |vm, _exec_scopes, ids_data, ap_tracking, _constants| {
+                let iterations = program_input_clone
+                    .get("iterations")
+                    .unwrap()
+                    .as_u64()
+                    .unwrap();
+                insert_value_from_var_name(
+                    "iterations",
+                    Felt252::from(iterations),
                     vm,
                     ids_data,
                     ap_tracking,
