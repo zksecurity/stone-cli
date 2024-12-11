@@ -170,8 +170,9 @@ fn run_prover_from_command_line_with_annotations(
         StoneVersion::V6 => std::env::var("CPU_AIR_PROVER_V6").unwrap(),
     };
 
-    let mut command = Command::new(prover_run_path);
+    let mut command = Command::new("heaptrack");
     command
+        .arg(prover_run_path)
         .arg("--out-file")
         .arg(output_file)
         .arg("--public-input-file")
