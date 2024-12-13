@@ -60,6 +60,9 @@ pub struct ProveArgs {
 
     #[clap(long = "stone_version", default_value = "v6", value_enum)]
     pub stone_version: StoneVersion,
+
+    #[clap(long = "bench-memory")]
+    pub bench_memory: Option<bool>,
 }
 
 #[derive(Args, Debug)]
