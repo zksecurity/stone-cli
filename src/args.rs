@@ -125,7 +125,7 @@ define_enum! {
     recursive_with_poseidon => "recursive_with_poseidon",
     all_solidity => "all_solidity",
     all_cairo => "all_cairo",
-    dynamic => "all_cairo",
+    dynamic => "dynamic",
 }
 
 impl fmt::Display for LayoutName {

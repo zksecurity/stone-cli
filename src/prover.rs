@@ -1,6 +1,6 @@
 pub mod config;
 
-use crate::args::{ProveArgs, ProveBootloaderArgs, StoneVersion};
+use crate::args::{LayoutName, ProveArgs, ProveBootloaderArgs, StoneVersion};
 use crate::utils::write_json_to_file;
 use config::{ProverConfig, ProverParametersConfig};
 use std::fs;
@@ -9,6 +9,15 @@ use std::process::Command;
 use thiserror::Error;
 
 use stone_prover_sdk::models::PublicInput;
+
+// path to the certificate
+const ENV_SHARP_CERT_PATH: &str = "SHARP_CERT_PATH";
+
+// path to the private key
+const ENV_SHARP_KEY_PATH: &str = "SHARP_KEY_PATH";
+
+// decryption key for the private key
+const ENV_SHARP_PASSWORD: &str = "SHARP_PASSWORD";
 
 #[derive(Error, Debug)]
 pub enum ProverError {
@@ -36,6 +45,60 @@ impl std::fmt::Display for ProverCommandError {
     }
 }
 
+use reqwest;
+
+const SHARP_CERT: &str = include_str!("./sharp-server.crt");
+
+/// Get
+fn get_sharp_cert() -> reqwest::Certificate {
+    reqwest::Certificate::from_pem(SHARP_CERT.as_bytes()).unwrap()
+}
+
+/// Get an identity for the SHARP API
+///
+/// For easy of use, this method will attempt to
+/// obtain a key using the following methods:
+///
+/// - PEM without a password
+/// - PEM with a password
+/// - DER with a password
+fn get_identity() -> Result<reqwest::Identity, anyhow::Error> {
+    // read the key
+    let key_path = match std::env::var(ENV_SHARP_KEY_PATH) {
+        Ok(path) => path,
+        Err(_) => {
+            return Err(anyhow::anyhow!(
+                "Using a method which requires a SHARP certificate. Please set the \"{}\" enviroment variable",
+                ENV_SHARP_KEY_PATH
+            ))
+        }
+    };
+    let key_bytes = fs::read(key_path).map_err(|e| anyhow::anyhow!("Failed to read key: {}", e))?;
+
+    // try without a password
+    if let Ok(id) = reqwest::Identity::from_pem(&key_bytes) {
+        return Ok(id);
+    }
+
+    // try with a password
+    let cert_pass = match std::env::var(ENV_SHARP_PASSWORD) {
+        Ok(pass) => pass,
+        Err(_) => {
+            return Err(anyhow::anyhow!(
+                "PEM key requires password, please set the \"{}\" enviroment variable",
+                ENV_SHARP_PASSWORD
+            ))
+        }
+    };
+    if let Ok(id) = reqwest::Identity::from_pkcs8_pem(&key_bytes, cert_pass.as_bytes()) {
+        return Ok(id);
+    }
+    if let Ok(id) = reqwest::Identity::from_pkcs12_der(&key_bytes, cert_pass.as_bytes()) {
+        return Ok(id);
+    }
+    Err(anyhow::anyhow!("Failed to load identity"))
+}
+
 /// Runs the Stone prover with the given inputs
 ///
 /// # Arguments
@@ -53,6 +116,19 @@ pub fn run_stone_prover(
     air_private_input: &PathBuf,
     tmp_dir: &tempfile::TempDir,
 ) -> Result<(), ProverError> {
+    // resolve dynamic layout using the SHARP API
+    if LayoutName::dynamic == prove_args.layout {
+        println!("Using the SHARP API to resolve dynamic layout...");
+
+        let identity = get_identity().unwrap(); // TODO
+        let certificate = get_sharp_cert();
+
+        let client = reqwest::ClientBuilder::new()
+            .identity(identity)
+            .add_root_certificate(certificate)
+            .build()?;
+    }
+
     println!("Running prover...");
 
     run_stone_prover_internal(

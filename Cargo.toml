@@ -10,7 +10,9 @@ bincode = { version = "2.0.0-rc.3", default-features = false, features = [
 ] }
 cairo-bootloader = { git = "https://github.com/zksecurity/cairo-bootloader" }
 cairo-felt = "0.9.1"
-cairo-vm = { git = "https://github.com/zksecurity/cairo-vm", features = ["extensive_hints"] }
+cairo-vm = { git = "https://github.com/zksecurity/cairo-vm", features = [
+    "extensive_hints",
+] }
 clap = { version = "4.3.10", features = ["derive"] }
 itertools = "0.13.0"
 num-bigint = "0.4.6"
@@ -26,14 +28,19 @@ swiftness_proof_parser = { git = "https://github.com/zksecurity/integrity-callda
 swiftness_stark = { git = "https://github.com/zksecurity/integrity-calldata-generator" }
 swiftness = { git = "https://github.com/zksecurity/integrity-calldata-generator" }
 starknet-crypto = "0.7.2"
-tempfile = "3.10.1" 
+tempfile = "3.10.1"
 thiserror = "1.0.61"
+reqwest = { version = "0.12.5", features = [
+    "blocking",
+    "native-tls",
+    "rustls-tls",
+] }
 uuid = "1.9.1"
 
 [build-dependencies]
+reqwest = { version = "0.12.5", features = ["blocking"] }
 flate2 = "1.0.30"
 once_cell = "1.18"
-reqwest = { version = "0.12.5", features = ["blocking"] }
 serde = { version = "1.0", features = ["derive"], default-features = false }
 serde_json = "1"
 sha256 = "1.5.0"
