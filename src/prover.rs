@@ -10,14 +10,14 @@ use thiserror::Error;
 
 use stone_prover_sdk::models::PublicInput;
 
-// path to the certificate
-const ENV_SHARP_CERT_PATH: &str = "SHARP_CERT_PATH";
-
 // path to the private key
 const ENV_SHARP_KEY_PATH: &str = "SHARP_KEY_PATH";
 
 // decryption key for the private key
-const ENV_SHARP_PASSWORD: &str = "SHARP_PASSWORD";
+const ENV_SHARP_PASSWORD: &str = "SHARP_KEY_PASSWD";
+
+// SHARP API URL
+const SHARP_API_URL: &str = "https://sharp-bi.provingservice.io/sharp_bi";
 
 #[derive(Error, Debug)]
 pub enum ProverError {
@@ -93,7 +93,7 @@ fn get_identity() -> Result<reqwest::Identity, anyhow::Error> {
     if let Ok(id) = reqwest::Identity::from_pkcs8_pem(&key_bytes, cert_pass.as_bytes()) {
         return Ok(id);
     }
-    if let Ok(id) = reqwest::Identity::from_pkcs12_der(&key_bytes, cert_pass.as_bytes()) {
+    if let Ok(id) = reqwest::Identity::from_pkcs12_der(&key_bytes, &cert_pass) {
         return Ok(id);
     }
     Err(anyhow::anyhow!("Failed to load identity"))
@@ -123,10 +123,18 @@ pub fn run_stone_prover(
         let identity = get_identity().unwrap(); // TODO
         let certificate = get_sharp_cert();
 
-        let client = reqwest::ClientBuilder::new()
+        let client = reqwest::blocking::ClientBuilder::new()
             .identity(identity)
             .add_root_certificate(certificate)
-            .build()?;
+            .build()
+            .unwrap();
+
+        client
+            .get(format!("{}/is_alive", SHARP_API_URL))
+            .send()
+            .unwrap();
+
+        return Ok(());
     }
 
     println!("Running prover...");

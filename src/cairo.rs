@@ -229,6 +229,7 @@ pub fn run_cairo1(
 fn get_layout(layout: &LayoutName) -> cairo_vm::types::layout_name::LayoutName {
     match layout {
         LayoutName::dynamic => cairo_vm::types::layout_name::LayoutName::dynamic,
+        LayoutName::automatic => cairo_vm::types::layout_name::LayoutName::dynamic,
         LayoutName::all_cairo => cairo_vm::types::layout_name::LayoutName::all_cairo,
         LayoutName::all_solidity => cairo_vm::types::layout_name::LayoutName::all_solidity,
         LayoutName::recursive_with_poseidon => {

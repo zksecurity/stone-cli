@@ -127,6 +127,7 @@ pub fn serialize_proof(args: SerializeArgs) -> Result<(), Error> {
                     | LayoutName::recursive_large_output
                     | LayoutName::all_solidity
                     | LayoutName::all_cairo
+                    | LayoutName::automatic
                     | LayoutName::dynamic) => {
                         return Err(Error::UnsupportedLayout(layout));
                     }

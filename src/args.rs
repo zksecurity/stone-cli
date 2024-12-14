@@ -37,16 +37,47 @@ pub struct ProveArgs {
     )]
     pub program_input: Option<String>,
 
-    #[clap(long = "program_input_file", value_hint=ValueHint::FilePath, conflicts_with="program_input")]
+    #[clap(
+        long = "program_input_file",
+        value_hint=ValueHint::FilePath,
+        conflicts_with="program_input"
+    )]
     pub program_input_file: Option<PathBuf>,
 
     #[clap(long = "layout", default_value = "recursive", value_enum)]
     pub layout: LayoutName,
 
-    #[clap(long = "prover_config_file", conflicts_with_all = ["store_full_lde", "use_fft_for_eval", "constraint_polynomial_task_size", "n_out_of_memory_merkle_layers", "table_prover_n_tasks_per_segment"])]
+    #[clap(
+        long = "prover_config_file",
+        conflicts_with_all = [
+            "store_full_lde",
+            "use_fft_for_eval",
+            "constraint_polynomial_task_size",
+            "n_out_of_memory_merkle_layers",
+            "table_prover_n_tasks_per_segment"
+        ]
+    )]
     pub prover_config_file: Option<PathBuf>,
 
-    #[clap(long = "parameter_file", conflicts_with_all = ["field", "channel_hash", "commitment_hash", "n_verifier_friendly_commitment_layers", "pow_hash", "page_hash", "fri_step_list", "last_layer_degree_bound", "n_queries", "proof_of_work_bits", "log_n_cosets", "use_extension_field", "verifier_friendly_channel_updates", "verifier_friendly_commitment_hash"])]
+    #[clap(
+        long = "parameter_file",
+        conflicts_with_all = [
+            "field",
+            "channel_hash",
+            "commitment_hash",
+            "n_verifier_friendly_commitment_layers",
+            "pow_hash",
+            "page_hash",
+            "fri_step_list",
+            "last_layer_degree_bound",
+            "n_queries",
+            "proof_of_work_bits",
+            "log_n_cosets",
+            "use_extension_field",
+            "verifier_friendly_channel_updates",
+            "verifier_friendly_commitment_hash"
+        ]
+    )]
     pub parameter_file: Option<PathBuf>,
 
     #[clap(long = "output", default_value = "./proof.json")]
@@ -64,25 +95,67 @@ pub struct ProveArgs {
 
 #[derive(Args, Debug)]
 pub struct ProveBootloaderArgs {
-    #[clap(long = "cairo_programs", value_hint=ValueHint::FilePath, value_delimiter = ' ', num_args = 1..)]
+    #[clap(
+        long = "cairo_programs",
+        value_hint=ValueHint::FilePath,
+        value_delimiter = ' ',
+        num_args = 1..
+    )]
     pub cairo_programs: Option<Vec<PathBuf>>,
 
-    #[clap(long = "cairo_pies", value_hint=ValueHint::FilePath, value_delimiter = ' ', num_args = 1..)]
+    #[clap(
+        long = "cairo_pies",
+        value_hint=ValueHint::FilePath,
+        value_delimiter = ' ',
+        num_args = 1..
+    )]
     pub cairo_pies: Option<Vec<PathBuf>>,
 
     #[clap(long = "layout", default_value = "starknet", value_enum)]
     pub layout: LayoutName,
 
-    #[clap(long = "prover_config_file", conflicts_with_all = ["store_full_lde", "use_fft_for_eval", "constraint_polynomial_task_size", "n_out_of_memory_merkle_layers", "table_prover_n_tasks_per_segment"])]
+    #[clap(
+        long = "prover_config_file",
+        conflicts_with_all = [
+            "store_full_lde",
+            "use_fft_for_eval",
+            "constraint_polynomial_task_size",
+            "n_out_of_memory_merkle_layers",
+            "table_prover_n_tasks_per_segment"
+        ]
+    )]
     pub prover_config_file: Option<PathBuf>,
 
-    #[clap(long = "parameter_file", conflicts_with_all = ["field", "channel_hash", "commitment_hash", "n_verifier_friendly_commitment_layers", "pow_hash", "page_hash", "fri_step_list", "last_layer_degree_bound", "n_queries", "proof_of_work_bits", "log_n_cosets", "use_extension_field", "verifier_friendly_channel_updates", "verifier_friendly_commitment_hash"])]
+    #[clap(
+        long = "parameter_file",
+        conflicts_with_all = [
+            "field",
+            "channel_hash",
+            "commitment_hash",
+            "n_verifier_friendly_commitment_layers",
+            "pow_hash",
+            "page_hash",
+            "fri_step_list",
+            "last_layer_degree_bound",
+            "n_queries",
+            "proof_of_work_bits",
+            "log_n_cosets",
+            "use_extension_field",
+            "verifier_friendly_channel_updates",
+            "verifier_friendly_commitment_hash"
+        ]
+    )]
     pub parameter_file: Option<PathBuf>,
 
     #[clap(long = "output", default_value = "./bootloader_proof.json")]
     pub output: PathBuf,
 
-    #[clap(long = "fact_topologies_output", default_value = "./fact_topologies.json", value_hint=ValueHint::FilePath, help = "Output of bootloader required along with bootloader_proof.json to split proofs for Ethereum")]
+    #[clap(
+        long = "fact_topologies_output",
+        default_value = "./fact_topologies.json",
+        value_hint=ValueHint::FilePath,
+        help = "Output of bootloader required along with bootloader_proof.json to split proofs for Ethereum"
+    )]
     pub fact_topologies_output: PathBuf,
 
     #[clap(flatten)]
@@ -97,10 +170,18 @@ pub struct VerifyArgs {
     #[clap(long = "proof", value_parser)]
     pub proof: PathBuf,
 
-    #[clap(long = "annotation_file", value_hint=ValueHint::FilePath, help = "Path to the output file that will contain elements generated from the interaction between the prover and verifier")]
+    #[clap(
+        long = "annotation_file",
+        value_hint=ValueHint::FilePath,
+        help = "Path to the output file that will contain elements generated from the interaction between the prover and verifier"
+    )]
     pub annotation_file: Option<PathBuf>,
 
-    #[clap(long = "extra_output_file", value_hint=ValueHint::FilePath, help = "Path to the output file that will contain additional interaction elements necessary for generating split proofs")]
+    #[clap(
+        long = "extra_output_file",
+        value_hint=ValueHint::FilePath,
+        help = "Path to the output file that will contain additional interaction elements necessary for generating split proofs"
+    )]
     pub extra_output_file: Option<PathBuf>,
 
     #[clap(long = "stone_version", default_value = "v6", value_enum)]
@@ -126,6 +207,7 @@ define_enum! {
     all_solidity => "all_solidity",
     all_cairo => "all_cairo",
     dynamic => "dynamic",
+    automatic => "automatic",
 }
 
 impl fmt::Display for LayoutName {
@@ -150,6 +232,7 @@ impl std::str::FromStr for LayoutName {
             "all_solidity" => Ok(LayoutName::all_solidity),
             "all_cairo" => Ok(LayoutName::all_cairo),
             "dynamic" => Ok(LayoutName::dynamic),
+            "automatic" => Ok(LayoutName::automatic),
             _ => Err(()),
         }
     }
@@ -175,6 +258,8 @@ impl LayoutName {
             LayoutName::all_solidity => cairo_vm::types::layout_name::LayoutName::all_solidity,
             LayoutName::all_cairo => cairo_vm::types::layout_name::LayoutName::all_cairo,
             LayoutName::dynamic => cairo_vm::types::layout_name::LayoutName::dynamic,
+            // uses the SHARP API to determine the dynamic layout parameters
+            LayoutName::automatic => cairo_vm::types::layout_name::LayoutName::dynamic,
         }
     }
 }
