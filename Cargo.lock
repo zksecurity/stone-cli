@@ -39,18 +39,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "ahash"
-version = "0.8.11"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e89da841a80418a9b391ebaea17f5c112ffaaa96f621d2c285b5174da76b9011"
-dependencies = [
- "cfg-if",
- "once_cell",
- "version_check",
- "zerocopy",
-]
-
-[[package]]
 name = "aho-corasick"
 version = "1.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -343,17 +331,7 @@ version = "2.0.0-rc.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f11ea1a0346b94ef188834a65c068a03aec181c94896d481d7a0a40d85b0ce95"
 dependencies = [
- "bincode_derive",
  "serde",
-]
-
-[[package]]
-name = "bincode_derive"
-version = "2.0.0-rc.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7e30759b3b99a1b802a7a3aa21c85c3ded5c28e1c83170d82d70f08bbf7f3e4c"
-dependencies = [
- "virtue",
 ]
 
 [[package]]
@@ -485,14 +463,14 @@ dependencies = [
 [[package]]
 name = "cairo-bootloader"
 version = "0.1.0"
-source = "git+https://github.com/zksecurity/cairo-bootloader#83a9ea23082cfe5d2aa1d3e977a1558559adbb83"
+source = "git+https://github.com/zksecurity/cairo-bootloader?rev=6c584696f8ec7bbddf889dcda313462a3666eb1e#6c584696f8ec7bbddf889dcda313462a3666eb1e"
 dependencies = [
- "cairo-vm 1.0.1",
+ "cairo-vm",
  "num-traits",
  "serde",
  "serde_json",
  "starknet-crypto 0.6.2",
- "starknet-types-core 0.1.7",
+ "starknet-types-core",
  "thiserror 1.0.69",
  "thiserror-no-std",
 ]
@@ -512,44 +490,14 @@ dependencies = [
 
 [[package]]
 name = "cairo-vm"
-version = "1.0.0-rc0"
-source = "git+https://github.com/Moonsong-Labs/cairo-vm?rev=e0a4653aa5634664a3f792b38715a572e9f89b44#e0a4653aa5634664a3f792b38715a572e9f89b44"
+version = "2.0.0-rc2"
+source = "git+https://github.com/zksecurity/cairo-vm?rev=3cfcd1d035a4f6951337e6f4cc26014a0aa7e47e#3cfcd1d035a4f6951337e6f4cc26014a0aa7e47e"
 dependencies = [
  "anyhow",
  "bincode",
  "bitvec",
  "generic-array",
- "hashbrown 0.14.5",
- "hex",
- "keccak",
- "lazy_static",
- "mimalloc",
- "nom",
- "num-bigint",
- "num-integer",
- "num-prime",
- "num-traits",
- "rand",
- "serde",
- "serde_json",
- "sha2",
- "sha3",
- "starknet-crypto 0.6.2",
- "starknet-types-core 0.0.6",
- "thiserror-no-std",
- "zip",
-]
-
-[[package]]
-name = "cairo-vm"
-version = "1.0.1"
-source = "git+https://github.com/zksecurity/cairo-vm#7763c73ffb61b27f792a1f08a4c211bb662baade"
-dependencies = [
- "anyhow",
- "bincode",
- "bitvec",
- "generic-array",
- "hashbrown 0.14.5",
+ "hashbrown 0.15.2",
  "hex",
  "keccak",
  "lazy_static",
@@ -564,8 +512,8 @@ dependencies = [
  "serde_json",
  "sha2",
  "sha3",
- "starknet-crypto 0.6.2",
- "starknet-types-core 0.1.7",
+ "starknet-crypto 0.7.3",
+ "starknet-types-core",
  "thiserror-no-std",
  "wasm-bindgen",
  "zip",
@@ -832,9 +780,9 @@ dependencies = [
 
 [[package]]
 name = "crossbeam-deque"
-version = "0.8.5"
+version = "0.8.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "613f8cc01fe9cf1a3eb3d7f488fd2fa8388403e97039e2f73692932e291a770d"
+checksum = "9dd111b7b7f7d55b72c0a6ae361660ee5853c9af73f70c3c2ef6858b950e2e51"
 dependencies = [
  "crossbeam-epoch",
  "crossbeam-utils",
@@ -851,9 +799,9 @@ dependencies = [
 
 [[package]]
 name = "crossbeam-utils"
-version = "0.8.20"
+version = "0.8.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "22ec99545bb0ed0ea7bb9b8e1e9122ea386ff8a48c0922e43f36d45ab09e0e80"
+checksum = "d0a5c400df2834b80a4c3327b3aad3a4c4cd4de0629063962b03235697506a28"
 
 [[package]]
 name = "crunchy"
@@ -1827,17 +1775,6 @@ checksum = "8a9ee70c43aaf417c914396645a0fa852624801b24ebb7ae78fe8272889ac888"
 
 [[package]]
 name = "hashbrown"
-version = "0.14.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e5274423e17b7c9fc20b6e7e208532f9b19825d82dfd615708b70edd83df41f1"
-dependencies = [
- "ahash",
- "allocator-api2",
- "serde",
-]
-
-[[package]]
-name = "hashbrown"
 version = "0.15.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bf151400ff0baff5465007dd2f3e717f3fe502074ca563069ce3a6629d07b289"
@@ -1845,6 +1782,7 @@ dependencies = [
  "allocator-api2",
  "equivalent",
  "foldhash",
+ "serde",
 ]
 
 [[package]]
@@ -2468,19 +2406,10 @@ version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bbc2a4da0d9e52ccfe6306801a112e81a8fc0c76aa3e4449fefeda7fef72bb34"
 dependencies = [
- "lambdaworks-math 0.10.0",
+ "lambdaworks-math",
  "serde",
  "sha2",
  "sha3",
-]
-
-[[package]]
-name = "lambdaworks-math"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3c6c4d0ddd1fcd235be5196b1bcc404f89ad3e911f4c190fa01459e05dbf40f8"
-dependencies = [
- "thiserror 1.0.69",
 ]
 
 [[package]]
@@ -2507,22 +2436,6 @@ name = "libc"
 version = "0.2.168"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5aaeb2981e0606ca11d79718f8bb01164f1d6ed75080182d3abf017e6d244b6d"
-
-[[package]]
-name = "libm"
-version = "0.2.11"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8355be11b20d696c8f18f6cc018c4e372165b1fa8126cef092399c9951984ffa"
-
-[[package]]
-name = "libmimalloc-sys"
-version = "0.1.39"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "23aa6811d3bd4deb8a84dde645f943476d13b248d818edcf8ce0b2f37f036b44"
-dependencies = [
- "cc",
- "libc",
-]
 
 [[package]]
 name = "libredox"
@@ -2587,15 +2500,6 @@ name = "memchr"
 version = "2.7.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "78ca9ab1a0babb1e7d5695e3530886289c18cf2f87ec19a575a0abdce112e3a3"
-
-[[package]]
-name = "mimalloc"
-version = "0.1.43"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "68914350ae34959d83f732418d51e2427a794055d0b9529f48259ac07af65633"
-dependencies = [
- "libmimalloc-sys",
-]
 
 [[package]]
 name = "mime"
@@ -2729,7 +2633,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "071dfc062690e90b734c0b2273ce72ad0ffa95f0c74596bc250dcfd960262841"
 dependencies = [
  "autocfg",
- "libm",
 ]
 
 [[package]]
@@ -3182,9 +3085,9 @@ dependencies = [
 
 [[package]]
 name = "proptest"
-version = "1.5.0"
+version = "1.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b4c2511913b88df1637da85cc8d96ec8e43a3f8bb8ccb71ee1ac240d6f3df58d"
+checksum = "14cae93065090804185d3b75f0bf93b8eeda30c7a9b4a33d3bdb3988d6229e50"
 dependencies = [
  "bitflags 2.6.0",
  "lazy_static",
@@ -4120,25 +4023,7 @@ checksum = "a8f112729512f8e442d81f95a8a7ddf2b7c6b8a1a6f509a95864142b30cab2d3"
 [[package]]
 name = "stark_evm_adapter"
 version = "0.1.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "94f997ed88a7b0a690222aed7a0ee319457c97a30730052d43db12319edce651"
-dependencies = [
- "clap 3.2.25",
- "ethers",
- "num-bigint",
- "num-traits",
- "regex",
- "serde",
- "serde_json",
- "serde_with 3.11.0",
- "thiserror 1.0.69",
- "tokio",
-]
-
-[[package]]
-name = "stark_evm_adapter"
-version = "0.1.5"
-source = "git+https://github.com/zksecurity/stark-evm-adapter.git?branch=add-build-configs#b2b81b91cfccbc0318097d7b3b386c790b1f3492"
+source = "git+https://github.com/zksecurity/stark-evm-adapter.git?rev=e044116e3cf4e3cbca11cce7b9e508a0f3e6870b#e044116e3cf4e3cbca11cce7b9e508a0f3e6870b"
 dependencies = [
  "clap 3.2.25",
  "ethers",
@@ -4168,7 +4053,7 @@ dependencies = [
  "serde_with 2.3.3",
  "sha3",
  "starknet-crypto 0.7.3",
- "starknet-types-core 0.1.7",
+ "starknet-types-core",
 ]
 
 [[package]]
@@ -4206,7 +4091,7 @@ dependencies = [
  "rfc6979",
  "sha2",
  "starknet-curve 0.5.1",
- "starknet-types-core 0.1.7",
+ "starknet-types-core",
  "zeroize",
 ]
 
@@ -4236,7 +4121,7 @@ version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bcde6bd74269b8161948190ace6cf069ef20ac6e79cd2ba09b320efa7500b6de"
 dependencies = [
- "starknet-types-core 0.1.7",
+ "starknet-types-core",
 ]
 
 [[package]]
@@ -4253,27 +4138,12 @@ dependencies = [
 
 [[package]]
 name = "starknet-types-core"
-version = "0.0.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5b6b868f545d43b474c2c00e9349c489fdeb7ff17eb00cdf339744ac4cae0930"
-dependencies = [
- "bitvec",
- "lambdaworks-math 0.4.0",
- "lazy_static",
- "num-bigint",
- "num-integer",
- "num-traits",
- "serde",
-]
-
-[[package]]
-name = "starknet-types-core"
 version = "0.1.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fa1b9e01ccb217ab6d475c5cda05dbb22c30029f7bb52b192a010a00d77a3d74"
 dependencies = [
  "lambdaworks-crypto",
- "lambdaworks-math 0.10.0",
+ "lambdaworks-math",
  "num-bigint",
  "num-integer",
  "num-traits",
@@ -4295,7 +4165,7 @@ dependencies = [
  "bincode",
  "cairo-bootloader",
  "cairo-felt",
- "cairo-vm 1.0.1",
+ "cairo-vm",
  "clap 4.5.23",
  "flate2",
  "itertools 0.13.0",
@@ -4308,9 +4178,8 @@ dependencies = [
  "serde",
  "serde_json",
  "sha256",
- "stark_evm_adapter 0.1.5 (git+https://github.com/zksecurity/stark-evm-adapter.git?branch=add-build-configs)",
+ "stark_evm_adapter",
  "starknet-crypto 0.7.3",
- "stone-prover-sdk",
  "swiftness",
  "swiftness_air",
  "swiftness_fri",
@@ -4320,21 +4189,6 @@ dependencies = [
  "tempfile",
  "thiserror 1.0.69",
  "uuid 1.11.0",
-]
-
-[[package]]
-name = "stone-prover-sdk"
-version = "0.1.0"
-source = "git+https://github.com/zksecurity/stone-prover-sdk#7cf38fce052413fc656e737f5c671e482ef8f474"
-dependencies = [
- "bincode",
- "cairo-vm 1.0.0-rc0",
- "serde",
- "serde_json",
- "stark_evm_adapter 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)",
- "tempfile",
- "thiserror 1.0.69",
- "tokio",
 ]
 
 [[package]]
@@ -4413,7 +4267,7 @@ dependencies = [
 [[package]]
 name = "swiftness"
 version = "0.1.2"
-source = "git+https://github.com/zksecurity/integrity-calldata-generator#6f2dd268274e40e5ea75e2f17aff6b8e53f8f499"
+source = "git+https://github.com/zksecurity/integrity-calldata-generator?rev=6f2dd268274e40e5ea75e2f17aff6b8e53f8f499#6f2dd268274e40e5ea75e2f17aff6b8e53f8f499"
 dependencies = [
  "anyhow",
  "cairo-felt",
@@ -4437,14 +4291,14 @@ dependencies = [
 [[package]]
 name = "swiftness_air"
 version = "0.1.2"
-source = "git+https://github.com/zksecurity/integrity-calldata-generator#6f2dd268274e40e5ea75e2f17aff6b8e53f8f499"
+source = "git+https://github.com/zksecurity/integrity-calldata-generator?rev=6f2dd268274e40e5ea75e2f17aff6b8e53f8f499#6f2dd268274e40e5ea75e2f17aff6b8e53f8f499"
 dependencies = [
  "num-bigint",
  "serde",
  "serde_with 3.11.0",
  "starknet-core",
  "starknet-crypto 0.7.3",
- "starknet-types-core 0.1.7",
+ "starknet-types-core",
  "swiftness_commitment",
  "swiftness_transcript",
  "thiserror 1.0.69",
@@ -4454,7 +4308,7 @@ dependencies = [
 [[package]]
 name = "swiftness_commitment"
 version = "0.1.2"
-source = "git+https://github.com/zksecurity/integrity-calldata-generator#6f2dd268274e40e5ea75e2f17aff6b8e53f8f499"
+source = "git+https://github.com/zksecurity/integrity-calldata-generator?rev=6f2dd268274e40e5ea75e2f17aff6b8e53f8f499#6f2dd268274e40e5ea75e2f17aff6b8e53f8f499"
 dependencies = [
  "blake2",
  "num-bigint",
@@ -4463,7 +4317,7 @@ dependencies = [
  "sha3",
  "starknet-core",
  "starknet-crypto 0.7.3",
- "starknet-types-core 0.1.7",
+ "starknet-types-core",
  "swiftness_transcript",
  "thiserror 1.0.69",
  "thiserror-no-std",
@@ -4472,7 +4326,7 @@ dependencies = [
 [[package]]
 name = "swiftness_fri"
 version = "0.1.2"
-source = "git+https://github.com/zksecurity/integrity-calldata-generator#6f2dd268274e40e5ea75e2f17aff6b8e53f8f499"
+source = "git+https://github.com/zksecurity/integrity-calldata-generator?rev=6f2dd268274e40e5ea75e2f17aff6b8e53f8f499#6f2dd268274e40e5ea75e2f17aff6b8e53f8f499"
 dependencies = [
  "num-bigint",
  "serde",
@@ -4489,13 +4343,13 @@ dependencies = [
 [[package]]
 name = "swiftness_pow"
 version = "0.1.2"
-source = "git+https://github.com/zksecurity/integrity-calldata-generator#6f2dd268274e40e5ea75e2f17aff6b8e53f8f499"
+source = "git+https://github.com/zksecurity/integrity-calldata-generator?rev=6f2dd268274e40e5ea75e2f17aff6b8e53f8f499#6f2dd268274e40e5ea75e2f17aff6b8e53f8f499"
 dependencies = [
  "blake2",
  "serde",
  "sha3",
  "starknet-crypto 0.7.3",
- "starknet-types-core 0.1.7",
+ "starknet-types-core",
  "swiftness_commitment",
  "swiftness_transcript",
  "thiserror 1.0.69",
@@ -4505,7 +4359,7 @@ dependencies = [
 [[package]]
 name = "swiftness_proof_parser"
 version = "0.1.2"
-source = "git+https://github.com/zksecurity/integrity-calldata-generator#6f2dd268274e40e5ea75e2f17aff6b8e53f8f499"
+source = "git+https://github.com/zksecurity/integrity-calldata-generator?rev=6f2dd268274e40e5ea75e2f17aff6b8e53f8f499#6f2dd268274e40e5ea75e2f17aff6b8e53f8f499"
 dependencies = [
  "anyhow",
  "clap 4.5.23",
@@ -4514,14 +4368,14 @@ dependencies = [
  "serde",
  "serde_json",
  "starknet-crypto 0.7.3",
- "starknet-types-core 0.1.7",
+ "starknet-types-core",
  "thiserror 1.0.69",
 ]
 
 [[package]]
 name = "swiftness_stark"
 version = "0.1.2"
-source = "git+https://github.com/zksecurity/integrity-calldata-generator#6f2dd268274e40e5ea75e2f17aff6b8e53f8f499"
+source = "git+https://github.com/zksecurity/integrity-calldata-generator?rev=6f2dd268274e40e5ea75e2f17aff6b8e53f8f499#6f2dd268274e40e5ea75e2f17aff6b8e53f8f499"
 dependencies = [
  "serde",
  "serde_with 3.11.0",
@@ -4539,7 +4393,7 @@ dependencies = [
 [[package]]
 name = "swiftness_transcript"
 version = "0.1.2"
-source = "git+https://github.com/zksecurity/integrity-calldata-generator#6f2dd268274e40e5ea75e2f17aff6b8e53f8f499"
+source = "git+https://github.com/zksecurity/integrity-calldata-generator?rev=6f2dd268274e40e5ea75e2f17aff6b8e53f8f499#6f2dd268274e40e5ea75e2f17aff6b8e53f8f499"
 dependencies = [
  "starknet-crypto 0.7.3",
 ]
@@ -5125,12 +4979,6 @@ name = "version_check"
 version = "0.9.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
-
-[[package]]
-name = "virtue"
-version = "0.0.13"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9dcc60c0624df774c82a0ef104151231d37da4962957d691c011c852b2473314"
 
 [[package]]
 name = "wait-timeout"

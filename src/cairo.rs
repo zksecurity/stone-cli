@@ -9,6 +9,7 @@ use cairo_vm::types::errors::program_errors::ProgramError;
 use cairo_vm::types::program::Program;
 use cairo_vm::vm::errors::cairo_run_errors::CairoRunError;
 use cairo_vm::vm::errors::trace_errors::TraceError;
+use std::collections::HashMap;
 use std::io;
 use std::path::PathBuf;
 use std::process::Command;
@@ -87,6 +88,7 @@ pub fn run_cairo0(
         secure_run: None,
         disable_trace_padding: false,
         allow_missing_builtins: None,
+        dynamic_layout_params: None, // TODO
     };
 
     let runner = cairo_run_program(&program, &cairo_run_config, &mut hint_processor)?;
@@ -174,11 +176,20 @@ pub fn run_cairo1(
 
     let cairo1_run_path = std::env::var("CAIRO1_RUN")
         .map_err(|e| anyhow::anyhow!("Failed to get CAIRO1_RUN environment variable: {}", e))?;
-    let mut command = Command::new(cairo1_run_path);
-    command
-        .arg(&prove_args.cairo_program)
-        .arg("--layout")
-        .arg(prove_args.layout.clone().to_str());
+
+    let mut cmd = Command::new(cairo1_run_path);
+    cmd.arg(&prove_args.cairo_program);
+
+    match &prove_args.layout {
+        LayoutName::automatic => {
+            cmd.arg("--layout").arg("dynamic");
+            cmd.arg("--cairo_layout_params_file")
+                .arg("cairo_layout_params_file.json");
+        }
+        layout => {
+            cmd.arg("--layout").arg(layout.clone().to_str());
+        }
+    }
 
     // Set default file paths using tmp_dir
     let trace_file = tmp_dir.path().join(format!("{}_trace.json", filename));
@@ -189,25 +200,29 @@ pub fn run_cairo1(
     let air_private_input = tmp_dir
         .path()
         .join(format!("{}_air_private_input.json", filename));
-    let tmp_file_args = [
-        ("--trace_file", &trace_file),
-        ("--memory_file", &memory_file),
-        ("--air_public_input", &air_public_input),
-        ("--air_private_input", &air_private_input),
-    ];
-    for (arg, value) in tmp_file_args.iter() {
-        command.arg(arg).arg(value);
-    }
+
+    cmd.arg("--trace_file") //
+        .arg(trace_file.clone());
+    cmd.arg("--memory_file") //
+        .arg(memory_file.clone());
+    cmd.arg("--air_public_input") //
+        .arg(air_public_input.clone());
+    cmd.arg("--air_private_input")
+        .arg(air_private_input.clone());
 
     if let Some(args_file) = &prove_args.program_input_file {
-        command.arg("--args_file").arg(args_file);
+        cmd.arg("--args_file").arg(args_file.to_str().unwrap());
     }
-    if let Some(args) = &prove_args.program_input {
-        command.arg("--args").arg(args);
-    }
-    command.arg("--proof_mode");
 
-    let output = command.output().expect("Failed to execute cairo1-run");
+    if let Some(args) = &prove_args.program_input {
+        cmd.arg("--args").arg(args);
+    }
+
+    cmd.arg("--proof_mode");
+
+    println!("Running cairo1-run... {:?}", cmd);
+
+    let output = cmd.output().expect("Failed to execute cairo1-run");
 
     if !output.status.success() {
         return Err(anyhow::anyhow!(

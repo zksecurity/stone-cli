@@ -1,6 +1,7 @@
 pub mod args;
 pub mod bootloader;
 pub mod cairo;
+pub mod fri;
 pub mod prover;
 pub mod serialize;
 pub mod utils;

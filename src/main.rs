@@ -1,5 +1,5 @@
 use clap::Parser;
-use stone_cli::args::Cli;
+use stone_cli::args::{Cli, LayoutName};
 use stone_cli::bootloader::run_bootloader;
 use stone_cli::cairo::run_cairo;
 use stone_cli::prover::{run_stone_prover, run_stone_prover_bootloader};

@@ -187,6 +187,7 @@ fn cairo_run_bootloader_in_proof_mode(
         secure_run: None,
         disable_trace_padding: false,
         allow_missing_builtins: None,
+        dynamic_layout_params: None,
     };
 
     let program_hash = Felt252::from_dec_str(SIMPLE_BOOTLOADER_PROGRAM_HASH).unwrap();

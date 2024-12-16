@@ -2,13 +2,25 @@ pub mod config;
 
 use crate::args::{LayoutName, ProveArgs, ProveBootloaderArgs, StoneVersion};
 use crate::utils::write_json_to_file;
+use cairo_vm::air_public_input::{MemorySegmentAddresses, PublicMemoryEntry};
 use config::{ProverConfig, ProverParametersConfig};
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::fs;
 use std::path::PathBuf;
 use std::process::Command;
 use thiserror::Error;
 
-use stone_prover_sdk::models::PublicInput;
+#[derive(Serialize, Deserialize, Debug, PartialEq)]
+pub struct PublicInput {
+    pub layout: LayoutName,
+    pub rc_min: u32,
+    pub rc_max: u32,
+    pub n_steps: u32,
+    pub memory_segments: HashMap<String, MemorySegmentAddresses>,
+    pub public_memory: Vec<PublicMemoryEntry>,
+    pub dynamic_params: Option<HashMap<String, u32>>,
+}
 
 // path to the private key
 const ENV_SHARP_KEY_PATH: &str = "SHARP_KEY_PATH";

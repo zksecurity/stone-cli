@@ -210,6 +210,25 @@ define_enum! {
     automatic => "automatic",
 }
 
+impl LayoutName {
+    pub fn to_stone_layout(&self) -> &'static str {
+        match self {
+            LayoutName::plain => "plain",
+            LayoutName::small => "small",
+            LayoutName::dex => "dex",
+            LayoutName::recursive => "recursive",
+            LayoutName::starknet => "starknet",
+            LayoutName::starknet_with_keccak => "starknet_with_keccak",
+            LayoutName::recursive_large_output => "recursive_large_output",
+            LayoutName::recursive_with_poseidon => "recursive_with_poseidon",
+            LayoutName::all_solidity => "all_solidity",
+            LayoutName::all_cairo => "all_cairo",
+            LayoutName::dynamic => "dynamic",
+            LayoutName::automatic => "dynamic",
+        }
+    }
+}
+
 impl fmt::Display for LayoutName {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{:?}", self)
