@@ -183,6 +183,7 @@ fn cairo_run_bootloader_in_proof_mode(
         trace_enabled: true,
         relocate_mem: true,
         layout,
+        dynamic_layout_params: None,
         proof_mode: true,
         secure_run: None,
         disable_trace_padding: false,

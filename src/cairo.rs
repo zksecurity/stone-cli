@@ -140,6 +140,7 @@ pub fn run_cairo0(
         trace_enabled: true,
         relocate_mem: true,
         layout: get_layout(&prove_args.layout),
+        dynamic_layout_params: None,
         proof_mode: true,
         secure_run: None,
         disable_trace_padding: false,
