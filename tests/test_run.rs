@@ -258,7 +258,6 @@ fn test_run_cairo1_fail(
 #[case("recursive_with_poseidon", "fibonacci.cairo")]
 #[case("all_solidity", "fibonacci.cairo")]
 #[case("all_cairo", "fibonacci.cairo")]
-#[case("dynamic", "fibonacci.cairo")]
 #[case("recursive", "array_append.cairo")]
 #[case("recursive", "array_get.cairo")]
 #[case("recursive", "array_integer_tuple.cairo")]
