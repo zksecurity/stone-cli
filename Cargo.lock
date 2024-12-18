@@ -463,7 +463,7 @@ dependencies = [
 [[package]]
 name = "cairo-bootloader"
 version = "0.1.0"
-source = "git+https://github.com/zksecurity/cairo-bootloader?rev=6c584696f8ec7bbddf889dcda313462a3666eb1e#6c584696f8ec7bbddf889dcda313462a3666eb1e"
+source = "git+https://github.com/zksecurity/cairo-bootloader?rev=b43353d7202f1d39f91f8f154b243967bb1d69bb#b43353d7202f1d39f91f8f154b243967bb1d69bb"
 dependencies = [
  "cairo-vm",
  "num-traits",
