@@ -9,7 +9,6 @@ use cairo_vm::types::errors::program_errors::ProgramError;
 use cairo_vm::types::program::Program;
 use cairo_vm::vm::errors::cairo_run_errors::CairoRunError;
 use cairo_vm::vm::errors::trace_errors::TraceError;
-use std::collections::HashMap;
 use std::io;
 use std::path::PathBuf;
 use std::process::Command;
