@@ -60,11 +60,11 @@ pub struct CairoBootloaderRunResult {
 
 #[derive(Debug, Error)]
 pub enum Error {
-    #[error("Failed to interact with the file system")]
+    #[error(transparent)]
     IO(#[from] std::io::Error),
-    #[error("Failed to parse program input")]
+    #[error(transparent)]
     SerdeJson(#[from] serde_json::Error),
-    #[error("The cairo program execution failed")]
+    #[error(transparent)]
     Runner(#[from] CairoRunError),
     #[error(transparent)]
     EncodeTrace(#[from] EncodeTraceError),
