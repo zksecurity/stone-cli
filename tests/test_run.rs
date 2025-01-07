@@ -197,6 +197,7 @@ fn test_run_cairo0_success(
         parameter_config: ProverParametersConfig::default(),
         prover_config: ProverConfig::default(),
         stone_version: StoneVersion::V5,
+        bench_memory: None,
     };
 
     match run_cairo0(&prove_args, &tmp_dir) {
@@ -235,6 +236,7 @@ fn test_run_cairo1_fail(
         parameter_config: ProverParametersConfig::default(),
         prover_config: ProverConfig::default(),
         stone_version: StoneVersion::V6,
+        bench_memory: None,
     };
     match run_cairo1(&prove_args, &tmp_dir) {
         Ok(result) => panic!(
@@ -313,6 +315,7 @@ fn test_run_cairo1_success(
         parameter_config: ProverParametersConfig::default(),
         prover_config: ProverConfig::default(),
         stone_version: StoneVersion::V6,
+        bench_memory: None,
     };
     match run_cairo1(&prove_args, &tmp_dir) {
         Ok(result) => println!("Successfully ran cairo1: {:?}", result),
@@ -359,6 +362,7 @@ fn test_run_cairo1_with_input_file(
         parameter_config: ProverParametersConfig::default(),
         prover_config: ProverConfig::default(),
         stone_version: StoneVersion::V6,
+        bench_memory: None,
     };
 
     match run_cairo1(&prove_args, &tmp_dir) {
@@ -401,6 +405,7 @@ fn test_run_cairo1_with_inputs(
         parameter_config: ProverParametersConfig::default(),
         prover_config: ProverConfig::default(),
         stone_version: StoneVersion::V6,
+        bench_memory: None,
     };
 
     match run_cairo1(&prove_args, &tmp_dir) {
@@ -445,6 +450,7 @@ fn test_run_cairo_e2e_linux(
         parameter_config: ProverParametersConfig::default(),
         prover_config: ProverConfig::default(),
         stone_version: StoneVersion::V6,
+        bench_memory: None,
     };
     let verify_args = VerifyArgs {
         proof: tmp_dir.path().join("proof.json"),
@@ -466,8 +472,14 @@ fn test_run_cairo_e2e_linux(
         .path()
         .join(format!("{}_air_private_input.json", filename));
 
-    run_stone_prover(&prove_args, &air_public_input, &air_private_input, &tmp_dir)
-        .expect("Failed to run stone prover");
+    run_stone_prover(
+        &prove_args,
+        &air_public_input,
+        &air_private_input,
+        &tmp_dir,
+        false,
+    )
+    .expect("Failed to run stone prover");
     run_stone_verifier(verify_args).expect("Failed to run stone verifier");
     check_tmp_files(&tmp_dir, &program_file);
 }
