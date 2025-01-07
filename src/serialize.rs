@@ -132,6 +132,7 @@ pub fn serialize_proof(args: SerializeArgs) -> Result<(), Error> {
                     }
                 }
 
+                #[allow(static_mut_refs)]
                 let (const_state, mut var_state, mut witness) =
                     unsafe { (CONST_STATE.clone(), VAR_STATE.clone(), WITNESS.clone()) };
                 let initial = serialize(input)?
