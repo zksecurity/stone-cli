@@ -78,7 +78,7 @@ Additional args for prover config:
 Generate a proof for the bootloader Cairo program
 
 ```bash
-stone-cli prove --cairo_program <program-path>
+stone-cli prove-bootloader --cairo_program <program-path>
 ```
 
 Additional args:
