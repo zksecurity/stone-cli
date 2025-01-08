@@ -10,7 +10,9 @@ bincode = { version = "2.0.0-rc.3", default-features = false, features = [
 ] }
 cairo-bootloader = { git = "https://github.com/zksecurity/cairo-bootloader" }
 cairo-felt = "0.9.1"
-cairo-vm = { git = "https://github.com/zksecurity/cairo-vm", features = ["extensive_hints"] }
+cairo-vm = { git = "https://github.com/zksecurity/cairo-vm", features = [
+    "extensive_hints",
+], rev = "3cfcd1d035a4f6951337e6f4cc26014a0aa7e47e" }
 clap = { version = "4.3.10", features = ["derive"] }
 itertools = "0.13.0"
 num-bigint = "0.4.6"
@@ -18,13 +20,13 @@ num-traits = "0.2.19"
 rstest = "0.21.0"
 serde = { version = "1.0", features = ["derive"], default-features = false }
 serde_json = "1"
-stark_evm_adapter = { git = "https://github.com/zksecurity/stark-evm-adapter.git", branch = "add-build-configs" }
+stark_evm_adapter = { git = "https://github.com/zksecurity/stark-evm-adapter.git", rev = "e044116e3cf4e3cbca11cce7b9e508a0f3e6870b" }
 stone-prover-sdk = { git = "https://github.com/zksecurity/stone-prover-sdk" }
-swiftness_air = { git = "https://github.com/zksecurity/integrity-calldata-generator" }
-swiftness_fri = { git = "https://github.com/zksecurity/integrity-calldata-generator" }
-swiftness_proof_parser = { git = "https://github.com/zksecurity/integrity-calldata-generator" }
-swiftness_stark = { git = "https://github.com/zksecurity/integrity-calldata-generator" }
-swiftness = { git = "https://github.com/zksecurity/integrity-calldata-generator" }
+swiftness_air = { git = "https://github.com/zksecurity/integrity-calldata-generator", rev = "6f2dd268274e40e5ea75e2f17aff6b8e53f8f499" }
+swiftness_fri = { git = "https://github.com/zksecurity/integrity-calldata-generator", rev = "6f2dd268274e40e5ea75e2f17aff6b8e53f8f499" }
+swiftness_proof_parser = { git = "https://github.com/zksecurity/integrity-calldata-generator", rev = "6f2dd268274e40e5ea75e2f17aff6b8e53f8f499" }
+swiftness_stark = { git = "https://github.com/zksecurity/integrity-calldata-generator", rev = "6f2dd268274e40e5ea75e2f17aff6b8e53f8f499" }
+swiftness = { git = "https://github.com/zksecurity/integrity-calldata-generator", rev = "6f2dd268274e40e5ea75e2f17aff6b8e53f8f499" }
 starknet-crypto = "0.7.2"
 tempfile = "3.10.1" 
 thiserror = "1.0.61"
