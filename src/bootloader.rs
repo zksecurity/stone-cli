@@ -112,6 +112,7 @@ pub fn run_bootloader(
         tasks,
         prove_bootloader_args.layout.to_cairo_vm_layout(),
         prove_bootloader_args.fact_topologies_output.clone(),
+        prove_bootloader_args.ignore_fact_topologies,
     )?;
 
     let relocated_trace = runner
@@ -175,6 +176,7 @@ fn cairo_run_bootloader_in_proof_mode(
     tasks: Vec<TaskSpec>,
     layout: LayoutName,
     fact_topologies_path: PathBuf,
+    ignore_fact_topologies: bool,
 ) -> Result<CairoRunner, CairoRunError> {
     let mut hint_processor = BootloaderHintProcessor::new();
 
@@ -209,6 +211,7 @@ fn cairo_run_bootloader_in_proof_mode(
             supported_cairo_verifier_program_hashes: verifier_hashes,
         },
         packed_outputs: vec![PackedOutput::Plain(vec![]); n_tasks],
+        ignore_fact_topologies,
     };
 
     let mut exec_scopes = ExecutionScopes::new();
