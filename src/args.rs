@@ -93,6 +93,12 @@ pub struct ProveBootloaderArgs {
 
     #[clap(flatten)]
     pub prover_config: ProverConfig,
+
+    #[clap(
+        long = "ignore_fact_topologies",
+        help = "Option to ignore fact topologies, which will result in task outputs being written only to public memory page 0"
+    )]
+    pub ignore_fact_topologies: bool,
 }
 
 #[derive(Args, Debug)]
