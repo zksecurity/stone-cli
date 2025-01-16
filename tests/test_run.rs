@@ -651,6 +651,7 @@ fn test_run_bootloader(
         parameter_config: ProverParametersConfig::default(),
         prover_config: ProverConfig::default(),
         fact_topologies_output: tmp_dir.path().join("fact_topologies.json"),
+        ignore_fact_topologies: false,
     };
 
     match run_bootloader(&prove_bootloader_args, &tmp_dir) {
