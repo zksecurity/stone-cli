@@ -10,9 +10,12 @@ bincode = { version = "2.0.0-rc.3", default-features = false, features = [
 ] }
 cairo-bootloader = { git = "https://github.com/zksecurity/cairo-bootloader" }
 cairo-felt = "0.9.1"
-cairo-vm = { git = "https://github.com/zksecurity/cairo-vm", features = [
+cairo1-run = { git = "https://github.com/lambdaclass/cairo-vm.git", rev = "62804bcbf58b436a8986e7da0ee80333400b1ffb" }
+cairo-vm = { git = "https://github.com/lambdaclass/cairo-vm.git", features = [
     "extensive_hints",
-], rev = "3cfcd1d035a4f6951337e6f4cc26014a0aa7e47e" }
+    "cairo-1-hints",
+], rev = "62804bcbf58b436a8986e7da0ee80333400b1ffb" }
+cairo-lang-compiler = "=2.10.0-rc.0"
 clap = { version = "4.3.10", features = ["derive"] }
 itertools = "0.13.0"
 num-bigint = "0.4.6"
@@ -28,9 +31,10 @@ swiftness_proof_parser = { git = "https://github.com/zksecurity/integrity-callda
 swiftness_stark = { git = "https://github.com/zksecurity/integrity-calldata-generator", rev = "6f2dd268274e40e5ea75e2f17aff6b8e53f8f499" }
 swiftness = { git = "https://github.com/zksecurity/integrity-calldata-generator", rev = "6f2dd268274e40e5ea75e2f17aff6b8e53f8f499" }
 starknet-crypto = "0.7.2"
-tempfile = "3.10.1" 
+tempfile = "3.10.1"
 thiserror = "1.0.61"
 uuid = "1.9.1"
+log = "0.4.25"
 
 [build-dependencies]
 flate2 = "1.0.30"

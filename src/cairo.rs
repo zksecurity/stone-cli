@@ -1,5 +1,9 @@
 use crate::args::{CairoVersion, LayoutName, ProveArgs};
 use crate::utils::{get_formatted_air_public_input, FileWriter};
+use cairo1_run::Cairo1RunConfig;
+use cairo_lang_compiler::db::RootDatabase;
+use cairo_lang_compiler::project::setup_project;
+use cairo_lang_compiler::{compile_prepared_db, CompilerConfig};
 use cairo_vm::air_public_input::PublicInputError;
 use cairo_vm::cairo_run::{
     cairo_run_program, write_encoded_memory, write_encoded_trace, CairoRunConfig, EncodeTraceError,
@@ -11,7 +15,6 @@ use cairo_vm::vm::errors::cairo_run_errors::CairoRunError;
 use cairo_vm::vm::errors::trace_errors::TraceError;
 use std::io;
 use std::path::PathBuf;
-use std::process::Command;
 use thiserror::Error;
 
 #[derive(Debug)]
@@ -44,7 +47,7 @@ pub fn run_cairo(
 ) -> Result<CairoRunResult, anyhow::Error> {
     match args.cairo_version {
         CairoVersion::cairo0 => run_cairo0(args, tmp_dir).map_err(|e| anyhow::anyhow!(e)),
-        CairoVersion::cairo1 => run_cairo1(args, tmp_dir),
+        CairoVersion::cairo1 => run_cairo1(args, tmp_dir).map_err(|e| anyhow::anyhow!(e)),
     }
 }
 
@@ -162,6 +165,7 @@ pub fn run_cairo0(
 /// # Note
 ///
 /// This function ignores the following arguments to cairo1-run: `append_return_values`, `cairo_pie_output`, `print_output`.
+/*
 pub fn run_cairo1(
     prove_args: &ProveArgs,
     tmp_dir: &tempfile::TempDir,
@@ -224,6 +228,112 @@ pub fn run_cairo1(
         air_private_input,
         memory_file,
         trace_file,
+    })
+}
+*/
+pub fn run_cairo1(
+    prove_args: &ProveArgs,
+    tmp_dir: &tempfile::TempDir,
+) -> Result<CairoRunResult, Error> {
+    let filename = prove_args
+        .cairo_program
+        .file_stem()
+        .unwrap()
+        .to_str()
+        .unwrap();
+
+    // Try to parse the file as a sierra program first
+    let file = std::fs::read(&prove_args.cairo_program)?;
+    let sierra_program = match serde_json::from_slice(&file) {
+        Ok(program) => program,
+        Err(_) => {
+            // If it fails, try to compile it as a cairo program
+            let compiler_config = CompilerConfig {
+                replace_ids: true,
+                ..CompilerConfig::default()
+            };
+            let mut db = RootDatabase::builder()
+                .detect_corelib()
+                .skip_auto_withdraw_gas()
+                .build()
+                .unwrap();
+            let main_crate_ids = setup_project(&mut db, &prove_args.cairo_program).unwrap();
+            let sierra_program_with_dbg =
+                compile_prepared_db(&db, main_crate_ids, compiler_config).unwrap();
+
+            sierra_program_with_dbg.program
+        }
+    };
+
+    let trace_path = tmp_dir.path().join(format!("{}_trace.json", filename));
+    let memory_path = tmp_dir.path().join(format!("{}_memory.json", filename));
+    let air_public_input_path = tmp_dir
+        .path()
+        .join(format!("{}_air_public_input.json", filename));
+    let air_private_input_path = tmp_dir
+        .path()
+        .join(format!("{}_air_private_input.json", filename));
+
+    let cairo_run_config = Cairo1RunConfig {
+        args: &[],
+        serialize_output: false,
+        trace_enabled: true,
+        relocate_mem: true,
+        layout: get_layout(&prove_args.layout),
+        dynamic_layout_params: None,
+        proof_mode: true,
+        finalize_builtins: true,
+        append_return_values: true,
+    };
+
+    let (runner, _program_output, _additional) =
+        cairo1_run::cairo_run_program(&sierra_program, cairo_run_config).unwrap();
+
+    let air_public_input = runner.get_air_public_input().unwrap().serialize_json()?;
+    std::fs::write(&air_public_input_path, air_public_input)?;
+
+    let trace_file = std::fs::File::create(&trace_path)?;
+    let mut trace_writer =
+        FileWriter::new(io::BufWriter::with_capacity(3 * 1024 * 1024, trace_file));
+    let relocated_trace = runner
+        .relocated_trace
+        .as_ref()
+        .map(|trace| trace.clone())
+        .ok_or(Error::Trace(TraceError::TraceNotRelocated))?;
+    write_encoded_trace(&relocated_trace, &mut trace_writer)?;
+    trace_writer.flush()?;
+
+    let memory_file = std::fs::File::create(&memory_path)?;
+    let mut memory_writer =
+        FileWriter::new(io::BufWriter::with_capacity(5 * 1024 * 1024, memory_file));
+    write_encoded_memory(&runner.relocated_memory, &mut memory_writer)?;
+    memory_writer.flush()?;
+
+    let trace_absolute_path = trace_path
+        .as_path()
+        .canonicalize()
+        .unwrap_or(trace_path.clone())
+        .to_string_lossy()
+        .to_string();
+    let memory_absolute_path = memory_path
+        .as_path()
+        .canonicalize()
+        .unwrap_or(memory_path.clone())
+        .to_string_lossy()
+        .to_string();
+
+    let air_private_input = runner
+        .get_air_private_input()
+        .to_serializable(trace_absolute_path, memory_absolute_path)
+        .serialize_json()
+        .map_err(PublicInputError::Serde)?;
+    std::fs::write(air_private_input_path.clone(), air_private_input)?;
+
+    Ok(CairoRunResult {
+        air_public_input: air_public_input_path,
+        air_private_input: air_private_input_path,
+        memory_file: memory_path,
+        trace_file: trace_path,
     })
 }
 
