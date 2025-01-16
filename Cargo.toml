@@ -8,7 +8,7 @@ anyhow = "1.0.86"
 bincode = { version = "2.0.0-rc.3", default-features = false, features = [
     "serde",
 ] }
-cairo-bootloader = { git = "https://github.com/zksecurity/cairo-bootloader" }
+cairo-bootloader = { git = "https://github.com/zksecurity/cairo-bootloader", rev = "ca1435a6cf52c7cea6d98e1c4edecff8424b4bae" }
 cairo-felt = "0.9.1"
 cairo-vm = { git = "https://github.com/zksecurity/cairo-vm", features = [
     "extensive_hints",
