@@ -88,6 +88,7 @@ Additional args:
 - `--layout`
 - `--prover_config_file`
 - `--parameter_file`
+- `--ignore_fact_topologies`
 
 ### Verify
 
