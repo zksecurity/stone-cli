@@ -1,6 +1,7 @@
 pub mod config;
 
 use crate::args::{LayoutName, ProveArgs, ProveBootloaderArgs, StoneVersion};
+use crate::sharp::{resolve_automatic_layout, DynamicParamsResponse};
 use crate::utils::write_json_to_file;
 use cairo_vm::air_public_input::{MemorySegmentAddresses, PublicMemoryEntry};
 use config::{ProverConfig, ProverParametersConfig};
@@ -21,15 +22,6 @@ pub struct PublicInput {
     pub public_memory: Vec<PublicMemoryEntry>,
     pub dynamic_params: Option<HashMap<String, u32>>,
 }
-
-// path to the private key
-const ENV_SHARP_KEY_PATH: &str = "SHARP_KEY_PATH";
-
-// decryption key for the private key
-const ENV_SHARP_PASSWORD: &str = "SHARP_KEY_PASSWD";
-
-// SHARP API URL
-const SHARP_API_URL: &str = "https://sharp-bi.provingservice.io/sharp_bi";
 
 #[derive(Error, Debug)]
 pub enum ProverError {
@@ -57,58 +49,15 @@ impl std::fmt::Display for ProverCommandError {
     }
 }
 
-use reqwest;
-
-const SHARP_CERT: &str = include_str!("./sharp-server.crt");
-
-/// Get
-fn get_sharp_cert() -> reqwest::Certificate {
-    reqwest::Certificate::from_pem(SHARP_CERT.as_bytes()).unwrap()
-}
-
-/// Get an identity for the SHARP API
-///
-/// For easy of use, this method will attempt to
-/// obtain a key using the following methods:
-///
-/// - PEM without a password
-/// - PEM with a password
-/// - DER with a password
-fn get_identity() -> Result<reqwest::Identity, anyhow::Error> {
-    // read the key
-    let key_path = match std::env::var(ENV_SHARP_KEY_PATH) {
-        Ok(path) => path,
-        Err(_) => {
-            return Err(anyhow::anyhow!(
-                "Using a method which requires a SHARP certificate. Please set the \"{}\" enviroment variable",
-                ENV_SHARP_KEY_PATH
-            ))
-        }
-    };
-    let key_bytes = fs::read(key_path).map_err(|e| anyhow::anyhow!("Failed to read key: {}", e))?;
-
-    // try without a password
-    if let Ok(id) = reqwest::Identity::from_pem(&key_bytes) {
-        return Ok(id);
-    }
-
-    // try with a password
-    let cert_pass = match std::env::var(ENV_SHARP_PASSWORD) {
-        Ok(pass) => pass,
-        Err(_) => {
-            return Err(anyhow::anyhow!(
-                "PEM key requires password, please set the \"{}\" enviroment variable",
-                ENV_SHARP_PASSWORD
-            ))
-        }
-    };
-    if let Ok(id) = reqwest::Identity::from_pkcs8_pem(&key_bytes, cert_pass.as_bytes()) {
-        return Ok(id);
-    }
-    if let Ok(id) = reqwest::Identity::from_pkcs12_der(&key_bytes, &cert_pass) {
-        return Ok(id);
-    }
-    Err(anyhow::anyhow!("Failed to load identity"))
+#[derive(Serialize, Deserialize, Debug)]
+pub struct AirPublicInput {
+    pub layout: String,
+    pub rc_min: isize,
+    pub rc_max: isize,
+    pub n_steps: usize,
+    pub memory_segments: HashMap<String, MemorySegmentAddresses>,
+    pub public_memory: Vec<PublicMemoryEntry>,
+    pub dynamic_params: Option<DynamicParamsResponse>,
 }
 
 /// Runs the Stone prover with the given inputs
@@ -127,30 +76,31 @@ pub fn run_stone_prover(
     air_public_input: &PathBuf,
     air_private_input: &PathBuf,
     tmp_dir: &tempfile::TempDir,
-) -> Result<(), ProverError> {
-    // resolve dynamic layout using the SHARP API
-    if LayoutName::dynamic == prove_args.layout {
-        println!("Using the SHARP API to resolve dynamic layout...");
+) -> Result<(), anyhow::Error> {
+    // optionally resolve the dynamic layout
+    let air_public_input =
+        if let Some(dynamic_params) = resolve_automatic_layout(prove_args, tmp_dir)? {
+            // load the public input and update the layout
+            println!("dynamic_params: {:#?}", dynamic_params);
+            let input = fs::read_to_string(air_public_input)?;
+            println!("input: {}", input);
+            let mut pi: AirPublicInput = serde_json::from_str(&input)?;
+            pi.dynamic_params = Some(dynamic_params);
 
-        let identity = get_identity().unwrap(); // TODO
-        let certificate = get_sharp_cert();
+            // save the updated params to the temporary directory
+            let air_public_input = tmp_dir.path().join("air_public_input_dyn_params.json");
 
-        let client = reqwest::blocking::ClientBuilder::new()
-            .identity(identity)
-            .add_root_certificate(certificate)
-            .build()
-            .unwrap();
+            println!("serialized:");
+            println!("{}", serde_json::to_string_pretty(&pi)?);
 
-        client
-            .get(format!("{}/is_alive", SHARP_API_URL))
-            .send()
-            .unwrap();
+            write_json_to_file(pi, &air_public_input)?;
+            air_public_input
+        } else {
+            // no dynamic layout, continue as usual
+            air_public_input.clone()
+        };
 
-        return Ok(());
-    }
-
-    println!("Running prover...");
-
+    log::debug!("running prover...");
     run_stone_prover_internal(
         &prove_args.parameter_config,
         prove_args.parameter_file.as_ref(),
@@ -158,12 +108,11 @@ pub fn run_stone_prover(
         prove_args.prover_config_file.as_ref(),
         &prove_args.output,
         &prove_args.stone_version,
-        air_public_input,
+        &air_public_input,
         air_private_input,
         tmp_dir,
     )?;
-
-    println!("Prover finished successfully");
+    log::debug!("prover finished successfully");
     Ok(())
 }
 
@@ -185,8 +134,7 @@ pub fn run_stone_prover_bootloader(
     air_private_input: &PathBuf,
     tmp_dir: &tempfile::TempDir,
 ) -> Result<(), ProverError> {
-    println!("Running prover for bootloader...");
-
+    log::debug!("Running prover for bootloader...");
     run_stone_prover_internal(
         &prove_bootloader_args.parameter_config,
         prove_bootloader_args.parameter_file.as_ref(),
@@ -198,8 +146,7 @@ pub fn run_stone_prover_bootloader(
         air_private_input,
         tmp_dir,
     )?;
-
-    println!("Prover finished successfully");
+    log::debug!("prover finished successfully");
     Ok(())
 }
 

@@ -9,11 +9,44 @@ use cairo_vm::types::errors::program_errors::ProgramError;
 use cairo_vm::types::program::Program;
 use cairo_vm::vm::errors::cairo_run_errors::CairoRunError;
 use cairo_vm::vm::errors::trace_errors::TraceError;
-use std::collections::HashMap;
+use cairo_vm::vm::runners::cairo_pie::CairoPie;
+use cairo_vm::vm::runners::cairo_runner::ExecutionResources;
 use std::io;
 use std::path::PathBuf;
 use std::process::Command;
 use thiserror::Error;
+
+// TODO: get the correct one
+const DYNAMIC_LAYOUT: &'static str = r#"{
+    "rc_units": 16,
+    "memory_units_per_step": 8,
+    "public_memory_fraction": 4,
+    "log_diluted_units_per_step": 4,
+    "cpu_component_step": 8,
+    "uses_pedersen_builtin": true,
+    "pedersen_ratio": 256,
+    "uses_range_check_builtin": true,
+    "range_check_ratio": 8,
+    "uses_ecdsa_builtin": true,
+    "ecdsa_ratio": 2048,
+    "uses_bitwise_builtin": true,
+    "bitwise_ratio": 16,
+    "uses_ec_op_builtin": true,
+    "ec_op_ratio": 1024,
+    "uses_keccak_builtin": true,
+    "keccak_ratio": 2048,
+    "uses_poseidon_builtin": true,
+    "poseidon_ratio": 256,
+    "uses_range_check96_builtin": true,
+    "range_check96_ratio": 8,
+    "range_check96_ratio_den": 1,
+    "uses_add_mod_builtin": true,
+    "add_mod_ratio": 128,
+    "add_mod_ratio_den": 1,
+    "uses_mul_mod_builtin": true,
+    "mul_mod_ratio": 256,
+    "mul_mod_ratio_den": 1
+}"#;
 
 #[derive(Debug)]
 pub struct CairoRunResult {
@@ -44,7 +77,7 @@ pub fn run_cairo(
     tmp_dir: &tempfile::TempDir,
 ) -> Result<CairoRunResult, anyhow::Error> {
     match args.cairo_version {
-        CairoVersion::cairo0 => run_cairo0(args, tmp_dir).map_err(|e| anyhow::anyhow!(e)),
+        CairoVersion::cairo0 => run_cairo0(args, tmp_dir).map_err(Into::into),
         CairoVersion::cairo1 => run_cairo1(args, tmp_dir),
     }
 }
@@ -67,7 +100,7 @@ pub fn run_cairo(
 pub fn run_cairo0(
     prove_args: &ProveArgs,
     tmp_dir: &tempfile::TempDir,
-) -> Result<CairoRunResult, Error> {
+) -> Result<CairoRunResult, anyhow::Error> {
     let filename = prove_args
         .cairo_program
         .file_stem()
@@ -149,6 +182,63 @@ pub fn run_cairo0(
     })
 }
 
+pub fn get_execution_resources(
+    prove_args: &ProveArgs,
+    tmp_dir: &tempfile::TempDir,
+) -> Result<ExecutionResources, anyhow::Error> {
+    assert_eq!(
+        prove_args.layout,
+        LayoutName::automatic,
+        "layout must be automatic"
+    );
+    let filename = prove_args
+        .cairo_program
+        .file_stem()
+        .unwrap()
+        .to_str()
+        .unwrap();
+
+    let cairo1_run_path = std::env::var("CAIRO1_RUN")
+        .map_err(|e| anyhow::anyhow!("Failed to get CAIRO1_RUN environment variable: {}", e))?;
+
+    let mut cmd = Command::new(cairo1_run_path);
+    cmd.arg(&prove_args.cairo_program);
+
+    let cairo_pie = tmp_dir.path().join(format!("{}_cairo_pie.json", filename));
+    let cairo_layout_params_file = tmp_dir.path().join("cairo_layout_params_file.json");
+
+    // write to "cairo_layout_params_file.json"
+    std::fs::write(cairo_layout_params_file.clone(), DYNAMIC_LAYOUT)?;
+
+    cmd.arg("--layout") //
+        .arg("dynamic");
+    cmd.arg("--cairo_pie_output") //
+        .arg(cairo_pie.clone());
+    cmd.arg("--cairo_layout_params_file")
+        .arg(cairo_layout_params_file.clone());
+    if let Some(args_file) = &prove_args.program_input_file {
+        cmd.arg("--args_file").arg(args_file.to_str().unwrap());
+    }
+    if let Some(args) = &prove_args.program_input {
+        cmd.arg("--args").arg(args);
+    }
+
+    println!("executing cairo1-run: {:?}", cmd);
+
+    log::debug!("executing cairo1-run: {:?}", cmd);
+    let output = cmd.output().expect("Failed to execute cairo1-run");
+    if !output.status.success() {
+        anyhow::bail!(
+            "cairo1-run failed with error: {}",
+            String::from_utf8_lossy(&output.stderr)
+        )
+    }
+
+    // read the pie
+    let pie = CairoPie::read_zip_file(&cairo_pie)?;
+    Ok(pie.execution_resources)
+}
+
 /// Runs a Cairo 1 program and generates the necessary outputs for proving
 ///
 /// # Arguments
@@ -181,10 +271,32 @@ pub fn run_cairo1(
     cmd.arg(&prove_args.cairo_program);
 
     match &prove_args.layout {
-        LayoutName::automatic => {
+        LayoutName::dynamic => {
+            let cairo_layout_params_file = tmp_dir.path().join("cairo_layout_params_file.json");
+            std::fs::write(cairo_layout_params_file.clone(), DYNAMIC_LAYOUT)?;
             cmd.arg("--layout").arg("dynamic");
             cmd.arg("--cairo_layout_params_file")
-                .arg("cairo_layout_params_file.json");
+                .arg(cairo_layout_params_file.clone());
+        }
+        LayoutName::automatic => {
+            let cairo_layout_params_file = tmp_dir.path().join("cairo_layout_params_file.json");
+            std::fs::write(cairo_layout_params_file.clone(), DYNAMIC_LAYOUT)?;
+            cmd.arg("--layout").arg("dynamic");
+            cmd.arg("--cairo_layout_params_file")
+                .arg(cairo_layout_params_file.clone());
+            /*
+            match dynamic_params {
+                Some(params) => {
+                    let dynamic_params_path = tmp_dir.path().join("cairo_layout_params_file.json");
+                    std::fs::write(dynamic_params_path.clone(), serde_json::to_string(&params)?)?;
+                    cmd.arg("--cairo_layout_params_file")
+                        .arg(dynamic_params_path.to_str().unwrap());
+                }
+                None => {
+                    anyhow::bail!("Dynamic layout requested but no dynamic parameters provided");
+                }
+            }
+            */
         }
         layout => {
             cmd.arg("--layout").arg(layout.clone().to_str());
@@ -205,6 +317,7 @@ pub fn run_cairo1(
         .arg(trace_file.clone());
     cmd.arg("--memory_file") //
         .arg(memory_file.clone());
+
     cmd.arg("--air_public_input") //
         .arg(air_public_input.clone());
     cmd.arg("--air_private_input")
@@ -220,18 +333,17 @@ pub fn run_cairo1(
 
     cmd.arg("--proof_mode");
 
-    println!("Running cairo1-run... {:?}", cmd);
+    log::debug!("Running cairo1-run... {:?}", cmd);
 
     let output = cmd.output().expect("Failed to execute cairo1-run");
 
     if !output.status.success() {
-        return Err(anyhow::anyhow!(
+        anyhow::bail!(
             "cairo1-run failed with error: {}",
             String::from_utf8_lossy(&output.stderr)
-        ));
-    } else {
-        println!("cairo1-run executed successfully.");
+        )
     }
+    log::debug!("cairo1-run executed successfully.");
 
     Ok(CairoRunResult {
         air_public_input,

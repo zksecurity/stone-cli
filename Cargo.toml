@@ -29,15 +29,35 @@ swiftness = { git = "https://github.com/zksecurity/integrity-calldata-generator"
 starknet-crypto = "0.7.2"
 tempfile = "3.10.1"
 thiserror = "1.0.61"
-reqwest = { version = "0.12", features = [
-    "blocking",
-    "native-tls",
-    "rustls-tls",
-] }
+
+
+#  reqwest = { git = "https://github.com/seanmonstar/reqwest.git", rev = "28d25bd0a6437cdd8dbec22619f2675b7f97d172", features = [
+#    "json",
+#    "blocking",
+#    "rustls-tls",
+#  ] }
 uuid = "1.9.1"
+log = "0.4.25"
+rpassword = "7.3.1"
+rustls-pemfile = "2.2.0"
+rustls-pki-types = "1.10.1"
+pkcs8 = { version = "0.10.2", features = [
+    "encryption",
+    "3des",
+    "des-insecure",
+    "pem",
+    "alloc",
+    "pkcs5",
+] }
+rustls = "0.23.21"
+curl = "0.4.47"
 
 [build-dependencies]
-reqwest = { version = "0.12", features = ["blocking"] }
+reqwest = { version = "0.12", features = [
+    "json",
+    "blocking",
+    "rustls-tls",
+], default-features = false }
 flate2 = "1.0.30"
 once_cell = "1.18"
 serde = { version = "1.0", features = ["derive"], default-features = false }
