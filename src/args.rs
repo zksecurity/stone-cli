@@ -18,6 +18,7 @@ use std::path::PathBuf;
 pub enum Cli {
     Prove(ProveArgs),
     ProveBootloader(ProveBootloaderArgs),
+    ProveWithCairoRunArtifacts(ProveWithCairoRunArtifactsArgs),
     Verify(VerifyArgs),
     SerializeProof(SerializeArgs),
 }
@@ -96,6 +97,39 @@ pub struct ProveBootloaderArgs {
         help = "Option to ignore fact topologies, which will result in task outputs being written only to public memory page 0"
     )]
     pub ignore_fact_topologies: bool,
+}
+
+#[derive(Args, Debug)]
+pub struct ProveWithCairoRunArtifactsArgs {
+    #[clap(long = "air_public_input", value_hint=ValueHint::FilePath)]
+    pub air_public_input: PathBuf,
+
+    #[clap(long = "air_private_input", value_hint=ValueHint::FilePath)]
+    pub air_private_input: PathBuf,
+
+    #[clap(long = "memory_file", value_hint=ValueHint::FilePath)]
+    pub memory_file: PathBuf,
+
+    #[clap(long = "trace_file", value_hint=ValueHint::FilePath)]
+    pub trace_file: PathBuf,
+
+    #[clap(long = "prover_config_file", conflicts_with_all = ["store_full_lde", "use_fft_for_eval", "constraint_polynomial_task_size", "n_out_of_memory_merkle_layers", "table_prover_n_tasks_per_segment"])]
+    pub prover_config_file: Option<PathBuf>,
+
+    #[clap(long = "parameter_file", conflicts_with_all = ["field", "channel_hash", "commitment_hash", "n_verifier_friendly_commitment_layers", "pow_hash", "page_hash", "fri_step_list", "last_layer_degree_bound", "n_queries", "proof_of_work_bits", "log_n_cosets", "use_extension_field", "verifier_friendly_channel_updates", "verifier_friendly_commitment_hash"])]
+    pub parameter_file: Option<PathBuf>,
+
+    #[clap(long = "output", default_value = "./bootloader_proof.json")]
+    pub output: PathBuf,
+
+    #[clap(long = "stone_version", default_value = "v6", value_enum)]
+    pub stone_version: StoneVersion,
+
+    #[clap(flatten)]
+    pub parameter_config: ProverParametersConfig,
+
+    #[clap(flatten)]
+    pub prover_config: ProverConfig,
 }
 
 #[derive(Args, Debug)]
