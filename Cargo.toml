@@ -21,7 +21,6 @@ rstest = "0.21.0"
 serde = { version = "1.0", features = ["derive"], default-features = false }
 serde_json = "1"
 stark_evm_adapter = { git = "https://github.com/zksecurity/stark-evm-adapter.git", rev = "e044116e3cf4e3cbca11cce7b9e508a0f3e6870b" }
-stone-prover-sdk = { git = "https://github.com/zksecurity/stone-prover-sdk" }
 swiftness_air = { git = "https://github.com/zksecurity/integrity-calldata-generator", rev = "6f2dd268274e40e5ea75e2f17aff6b8e53f8f499" }
 swiftness_fri = { git = "https://github.com/zksecurity/integrity-calldata-generator", rev = "6f2dd268274e40e5ea75e2f17aff6b8e53f8f499" }
 swiftness_proof_parser = { git = "https://github.com/zksecurity/integrity-calldata-generator", rev = "6f2dd268274e40e5ea75e2f17aff6b8e53f8f499" }

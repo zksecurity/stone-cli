@@ -1,8 +1,10 @@
-use crate::define_enum;
+use crate::{
+    define_enum,
+    fri::{DefaultFriComputer, FriComputer},
+};
 use clap::Args;
 use serde::{Deserialize, Serialize};
 use serde_json::Result;
-use stone_prover_sdk::fri::{DefaultFriComputer, FriComputer};
 
 define_enum! {
     CommitmentHash,
@@ -55,17 +57,6 @@ pub struct FriParameters {
     pub proof_of_work_bits: Option<u32>,
 }
 
-impl From<stone_prover_sdk::models::FriParameters> for FriParameters {
-    fn from(params: stone_prover_sdk::models::FriParameters) -> Self {
-        FriParameters {
-            fri_step_list: Some(params.fri_step_list),
-            last_layer_degree_bound: Some(params.last_layer_degree_bound),
-            n_queries: Some(params.n_queries),
-            proof_of_work_bits: Some(params.proof_of_work_bits),
-        }
-    }
-}
-
 #[derive(Args, Serialize, Deserialize, Debug, Clone)]
 pub struct ProverParametersConfig {
     #[clap(long = "field", default_value = "PrimeField0")]
@@ -103,8 +94,7 @@ impl ProverParametersConfig {
         nb_steps: u32,
         parameter_config: &ProverParametersConfig,
     ) -> Result<ProverParametersConfig> {
-        let computed_fri_parameters =
-            FriParameters::from(DefaultFriComputer.compute_fri_parameters(nb_steps));
+        let computed_fri_parameters = DefaultFriComputer.compute_fri_parameters(nb_steps);
         let computed_fri_step_list = parameter_config
             .stark
             .fri
