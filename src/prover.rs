@@ -1,10 +1,13 @@
 pub mod config;
 
-use crate::args::{LayoutName, ProveArgs, ProveBootloaderArgs, StoneVersion};
+use crate::args::{
+    LayoutName, ProveArgs, ProveBootloaderArgs, ProveWithCairoRunArtifactsArgs, StoneVersion,
+};
 use crate::utils::write_json_to_file;
 use cairo_vm::air_public_input::{MemorySegmentAddresses, PublicMemoryEntry};
 use config::{ProverConfig, ProverParametersConfig};
 use serde::{Deserialize, Serialize};
+use serde_json::{from_str, to_string_pretty, Value};
 use std::collections::HashMap;
 use std::fs;
 use std::path::PathBuf;
@@ -28,6 +31,8 @@ pub enum ProverError {
     IoError(#[from] std::io::Error),
     #[error("{0}")]
     CommandError(ProverCommandError),
+    #[error("{0}")]
+    JsonError(#[from] serde_json::Error),
 }
 
 #[derive(Debug)]
@@ -116,6 +121,51 @@ pub fn run_stone_prover_bootloader(
     )?;
 
     println!("Prover finished successfully");
+    Ok(())
+}
+
+pub fn run_stone_prover_with_cairo_run_artifacts(
+    prove_with_public_input_args: &ProveWithCairoRunArtifactsArgs,
+    tmp_dir: &tempfile::TempDir,
+) -> Result<(), ProverError> {
+    let air_private_input = prove_with_public_input_args.air_private_input.clone();
+
+    let mut json_content: Value = from_str(&fs::read_to_string(air_private_input.clone())?)?;
+
+    let memory_file = prove_with_public_input_args.memory_file.clone();
+    let trace_file = prove_with_public_input_args.trace_file.clone();
+    // Memory_path and trace_path are written to air_private_input as the absolute path of when they were created,
+    //  which may be different from their current paths, so we need to update them.
+    if let Value::Object(ref mut map) = json_content {
+        if map.contains_key("memory_path") {
+            map.insert(
+                "memory_path".to_string(),
+                Value::String(memory_file.canonicalize()?.display().to_string()),
+            );
+        }
+        if map.contains_key("trace_path") {
+            map.insert(
+                "trace_path".to_string(),
+                Value::String(trace_file.canonicalize()?.display().to_string()),
+            );
+        }
+
+        // Write back the updated JSON
+        fs::write(air_private_input.clone(), to_string_pretty(&json_content)?)?
+    }
+
+    run_stone_prover_internal(
+        &prove_with_public_input_args.parameter_config,
+        prove_with_public_input_args.parameter_file.as_ref(),
+        &prove_with_public_input_args.prover_config,
+        prove_with_public_input_args.prover_config_file.as_ref(),
+        &prove_with_public_input_args.output,
+        &prove_with_public_input_args.stone_version,
+        &prove_with_public_input_args.air_public_input,
+        &air_private_input,
+        tmp_dir,
+    )?;
+
     Ok(())
 }
 
