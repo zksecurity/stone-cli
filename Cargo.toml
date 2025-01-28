@@ -12,7 +12,7 @@ cairo-bootloader = { git = "https://github.com/zksecurity/cairo-bootloader", rev
 cairo-felt = "0.9.1"
 cairo1-run = { git = "https://github.com/zksecurity/cairo-vm", package = "cairo1-run", features = ["mod_builtin"], rev = "ac8b81b79f65f5017fe0929bf4025be4a0e9c73c" }
 cairo-vm = { git = "https://github.com/zksecurity/cairo-vm", features = [
-    "extensive_hints"
+    "extensive_hints", "mod_builtin"
 ], rev = "ac8b81b79f65f5017fe0929bf4025be4a0e9c73c" }
 cairo-lang-compiler = { version = "=2.10.0-rc.0", default-features = false }
 clap = { version = "4.3.10", features = ["derive"] }

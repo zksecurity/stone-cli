@@ -78,27 +78,28 @@ pub fn run_stone_prover(
     tmp_dir: &tempfile::TempDir,
 ) -> Result<(), anyhow::Error> {
     // optionally resolve the dynamic layout
-    let air_public_input =
-        if let Some(dynamic_params) = resolve_automatic_layout(prove_args, tmp_dir)? {
-            // load the public input and update the layout
-            println!("dynamic_params: {:#?}", dynamic_params);
-            let input = fs::read_to_string(air_public_input)?;
-            println!("input: {}", input);
-            let mut pi: AirPublicInput = serde_json::from_str(&input)?;
-            pi.dynamic_params = Some(dynamic_params);
+    let air_public_input = if let Some((dynamic_params, cairo_runner)) =
+        resolve_automatic_layout(prove_args, tmp_dir)?
+    {
+        // load the public input and update the layout
+        println!("dynamic_params: {:#?}", dynamic_params);
+        let input = cairo_runner.get_air_public_input()?;
+        println!("input: {:#?}", input);
+        let mut pi: AirPublicInput = serde_json::from_str(&input.serialize_json().unwrap())?;
+        pi.dynamic_params = Some(dynamic_params);
 
-            // save the updated params to the temporary directory
-            let air_public_input = tmp_dir.path().join("air_public_input_dyn_params.json");
+        // save the updated params to the temporary directory
+        let air_public_input = tmp_dir.path().join("air_public_input_dyn_params.json");
 
-            println!("serialized:");
-            println!("{}", serde_json::to_string_pretty(&pi)?);
+        println!("serialized:");
+        println!("{}", serde_json::to_string_pretty(&pi)?);
 
-            write_json_to_file(pi, &air_public_input)?;
-            air_public_input
-        } else {
-            // no dynamic layout, continue as usual
-            air_public_input.clone()
-        };
+        write_json_to_file(pi, &air_public_input)?;
+        air_public_input
+    } else {
+        // no dynamic layout, continue as usual
+        air_public_input.clone()
+    };
 
     log::debug!("running prover...");
     run_stone_prover_internal(

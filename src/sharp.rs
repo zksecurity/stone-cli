@@ -1,6 +1,7 @@
 use std::fs;
 
 use anyhow::anyhow;
+use cairo1_run::CairoRunner;
 use cairo_vm::vm::runners::cairo_runner::ExecutionResources;
 use curl::easy::Easy;
 use pkcs8::{der::zeroize::Zeroizing, DecodePrivateKey, Document, SecretDocument};
@@ -356,7 +357,7 @@ pub struct DynamicParamsResponse {
 
 use crate::{
     args::{LayoutName, ProveArgs},
-    cairo::get_execution_resources,
+    cairo::get_cairo_runner,
 };
 
 // path to the private key
@@ -483,12 +484,13 @@ pub fn api_call<I: Serialize, O: DeserializeOwned>(
 pub fn resolve_automatic_layout(
     prove_args: &ProveArgs,
     tmp_dir: &TempDir,
-) -> Result<Option<DynamicParamsResponse>, anyhow::Error> {
+) -> Result<Option<(DynamicParamsResponse, CairoRunner)>, anyhow::Error> {
     match prove_args.layout {
         LayoutName::automatic => {
             // obtain execution resources
             log::debug!("obtaining execution resources...");
-            let execution_resources = get_execution_resources(prove_args, tmp_dir)?;
+            let cairo_runner = get_cairo_runner(prove_args, tmp_dir)?;
+            let execution_resources = cairo_runner.get_execution_resources()?;
 
             // resolve execution resources using the get_dynamic_params method
             let key = get_client_key()?;
@@ -497,7 +499,7 @@ pub fn resolve_automatic_layout(
                 ENDPOINT_GET_DYNAMIC_PARAMS,
                 &execution_resources,
             )?;
-            Ok(Some(resp.into()))
+            Ok(Some((resp.into(), cairo_runner)))
         }
         _ => Ok(None),
     }
