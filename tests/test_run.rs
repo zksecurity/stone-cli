@@ -9,18 +9,14 @@ use stone_cli::{
     bootloader::run_bootloader,
     cairo::{run_cairo0, run_cairo1},
     config::{ProverConfig, ProverParametersConfig},
-    prover::run_stone_prover,
     serialize::serialize_proof,
-    utils::{parse, set_env_vars},
     verifier::run_stone_verifier,
 };
 use tempfile::TempDir;
 
 #[fixture]
 fn setup() {
-    const CONFIG: &str = include_str!("../configs/env.json");
-    let config = parse(CONFIG);
-    set_env_vars(&config);
+    stone_cli::setup();
 }
 
 #[rstest]
