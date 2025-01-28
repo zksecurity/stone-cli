@@ -1,11 +1,16 @@
 use crate::args::{CairoVersion, LayoutName, ProveArgs};
 use crate::utils::{get_formatted_air_public_input, FileWriter};
+use cairo1_run::{cairo_run_program as cairo_run_program_cairo1, Cairo1RunConfig};
+use cairo_lang_compiler::db::RootDatabase;
+use cairo_lang_compiler::project::setup_project;
+use cairo_lang_compiler::{compile_prepared_db, CompilerConfig};
 use cairo_vm::air_public_input::PublicInputError;
 use cairo_vm::cairo_run::{
     cairo_run_program, write_encoded_memory, write_encoded_trace, CairoRunConfig, EncodeTraceError,
 };
 use cairo_vm::hint_processor::builtin_hint_processor::builtin_hint_processor_definition::BuiltinHintProcessor;
 use cairo_vm::types::errors::program_errors::ProgramError;
+use cairo_vm::types::layout::CairoLayoutParams;
 use cairo_vm::types::program::Program;
 use cairo_vm::vm::errors::cairo_run_errors::CairoRunError;
 use cairo_vm::vm::errors::trace_errors::TraceError;
@@ -198,43 +203,89 @@ pub fn get_execution_resources(
         .to_str()
         .unwrap();
 
-    let cairo1_run_path = std::env::var("CAIRO1_RUN")
-        .map_err(|e| anyhow::anyhow!("Failed to get CAIRO1_RUN environment variable: {}", e))?;
-
-    let mut cmd = Command::new(cairo1_run_path);
-    cmd.arg(&prove_args.cairo_program);
-
-    let cairo_pie = tmp_dir.path().join(format!("{}_cairo_pie.json", filename));
     let cairo_layout_params_file = tmp_dir.path().join("cairo_layout_params_file.json");
 
     // write to "cairo_layout_params_file.json"
     std::fs::write(cairo_layout_params_file.clone(), DYNAMIC_LAYOUT)?;
 
-    cmd.arg("--layout") //
-        .arg("dynamic");
-    cmd.arg("--cairo_pie_output") //
-        .arg(cairo_pie.clone());
-    cmd.arg("--cairo_layout_params_file")
-        .arg(cairo_layout_params_file.clone());
-    if let Some(args_file) = &prove_args.program_input_file {
-        cmd.arg("--args_file").arg(args_file.to_str().unwrap());
-    }
-    if let Some(args) = &prove_args.program_input {
-        cmd.arg("--args").arg(args);
-    }
+    let cairo_run_config = Cairo1RunConfig {
+        proof_mode: true,
+        serialize_output: false,
+        relocate_mem: true,
+        layout: cairo_vm::types::layout_name::LayoutName::dynamic,
+        trace_enabled: true,
+        args: &[],
+        finalize_builtins: true,
+        append_return_values: true,
+        dynamic_layout_params: Some(CairoLayoutParams::from_file(
+            cairo_layout_params_file.as_path(),
+        )?),
+    };
 
-    println!("executing cairo1-run: {:?}", cmd);
+    // Try to parse the file as a sierra program
+    let file = std::fs::read(&prove_args.cairo_program)?;
+    let sierra_program = match serde_json::from_slice(&file) {
+        Ok(program) => program,
+        Err(_) => {
+            // If it fails, try to compile it as a cairo program
+            let compiler_config = CompilerConfig {
+                replace_ids: true,
+                ..CompilerConfig::default()
+            };
+            let mut db = RootDatabase::builder()
+                .detect_corelib()
+                .skip_auto_withdraw_gas()
+                .build()
+                .unwrap();
+            let main_crate_ids = setup_project(&mut db, &prove_args.cairo_program).unwrap();
+            let sierra_program_with_dbg =
+                compile_prepared_db(&db, main_crate_ids, compiler_config).unwrap();
 
-    log::debug!("executing cairo1-run: {:?}", cmd);
-    let output = cmd.output().expect("Failed to execute cairo1-run");
-    if !output.status.success() {
-        anyhow::bail!(
-            "cairo1-run failed with error: {}",
-            String::from_utf8_lossy(&output.stderr)
-        )
-    }
+            sierra_program_with_dbg.program
+        }
+    };
 
-    // read the pie
+    let (runner, _, serialized_output) =
+        cairo_run_program_cairo1(&sierra_program, cairo_run_config)?;
+
+    // let cairo1_run_path = std::env::var("CAIRO1_RUN")
+    //     .map_err(|e| anyhow::anyhow!("Failed to get CAIRO1_RUN environment variable: {}", e))?;
+
+    // let mut cmd = Command::new(cairo1_run_path);
+    // cmd.arg(&prove_args.cairo_program);
+
+    // let cairo_pie = tmp_dir.path().join(format!("{}_cairo_pie.json", filename));
+    // let cairo_layout_params_file = tmp_dir.path().join("cairo_layout_params_file.json");
+
+    // // write to "cairo_layout_params_file.json"
+    // std::fs::write(cairo_layout_params_file.clone(), DYNAMIC_LAYOUT)?;
+
+    // cmd.arg("--layout") //
+    //     .arg("dynamic");
+    // cmd.arg("--cairo_pie_output") //
+    //     .arg(cairo_pie.clone());
+    // cmd.arg("--cairo_layout_params_file")
+    //     .arg(cairo_layout_params_file.clone());
+    // if let Some(args_file) = &prove_args.program_input_file {
+    //     cmd.arg("--args_file").arg(args_file.to_str().unwrap());
+    // }
+    // if let Some(args) = &prove_args.program_input {
+    //     cmd.arg("--args").arg(args);
+    // }
+
+    // println!("executing cairo1-run: {:?}", cmd);
+
+    // log::debug!("executing cairo1-run: {:?}", cmd);
+    // let output = cmd.output().expect("Failed to execute cairo1-run");
+    // if !output.status.success() {
+    //     anyhow::bail!(
+    //         "cairo1-run failed with error: {}",
+    //         String::from_utf8_lossy(&output.stderr)
+    //     )
+    // }
+
+    let cairo_pie = tmp_dir.path().join(format!("{}_cairo_pie.json", filename));
+    runner.get_cairo_pie()?.write_zip_file(&cairo_pie)?;
     let pie = CairoPie::read_zip_file(&cairo_pie)?;
     Ok(pie.execution_resources)
 }
