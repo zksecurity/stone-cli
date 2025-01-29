@@ -12,6 +12,11 @@ use stone_cli::{
     serialize::serialize_proof,
     verifier::run_stone_verifier,
 };
+
+#[cfg(test)]
+#[allow(unused_imports)]
+use stone_cli::prover::run_stone_prover;
+
 use tempfile::TempDir;
 
 #[fixture]
