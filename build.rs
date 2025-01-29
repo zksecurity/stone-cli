@@ -12,7 +12,6 @@ use thiserror::Error;
 use sha2::Digest;
 
 const ARTIFACTS: &str = "artifacts";
-const RESOURCES: &str = "resources";
 
 // these are just arbitrary labels for each resource
 // they map to different artifacts for different OS and architectures
@@ -57,16 +56,8 @@ fn artifact_store_dir() -> Result<PathBuf, anyhow::Error> {
     Ok(target_dir()?.join(ARTIFACTS))
 }
 
-fn resource_dir() -> Result<PathBuf, anyhow::Error> {
-    Ok(target_dir()?.join(RESOURCES))
-}
-
 fn path_resource_tar() -> Result<PathBuf, anyhow::Error> {
-    Ok(resource_dir()?.join("resources.tar.gz"))
-}
-
-fn path_resource_hash() -> Result<PathBuf, anyhow::Error> {
-    Ok(resource_dir()?.join("resources-hash.txt"))
+    Ok(out_dir()?.join("resources.tar.gz"))
 }
 
 fn path_resources_rs() -> Result<PathBuf, anyhow::Error> {
@@ -332,9 +323,6 @@ fn build_resource_tar(arts: &ArtifactStore) -> Result<(), anyhow::Error> {
     const DIR_EXEC: &str = "executables";
     const DIR_CORELIB: &str = "corelib";
 
-    // create the resource directory
-    ensure(resource_dir()?)?;
-
     // create the tarball
     let tar_gz = std::fs::File::create(path_resource_tar()?)?;
     let tar = flate2::write::GzEncoder::new(tar_gz, flate2::Compression::default());
@@ -379,28 +367,23 @@ fn build_resource_tar(arts: &ArtifactStore) -> Result<(), anyhow::Error> {
 
     // finish the archive
     archive.finish()?;
-
-    // hash the tarball
-    std::fs::write(
-        path_resource_hash()?,
-        format!("{}", hash(std::fs::read(path_resource_tar()?)?)),
-    )?;
     Ok(())
 }
 
 fn generate_resources_rs() -> Result<(), anyhow::Error> {
-    let tar_resource_path = path_resource_tar().expect("Failed to get tarball path");
+    // check if the tarball exists
+    assert!(path_resource_tar()?.exists());
 
-    // read the hash of the tarball
-    let hash = std::fs::read_to_string(path_resource_hash()?)?;
-    let hash: u64 = hash.trim().parse()?;
-
-    // create the resources.rs file with the tarball as a byte arrays
+    // create the resources.rs file
     let mut fl = std::fs::File::create(path_resources_rs()?)?;
 
     // read the tar and hash it to get the resource id
     writeln!(fl, "// Identifies the resources tarball")?;
-    writeln!(fl, "pub const RESOURCE_ID: u64 = 0x{:x};", hash)?;
+    writeln!(
+        fl,
+        "pub const RESOURCE_ID: u64 = 0x{:x};",
+        hash(std::fs::read(path_resource_tar()?)?)
+    )?;
     writeln!(fl)?;
 
     // write the tarball as a byte array
@@ -408,7 +391,7 @@ fn generate_resources_rs() -> Result<(), anyhow::Error> {
     writeln!(
         fl,
         "pub const RESOURCE_TAR: &[u8] = include_bytes!(\"{}\");",
-        tar_resource_path.display()
+        path_resource_tar()?.display()
     )?;
     writeln!(fl)?;
     Ok(())
@@ -431,6 +414,6 @@ fn main() {
     // generate the resources.rs file
     generate_resources_rs().expect("Failed to generate resources.rs");
 
-    // tell cargo to rerun the build script if the resources change
+    // tell cargo to rerun the build script only if the build script changes
     println!("cargo:rerun-if-changed=build.rs");
 }
