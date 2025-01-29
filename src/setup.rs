@@ -3,7 +3,7 @@ use tempfile::Builder;
 use fs2::FileExt;
 use std::{fs::OpenOptions, os::unix::fs::MetadataExt};
 
-use crate::{resource_dir, resource_id, resource_root, resource_tar};
+use crate::resources;
 
 // binary paths relative to the resource directory
 const BIN_STONE_V5_PROVER: &str = "executables/cpu_air_prover_v5";
@@ -23,8 +23,8 @@ const ENV_CONFIGURE: [(&str, &str); 5] = [
 
 fn copy_resources(uid: u32, mode: u32) -> anyhow::Result<()> {
     // if the flag file exists, return: setup is already done
-    let root_dir = resource_root(uid);
-    let flag_file = root_dir.join(format!("flag-{:x}.marker", resource_id()));
+    let root_dir = resources::resource_root(uid);
+    let flag_file = root_dir.join(format!("flag-{:x}.marker", resources::resource_id()));
     if flag_file.exists() {
         return Ok(());
     }
@@ -59,7 +59,7 @@ fn copy_resources(uid: u32, mode: u32) -> anyhow::Result<()> {
         .create(true)
         .write(true)
         .read(true)
-        .open(root_dir.join(format!("lock-{:x}.marker", resource_id())))
+        .open(root_dir.join(format!("lock-{:x}.marker", resources::resource_id())))
         .map_err(|e| anyhow::anyhow!("Failed to open lock file: {}", e))?;
     lock.lock_exclusive()
         .map_err(|e| anyhow::anyhow!("Failed to lock file: {}", e))?;
@@ -72,7 +72,7 @@ fn copy_resources(uid: u32, mode: u32) -> anyhow::Result<()> {
     }
 
     // remove any remnants of a failed copy
-    let res_dir = resource_dir(uid);
+    let res_dir = resources::resource_dir(uid);
     match std::fs::remove_dir_all(&res_dir) {
         Ok(_) => (),
         Err(e) if e.kind() == std::io::ErrorKind::NotFound => (),
@@ -82,7 +82,7 @@ fn copy_resources(uid: u32, mode: u32) -> anyhow::Result<()> {
         .map_err(|e| anyhow::anyhow!("Failed to create resources dir: {}", e))?;
 
     // unpack the resource tar into the stone-cli directory
-    let tar = std::io::Cursor::new(resource_tar());
+    let tar = std::io::Cursor::new(resources::resource_tar());
     let decoder = flate2::read::GzDecoder::new(tar);
     let mut archive = tar::Archive::new(decoder);
     archive
@@ -104,7 +104,7 @@ pub fn setup() {
         .unwrap();
 
     // set the environment variables (not already set)
-    let dir = resource_dir(meta.uid());
+    let dir = resources::resource_dir(meta.uid());
     for (env_name, filename) in ENV_CONFIGURE.iter() {
         let full_path = dir.join(filename);
         debug_assert!(

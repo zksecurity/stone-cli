@@ -5,14 +5,14 @@ use std::env::consts::{ARCH, OS};
 use std::hash::{DefaultHasher, Hash, Hasher};
 use std::io::Write;
 use std::os::unix::fs::PermissionsExt;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use tempfile::TempDir;
 use thiserror::Error;
 
 use sha2::Digest;
 
-// cached artifact directory
-const ARTIFACT_DIR: &str = "target/artifacts";
+const ARTIFACTS: &str = "artifacts";
+const RESOURCES: &str = "resources";
 
 // these are just arbitrary labels for each resource
 // they map to different artifacts for different OS and architectures
@@ -37,6 +37,49 @@ const EXECUTABLES: [(&str, &str); 4] = [
     (RES_STONE_V6_PROVER, BIN_STONE_V6_PROVER),
     (RES_STONE_V6_VERIFIER, BIN_STONE_V6_VERIFIER),
 ];
+
+fn target_dir() -> Result<PathBuf, anyhow::Error> {
+    match std::env::var("CARGO_TARGET_DIR") {
+        Ok(dir) => Ok(dir.into()),
+        Err(_) => {
+            let manifest_dir: PathBuf = std::env::var("CARGO_MANIFEST_DIR")?.into();
+            Ok(manifest_dir.join("target"))
+        }
+    }
+}
+
+fn out_dir() -> Result<PathBuf, anyhow::Error> {
+    Ok(std::env::var("OUT_DIR")?.into())
+}
+
+// directory for cached artifacts
+fn artifact_store_dir() -> Result<PathBuf, anyhow::Error> {
+    Ok(target_dir()?.join(ARTIFACTS))
+}
+
+fn resource_dir() -> Result<PathBuf, anyhow::Error> {
+    Ok(target_dir()?.join(RESOURCES))
+}
+
+fn path_resource_tar() -> Result<PathBuf, anyhow::Error> {
+    Ok(resource_dir()?.join("resources.tar.gz"))
+}
+
+fn path_resource_hash() -> Result<PathBuf, anyhow::Error> {
+    Ok(resource_dir()?.join("resources-hash.txt"))
+}
+
+fn path_resources_rs() -> Result<PathBuf, anyhow::Error> {
+    Ok(out_dir()?.join("resources.rs"))
+}
+
+fn ensure<T: AsRef<Path>>(path: T) -> Result<T, anyhow::Error> {
+    match std::fs::create_dir_all(path.as_ref()) {
+        Ok(_) => Ok(path),
+        Err(e) if e.kind() == std::io::ErrorKind::AlreadyExists => Ok(path),
+        Err(e) => Err(e.into()),
+    }
+}
 
 // list of artifacts for different OS and architectures
 static DISTS: Lazy<HashMap<(Os, Arch), Vec<Artifact>>> = Lazy::new(|| {
@@ -170,11 +213,8 @@ struct Artifact {
 }
 
 impl Artifact {
-    fn path(&self) -> std::path::PathBuf {
-        std::env::current_dir()
-            .expect("Failed to get current directory")
-            .join(ARTIFACT_DIR)
-            .join(&self.id())
+    fn path(&self) -> Result<PathBuf, anyhow::Error> {
+        Ok(artifact_store_dir()?.join(self.id()))
     }
 }
 
@@ -184,9 +224,14 @@ impl Artifact {
         format!("sha256-{}", self.sha256_sum)
     }
 
-    //
-    fn file(&self) -> Result<std::fs::File, std::io::Error> {
-        std::fs::File::open(self.path())
+    // open the artifact file
+    fn file(&self) -> Result<std::fs::File, anyhow::Error> {
+        std::fs::File::open(self.path()?).map_err(Into::into)
+    }
+
+    // check if the artifact exists
+    fn exists(&self) -> bool {
+        self.path().map(|p| p.exists()).unwrap_or(false)
     }
 }
 
@@ -205,26 +250,21 @@ impl Hash for ArtifactStore {
 
 impl ArtifactStore {
     /// Add the given artifacts to the artifact store.
-    fn fetch(&mut self, artifacts: &[Artifact]) {
+    fn fetch(&mut self, artifacts: &[Artifact]) -> Result<(), anyhow::Error> {
         // create the artifact directory if it doesn't exist
-        let art_dir = Path::new(ARTIFACT_DIR);
-        if !art_dir.exists() {
-            std::fs::create_dir_all(art_dir).expect("Failed to create target directory");
-        }
+        ensure(artifact_store_dir()?)?;
 
         // download every required artifact to the artifact store
         let client = reqwest::blocking::Client::new();
         for artifact in artifacts.iter() {
             // check if already exists
-            if !art_dir.join(&artifact.id()).exists() {
+            if !artifact.exists() {
                 // download the file
-                let resp = client
-                    .get(artifact.url)
-                    .send()
-                    .expect("Failed to download file");
+                println!("cargo:info=downloading artifact: {}", artifact.name);
+                let resp = client.get(artifact.url).send()?;
 
                 // check sha256 in-memory
-                let bytes = resp.bytes().unwrap();
+                let bytes = resp.bytes()?;
                 let bytes: &[u8] = bytes.as_ref();
                 let hash = sha2::Sha256::digest(bytes);
                 assert_eq!(
@@ -235,21 +275,21 @@ impl ArtifactStore {
                 );
 
                 // cache artifact to disk
-                let mut file =
-                    std::fs::File::create(&artifact.path()).expect("Failed to create file");
-                std::io::copy(&mut std::io::Cursor::new(bytes), &mut file)
-                    .expect("Failed to write to file");
+                let mut file = std::fs::File::create(artifact.path()?)?;
+                file.write_all(bytes).expect("Failed to write to file");
             }
 
             // add to the artifact store
-            assert!(
-                self.artifacts
-                    .insert(artifact.name.to_owned(), artifact.clone())
-                    .is_none(),
-                "Duplicate artifact name {}",
-                artifact.name
-            );
+            match self
+                .artifacts
+                .insert(artifact.name.to_owned(), artifact.clone())
+            {
+                Some(_) => anyhow::bail!("Duplicate artifact name: {}", artifact.name),
+                None => (),
+            }
         }
+
+        Ok(())
     }
 
     /// Find the artifact with the given name.
@@ -281,7 +321,7 @@ fn archive_add_exe(
 
 fn deflate_artifact(art: &Artifact) -> Result<TempDir, anyhow::Error> {
     let tmp = TempDir::new()?;
-    let tar_path = art.path();
+    let tar_path = art.path()?;
     let tar_gz = std::fs::File::open(&tar_path)?;
     let tar = flate2::read::GzDecoder::new(tar_gz);
     tar::Archive::new(tar).unpack(&tmp)?;
@@ -292,35 +332,11 @@ fn build_resource_tar(arts: &ArtifactStore) -> Result<(), anyhow::Error> {
     const DIR_EXEC: &str = "executables";
     const DIR_CORELIB: &str = "corelib";
 
-    // check cache: it is expensive to build the tarball
-    // and so we want to avoid doing it every time
-    // we change the stone-cli
-    //
-    // note: because Cargo takes a lock on the project,
-    // the section below need not be thread-safe
-    let cache_id: String = format!(
-        "{:x}",
-        hash((
-            arts,                       // the artifacts
-            std::fs::read("build.rs")?  // the build script
-        ))
-    );
-    let txt_version_path = std::env::current_dir()?
-        .join("target")
-        .join("resources-version.txt");
-    let tar_resource_path = std::env::current_dir()?
-        .join("target")
-        .join("resources.tar.gz");
-
-    // check if the version is the cache_id
-    if txt_version_path.exists() {
-        if cache_id == std::fs::read_to_string(&txt_version_path)?.trim() {
-            return Ok(());
-        }
-    }
+    // create the resource directory
+    ensure(resource_dir()?)?;
 
     // create the tarball
-    let tar_gz = std::fs::File::create(&tar_resource_path)?;
+    let tar_gz = std::fs::File::create(path_resource_tar()?)?;
     let tar = flate2::write::GzEncoder::new(tar_gz, flate2::Compression::default());
     let mut archive = tar::Builder::new(tar);
 
@@ -364,31 +380,37 @@ fn build_resource_tar(arts: &ArtifactStore) -> Result<(), anyhow::Error> {
     // finish the archive
     archive.finish()?;
 
+    // hash the tarball
+    std::fs::write(
+        path_resource_hash()?,
+        format!("{}", hash(std::fs::read(path_resource_tar()?)?)),
+    )?;
+    Ok(())
+}
+
+fn generate_resources_rs() -> Result<(), anyhow::Error> {
+    let tar_resource_path = path_resource_tar().expect("Failed to get tarball path");
+
+    // read the hash of the tarball
+    let hash = std::fs::read_to_string(path_resource_hash()?)?;
+    let hash: u64 = hash.trim().parse()?;
+
     // create the resources.rs file with the tarball as a byte arrays
-    {
-        let mut fl = std::fs::File::create("src/resources.rs")?;
-        writeln!(fl, "//! This file is generated by build.rs")?;
-        writeln!(fl)?;
+    let mut fl = std::fs::File::create(path_resources_rs()?)?;
 
-        // read the tar and hash it to get the resource id
-        writeln!(fl, "// Identifies the resources tarball")?;
-        writeln!(fl, "pub const RESOURCE_ID: u64 = 0x{:x};", {
-            hash(std::fs::read(&tar_resource_path)?)
-        })?;
-        writeln!(fl)?;
+    // read the tar and hash it to get the resource id
+    writeln!(fl, "// Identifies the resources tarball")?;
+    writeln!(fl, "pub const RESOURCE_ID: u64 = 0x{:x};", hash)?;
+    writeln!(fl)?;
 
-        // write the tarball as a byte array
-        writeln!(fl, "// The resources tarball (bytes)")?;
-        writeln!(
-            fl,
-            "pub const RESOURCE_TAR: &[u8] = include_bytes!(\"{}\");",
-            tar_resource_path.display()
-        )?;
-        writeln!(fl)?;
-    }
-
-    // mark the cache version
-    std::fs::write(&txt_version_path, cache_id)?;
+    // write the tarball as a byte array
+    writeln!(fl, "// The resources tarball (bytes)")?;
+    writeln!(
+        fl,
+        "pub const RESOURCE_TAR: &[u8] = include_bytes!(\"{}\");",
+        tar_resource_path.display()
+    )?;
+    writeln!(fl)?;
     Ok(())
 }
 
@@ -398,11 +420,17 @@ fn main() {
     let arch = ARCH.try_into().unwrap();
     let mut arts = ArtifactStore::default();
     if let Some(dist) = DISTS.get(&(os, arch)) {
-        arts.fetch(dist);
+        arts.fetch(dist).expect("Failed to fetch artifacts");
     } else {
         panic!("Unsupported OS or architecture {}/{}", OS, ARCH);
     }
 
     // create the resource tarball which has the whole directory structure
     build_resource_tar(&arts).expect("Failed to build resource tarball");
+
+    // generate the resources.rs file
+    generate_resources_rs().expect("Failed to generate resources.rs");
+
+    // tell cargo to rerun the build script if the resources change
+    println!("cargo:rerun-if-changed=build.rs");
 }
