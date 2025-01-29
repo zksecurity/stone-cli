@@ -23,7 +23,7 @@ Please refer to the [Cairo book](https://book.cairo-lang.org/) for more details 
 Run the following command to install the CLI:
 
 ```bash
-cargo install --path .
+cargo install --git https://github.com/zksecurity/stone-cli.git
 ```
 
 Currently, `linux/amd64` with `AVX` and `macos/arm64` are supported.
