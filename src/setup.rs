@@ -56,6 +56,7 @@ fn copy_resources(uid: u32, mode: u32) -> anyhow::Result<()> {
     // where we copy the resources and write to the flag file
     let lock = OpenOptions::new()
         .create(true)
+        .truncate(true)
         .write(true)
         .read(true)
         .open(root_dir.join("res.lock"))

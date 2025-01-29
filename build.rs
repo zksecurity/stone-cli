@@ -280,12 +280,12 @@ impl ArtifactStore {
             }
 
             // add to the artifact store
-            match self
+            if self
                 .artifacts
                 .insert(artifact.name.to_owned(), artifact.clone())
+                .is_some()
             {
-                Some(_) => anyhow::bail!("Duplicate artifact name: {}", artifact.name),
-                None => (),
+                anyhow::bail!("Duplicate artifact name: {}", artifact.name)
             }
         }
 
@@ -343,7 +343,7 @@ fn build_resource_tar(arts: &ArtifactStore) -> Result<(), anyhow::Error> {
     // decompress the corelib tarball and add "cario/corelib" as "corelib" to the archive
     archive.append_dir_all(
         DIR_CORELIB,
-        &deflate_artifact(arts.find(RES_CORELIB)?)?
+        deflate_artifact(arts.find(RES_CORELIB)?)?
             .path()
             .join("cairo/corelib"),
     )?;
