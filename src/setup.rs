@@ -1,4 +1,4 @@
-use tempfile::Builder;
+use tempfile::{Builder, TempDir};
 
 use fs2::FileExt;
 use std::{fs::OpenOptions, os::unix::fs::MetadataExt};
@@ -23,13 +23,12 @@ const ENV_CONFIGURE: [(&str, &str); 5] = [
 
 fn copy_resources(uid: u32, mode: u32) -> anyhow::Result<()> {
     // if the flag file exists, return: setup is already done
-    let root_dir = resources::resource_root(uid);
-    let flag_file = root_dir.join(format!("flag-{:x}.marker", resources::resource_id()));
-    if flag_file.exists() {
+    if resources::resource_dir(uid).exists() {
         return Ok(());
     }
 
     // create the resource root directory if it doesn't exist
+    let root_dir = resources::resource_root(uid);
     match std::fs::create_dir(&root_dir) {
         Ok(_) => (),
         Err(e) if e.kind() == std::io::ErrorKind::AlreadyExists => (),
@@ -59,39 +58,30 @@ fn copy_resources(uid: u32, mode: u32) -> anyhow::Result<()> {
         .create(true)
         .write(true)
         .read(true)
-        .open(root_dir.join(format!("lock-{:x}.marker", resources::resource_id())))
+        .open(root_dir.join("res.lock"))
         .map_err(|e| anyhow::anyhow!("Failed to open lock file: {}", e))?;
     lock.lock_exclusive()
         .map_err(|e| anyhow::anyhow!("Failed to lock file: {}", e))?;
 
     //// Critical Region ////
 
-    // check if the flag file exists now
-    if flag_file.exists() {
+    if resources::resource_dir(uid).exists() {
         return Ok(());
     }
 
-    // remove any remnants of a failed copy
-    let res_dir = resources::resource_dir(uid);
-    match std::fs::remove_dir_all(&res_dir) {
-        Ok(_) => (),
-        Err(e) if e.kind() == std::io::ErrorKind::NotFound => (),
-        Err(e) => anyhow::bail!("Failed to remove resources dir: {}", e),
-    }
-    std::fs::create_dir(&res_dir)
-        .map_err(|e| anyhow::anyhow!("Failed to create resources dir: {}", e))?;
-
-    // unpack the resource tar into the stone-cli directory
+    // unpack the resource tar into a temporary directory
+    let tmp = TempDir::new()?;
     let tar = std::io::Cursor::new(resources::resource_tar());
     let decoder = flate2::read::GzDecoder::new(tar);
     let mut archive = tar::Archive::new(decoder);
     archive
-        .unpack(&res_dir)
+        .unpack(&tmp)
         .map_err(|e| anyhow::anyhow!("Failed to unpack resources: {}", e))?;
 
-    // write to the flag:
-    // which is only created if the copy is successful
-    std::fs::File::create(&flag_file)?;
+    // move the temporary directory to the final location
+    std::fs::rename(tmp.path(), resources::resource_dir(uid))
+        .map_err(|e| anyhow::anyhow!("Failed to move resources: {}", e))?;
+
     Ok(())
 }
 

@@ -5,12 +5,10 @@ pub fn resource_id() -> u64 {
     RESOURCE_ID
 }
 
-// per-user
 pub fn resource_root(uid: u32) -> std::path::PathBuf {
     std::env::temp_dir().join(format!("stone-cli-{}", uid))
 }
 
-// per-resource snapshot
 pub fn resource_dir(uid: u32) -> std::path::PathBuf {
     resource_root(uid).join(format!("{:x}", resource_id()))
 }
