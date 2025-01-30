@@ -1,5 +1,5 @@
 use crate::args::{CairoVersion, LayoutName, ProveArgs};
-use crate::utils::{get_formatted_air_public_input, process_args, FileWriter};
+use crate::utils::{get_formatted_air_public_input, FileWriter};
 use cairo1_run::{cairo_run_program as cairo_run_program_cairo1, Cairo1RunConfig, CairoRunner};
 use cairo_lang_compiler::db::RootDatabase;
 use cairo_lang_compiler::project::setup_project;
