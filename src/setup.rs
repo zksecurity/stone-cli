@@ -22,7 +22,7 @@ const ENV_CONFIGURE: [(&str, &str); 5] = [
 ];
 
 fn copy_resources(uid: u32, mode: u32) -> anyhow::Result<()> {
-    // if the flag file exists, return: setup is already done
+    // if the resource directory already exists, we're done
     if resources::resource_dir(uid).exists() {
         return Ok(());
     }
@@ -98,13 +98,11 @@ pub fn setup() {
     let dir = resources::resource_dir(meta.uid());
     for (env_name, filename) in ENV_CONFIGURE.iter() {
         let full_path = dir.join(filename);
-        debug_assert!(
+        assert!(
             full_path.exists(), //
             "File not found: {:?}",
             full_path
         );
-        if std::env::var(env_name).is_err() {
-            std::env::set_var(env_name, full_path);
-        }
+        std::env::set_var(env_name, full_path);
     }
 }

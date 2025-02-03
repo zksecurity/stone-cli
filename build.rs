@@ -220,7 +220,7 @@ impl Artifact {
         std::fs::File::open(self.path()?).map_err(Into::into)
     }
 
-    // check if the artifact exists
+    // check if the artifact exists in cache
     fn exists(&self) -> bool {
         self.path().map(|p| p.exists()).unwrap_or(false)
     }
@@ -328,7 +328,7 @@ fn build_resource_tar(arts: &ArtifactStore) -> Result<(), anyhow::Error> {
     let tar = flate2::write::GzEncoder::new(tar_gz, flate2::Compression::default());
     let mut archive = tar::Builder::new(tar);
 
-    // decompress the corelib tarball and add "cario/corelib" as "corelib" to the archive
+    // decompress the corelib tarball and add "cairo/corelib" as "corelib" to the archive
     archive.append_dir_all(
         DIR_CORELIB,
         deflate_artifact(arts.find(RES_CORELIB)?)?
