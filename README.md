@@ -149,7 +149,7 @@ Here are the specific steps for the above process:
 
 #### Notes
 
-- Cairo 0 programs that use hints are not supported
+- Only certain hints for Cairo 0 programs are supported (see `examples/cairo0/with_hint` for examples that use supported hints)
 - Only the `starknet` layout is supported for bootloader proofs
 - Programs should use the `output` builtin--programs that do not can be proved, but won't verify on Ethereum
 
