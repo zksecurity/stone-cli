@@ -60,6 +60,9 @@ pub struct ProveArgs {
 
     #[clap(long = "stone_version", default_value = "v6", value_enum)]
     pub stone_version: StoneVersion,
+
+    #[clap(long = "bench_memory")]
+    pub bench_memory: Option<bool>,
 }
 
 #[derive(Args, Debug)]
@@ -96,6 +99,9 @@ pub struct ProveBootloaderArgs {
         help = "Option to ignore fact topologies, which will result in task outputs being written only to public memory page 0"
     )]
     pub ignore_fact_topologies: bool,
+
+    #[clap(long = "bench_memory")]
+    pub bench_memory: Option<bool>,
 }
 
 #[derive(Args, Debug)]
