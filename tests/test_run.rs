@@ -546,6 +546,7 @@ fn test_run_cairo_e2e_macos(
         parameter_config: ProverParametersConfig::default(),
         prover_config: ProverConfig::default(),
         stone_version: stone_version.clone(),
+        bench_memory: None,
     };
     let verify_args = VerifyArgs {
         proof: proof_file.clone(),
