@@ -29,7 +29,6 @@ fn main() -> anyhow::Result<()> {
                         &run_cairo_result.air_public_input,
                         &run_cairo_result.air_private_input,
                         &tmp_dir,
-                        args.bench_memory.unwrap_or(false),
                     )
                     .map_err(|e| anyhow::anyhow!("Failed to run stone prover: {}", e))
                 });

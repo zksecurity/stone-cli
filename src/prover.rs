@@ -28,6 +28,8 @@ pub enum ProverError {
     IoError(#[from] std::io::Error),
     #[error("{0}")]
     CommandError(ProverCommandError),
+    #[error("heaptrack command not found. Please install heaptrack to use memory benchmarking.")]
+    HeaptrackNotFound,
 }
 
 #[derive(Debug)]
@@ -64,7 +66,6 @@ pub fn run_stone_prover(
     air_public_input: &PathBuf,
     air_private_input: &PathBuf,
     tmp_dir: &tempfile::TempDir,
-    bench_memory: bool,
 ) -> Result<(), ProverError> {
     println!("Running prover...");
 
@@ -78,7 +79,7 @@ pub fn run_stone_prover(
         air_public_input,
         air_private_input,
         tmp_dir,
-        bench_memory,
+        prove_args.bench_memory,
     )?;
 
     println!("Prover finished successfully");
@@ -115,7 +116,7 @@ pub fn run_stone_prover_bootloader(
         air_public_input,
         air_private_input,
         tmp_dir,
-        false,
+        prove_bootloader_args.bench_memory,
     )?;
 
     println!("Prover finished successfully");
@@ -133,7 +134,7 @@ fn run_stone_prover_internal(
     air_public_input: &PathBuf,
     air_private_input: &PathBuf,
     tmp_dir: &tempfile::TempDir,
-    bench_memory: bool,
+    bench_memory: Option<bool>,
 ) -> Result<(), ProverError> {
     let tmp_prover_parameters_path = tmp_dir.path().join("prover_parameters.json");
 
@@ -166,7 +167,7 @@ fn run_stone_prover_internal(
         output_file,
         true,
         stone_version,
-        bench_memory,
+        bench_memory.unwrap_or(false),
     )?;
 
     Ok(())
@@ -190,6 +191,16 @@ fn run_prover_from_command_line_with_annotations(
 
     let mut command;
     if bench_memory {
+        // Check if heaptrack is available
+        let heaptrack_check = Command::new("which")
+            .arg("heaptrack")
+            .output()
+            .map_err(|_| ProverError::HeaptrackNotFound)?;
+
+        if !heaptrack_check.status.success() {
+            return Err(ProverError::HeaptrackNotFound);
+        }
+
         command = Command::new("heaptrack");
         command
             .arg("-o")
@@ -205,8 +216,7 @@ fn run_prover_from_command_line_with_annotations(
             .arg(prover_config_file)
             .arg("--parameter-file")
             .arg(prover_parameter_file);
-    }
-    else {
+    } else {
         command = Command::new(prover_run_path);
         command
             .arg("--out-file")
