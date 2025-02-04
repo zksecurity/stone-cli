@@ -173,6 +173,7 @@ fn run_stone_prover_internal(
     Ok(())
 }
 
+#[allow(clippy::too_many_arguments)]
 fn run_prover_from_command_line_with_annotations(
     public_input_file: &PathBuf,
     private_input_file: &PathBuf,

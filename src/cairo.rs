@@ -85,9 +85,7 @@ pub fn run_cairo0(
     let program = Program::from_file(&prove_args.cairo_program, Some("main"))?;
     let program_input = if let Some(program_input_file) = prove_args.program_input_file.clone() {
         let program_input_file_str = std::fs::read_to_string(program_input_file)?;
-        let program_input =
-            serde_json::from_str::<HashMap<String, serde_json::Value>>(&program_input_file_str)?;
-        program_input
+        serde_json::from_str::<HashMap<String, serde_json::Value>>(&program_input_file_str)?
     } else {
         HashMap::new()
     };
