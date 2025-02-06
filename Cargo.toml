@@ -15,6 +15,7 @@ cairo-vm = { git = "https://github.com/zksecurity/cairo-vm", features = [
     "extensive_hints", "mod_builtin"
 ], rev = "ac8b81b79f65f5017fe0929bf4025be4a0e9c73c" }
 cairo-lang-compiler = { version = "=2.10.0-rc.0", default-features = false }
+cairo-lang-filesystem = { version = "=2.10.0-rc.0", default-features = false }
 clap = { version = "4.3.10", features = ["derive"] }
 itertools = "0.13.0"
 num-bigint = "0.4.6"

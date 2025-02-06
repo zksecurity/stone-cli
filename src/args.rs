@@ -1,5 +1,6 @@
 use crate::define_enum;
 pub use crate::prover;
+use crate::utils::{process_args, FuncArgs};
 
 use clap::{Args, Parser, ValueHint};
 use prover::config::{ProverConfig, ProverParametersConfig};
@@ -33,9 +34,12 @@ pub struct ProveArgs {
 
     #[clap(
         long = "program_input",
-        help = "Arguments should be spaced, with array elements placed between brackets, e.g. '1 2 [1 2 3]'"
+        default_value = "",
+        value_parser = process_args,
+        help = "Arguments should be spaced, with array elements placed between brackets, e.g. '1 2 [1 2 3]'",
+        conflicts_with = "program_input_file"
     )]
-    pub program_input: Option<String>,
+    pub program_input: FuncArgs,
 
     #[clap(
         long = "program_input_file",
