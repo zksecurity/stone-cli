@@ -182,7 +182,7 @@ pub fn run_cairo0(
         secure_run: None,
         disable_trace_padding: false,
         allow_missing_builtins: None,
-        dynamic_layout_params: None, // TODO
+        dynamic_layout_params: None,
     };
 
     let runner = cairo_run_program(&program, &cairo_run_config, &mut hint_processor)?;
