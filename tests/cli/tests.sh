@@ -83,7 +83,7 @@ echo "Monolith proof serialized"
 
 # Clone integrity repo
 if [ ! -d "integrity" ]; then
-    git clone https://github.com/HerodotusDev/integrity.git
+    git clone https://github.com/zksecurity/integrity.git
     echo "Integrity repo cloned"
 fi
 cd $MAIN_DIR/integrity/
@@ -137,7 +137,7 @@ echo "Starknet accounts file created"
     recursive \
     keccak_160_lsb \
     stone5 \
-    cairo0
+    strict
 echo "Monolith proof verified on Starknet"
 
 cd $MAIN_DIR

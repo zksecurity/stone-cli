@@ -29,6 +29,8 @@ pub enum ProverError {
     IoError(#[from] std::io::Error),
     #[error("{0}")]
     CommandError(ProverCommandError),
+    #[error("heaptrack command not found. Please install heaptrack to use memory benchmarking.")]
+    HeaptrackNotFound,
 }
 
 #[derive(Debug)]
@@ -107,6 +109,7 @@ pub fn run_stone_prover(
         &air_public_input,
         air_private_input,
         tmp_dir,
+        prove_args.bench_memory,
     )?;
     log::debug!("prover finished successfully");
     Ok(())
@@ -141,6 +144,7 @@ pub fn run_stone_prover_bootloader(
         air_public_input,
         air_private_input,
         tmp_dir,
+        prove_bootloader_args.bench_memory,
     )?;
     log::debug!("prover finished successfully");
     Ok(())
@@ -157,6 +161,7 @@ fn run_stone_prover_internal(
     air_public_input: &PathBuf,
     air_private_input: &PathBuf,
     tmp_dir: &tempfile::TempDir,
+    bench_memory: Option<bool>,
 ) -> Result<(), ProverError> {
     let tmp_prover_parameters_path = tmp_dir.path().join("prover_parameters.json");
 
@@ -189,11 +194,13 @@ fn run_stone_prover_internal(
         output_file,
         true,
         stone_version,
+        bench_memory.unwrap_or(false),
     )?;
 
     Ok(())
 }
 
+#[allow(clippy::too_many_arguments)]
 fn run_prover_from_command_line_with_annotations(
     public_input_file: &PathBuf,
     private_input_file: &PathBuf,
@@ -202,6 +209,7 @@ fn run_prover_from_command_line_with_annotations(
     output_file: &PathBuf,
     generate_annotations: bool,
     stone_version: &StoneVersion,
+    bench_memory: bool,
 ) -> Result<(), ProverError> {
     // TODO: Add better error handling
     let prover_run_path = match stone_version {
@@ -209,18 +217,48 @@ fn run_prover_from_command_line_with_annotations(
         StoneVersion::V6 => std::env::var("CPU_AIR_PROVER_V6").unwrap(),
     };
 
-    let mut command = Command::new(prover_run_path);
-    command
-        .arg("--out-file")
-        .arg(output_file)
-        .arg("--public-input-file")
-        .arg(public_input_file)
-        .arg("--private-input-file")
-        .arg(private_input_file)
-        .arg("--prover-config-file")
-        .arg(prover_config_file)
-        .arg("--parameter-file")
-        .arg(prover_parameter_file);
+    let mut command;
+    if bench_memory {
+        // Check if heaptrack is available
+        let heaptrack_check = Command::new("which")
+            .arg("heaptrack")
+            .output()
+            .map_err(|_| ProverError::HeaptrackNotFound)?;
+
+        if !heaptrack_check.status.success() {
+            return Err(ProverError::HeaptrackNotFound);
+        }
+
+        command = Command::new("heaptrack");
+        command
+            .arg("-o")
+            .arg("heaptrack-prover")
+            .arg(prover_run_path)
+            .arg("--out-file")
+            .arg(output_file)
+            .arg("--public-input-file")
+            .arg(public_input_file)
+            .arg("--private-input-file")
+            .arg(private_input_file)
+            .arg("--prover-config-file")
+            .arg(prover_config_file)
+            .arg("--parameter-file")
+            .arg(prover_parameter_file);
+    } else {
+        command = Command::new(prover_run_path);
+        command
+            .arg("--out-file")
+            .arg(output_file)
+            .arg("--public-input-file")
+            .arg(public_input_file)
+            .arg("--private-input-file")
+            .arg(private_input_file)
+            .arg("--prover-config-file")
+            .arg(prover_config_file)
+            .arg("--parameter-file")
+            .arg(prover_parameter_file);
+    }
+
     if generate_annotations {
         command.arg("--generate-annotations");
     }

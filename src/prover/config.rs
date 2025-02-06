@@ -94,8 +94,7 @@ impl ProverParametersConfig {
         nb_steps: u32,
         parameter_config: &ProverParametersConfig,
     ) -> Result<ProverParametersConfig> {
-        let computed_fri_parameters =
-            FriParameters::from(DefaultFriComputer.compute_fri_parameters(nb_steps));
+        let computed_fri_parameters = DefaultFriComputer.compute_fri_parameters(nb_steps);
         let computed_fri_step_list = parameter_config
             .stark
             .fri
