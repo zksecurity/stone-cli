@@ -499,7 +499,7 @@ pub fn resolve_automatic_layout(
                 ENDPOINT_GET_DYNAMIC_PARAMS,
                 &execution_resources,
             )?;
-            Ok(Some((resp.into(), cairo_runner)))
+            Ok(Some((resp, cairo_runner)))
         }
         _ => Ok(None),
     }

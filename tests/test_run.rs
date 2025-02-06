@@ -395,7 +395,7 @@ fn test_run_cairo1_with_inputs(
     let prove_args = ProveArgs {
         cairo_version: CairoVersion::cairo1,
         cairo_program: program_file.clone(),
-        program_input: FuncArgs(process_args(&input).unwrap().0),
+        program_input: FuncArgs(process_args(input).unwrap().0),
         program_input_file: None,
         layout: LayoutName::from_str(layout).unwrap(),
         prover_config_file: None,

@@ -211,7 +211,7 @@ fn cairo_run_bootloader_in_proof_mode(
             supported_cairo_verifier_program_hashes: verifier_hashes,
         },
         packed_outputs: vec![PackedOutput::Plain(vec![]); n_tasks],
-        ignore_fact_topologies: false,
+        ignore_fact_topologies,
     };
 
     let mut exec_scopes = ExecutionScopes::new();

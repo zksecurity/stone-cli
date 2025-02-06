@@ -1,6 +1,5 @@
 use crate::args::{CairoVersion, LayoutName, ProveArgs};
-use crate::utils::{get_formatted_air_public_input, process_args, Config, FileWriter, FuncArgs};
-use cairo1_run::FuncArg;
+use crate::utils::{get_formatted_air_public_input, process_args, Config, FileWriter};
 use cairo1_run::{cairo_run_program as cairo_run_program_cairo1, Cairo1RunConfig, CairoRunner};
 use cairo_lang_compiler::db::RootDatabase;
 use cairo_lang_compiler::project::setup_project;
@@ -27,7 +26,7 @@ use std::rc::Rc;
 use thiserror::Error;
 
 // TODO: get the correct one
-const DYNAMIC_LAYOUT: &'static str = r#"{
+const DYNAMIC_LAYOUT: &str = r#"{
     "rc_units": 16,
     "memory_units_per_step": 8,
     "public_memory_fraction": 4,

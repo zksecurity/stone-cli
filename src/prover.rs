@@ -8,7 +8,7 @@ use config::{ProverConfig, ProverParametersConfig};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::Command;
 use thiserror::Error;
 
@@ -75,7 +75,7 @@ pub struct AirPublicInput {
 /// An empty `Result` on success, or an `Error` on failure
 pub fn run_stone_prover(
     prove_args: &ProveArgs,
-    air_public_input: &PathBuf,
+    air_public_input: &Path,
     air_private_input: &PathBuf,
     tmp_dir: &tempfile::TempDir,
 ) -> Result<(), anyhow::Error> {
@@ -95,7 +95,7 @@ pub fn run_stone_prover(
         air_public_input
     } else {
         // no dynamic layout, continue as usual
-        air_public_input.clone()
+        air_public_input.to_path_buf()
     };
 
     log::debug!("running prover...");
