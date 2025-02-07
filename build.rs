@@ -267,7 +267,7 @@ fn download_corelib_repo(config: &Config, tmp_dir_path: &Path) {
         return;
     }
 
-    let url = "https://github.com/starkware-libs/cairo/releases/download/v2.9.0-dev.0/release-x86_64-unknown-linux-musl.tar.gz";
+    let url = "https://github.com/starkware-libs/cairo/releases/download/v2.10.0-rc.1/release-x86_64-unknown-linux-musl.tar.gz";
     let tmp_download_file_path = tmp_dir_path.join("release-x86_64-unknown-linux-musl.tar.gz");
     download_from_url(url, &tmp_download_file_path);
     unzip_file(&tmp_download_file_path, tmp_dir_path);

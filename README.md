@@ -176,7 +176,7 @@ Here are the specific steps for the above process:
 ## Common issues
 
 ```bash
-Error: Failed to run cairo1: cairo1-run failed with error: Error: VirtualMachine(Memory(AddressNotRelocatable))
+Error: Failed to run cairo1: Memory addresses must be relocatable
 ```
 
 This error occurs when the program uses a builtin that is not supported by the layout. Refer to the [List of supported builtins per layout](#list-of-supported-builtins-per-layout) to find the right layout for theprogram.

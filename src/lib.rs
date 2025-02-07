@@ -4,6 +4,7 @@ pub mod cairo;
 pub mod fri;
 pub mod prover;
 pub mod serialize;
+pub mod sharp;
 pub mod utils;
 pub mod verifier;
 

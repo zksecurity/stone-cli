@@ -1,6 +1,8 @@
 use rstest::{fixture, rstest};
 use serde::{Deserialize, Serialize};
 use std::{path::Path, str::FromStr};
+use stone_cli::utils::process_args;
+use stone_cli::utils::FuncArgs;
 use stone_cli::{
     args::{
         CairoVersion, LayoutName, Network, ProveArgs, ProveBootloaderArgs, SerializationType,
@@ -188,7 +190,7 @@ fn test_run_cairo0_success(
     let prove_args = ProveArgs {
         cairo_version: CairoVersion::cairo0,
         cairo_program: program_file.clone(),
-        program_input: None,
+        program_input: FuncArgs(vec![]),
         program_input_file: None,
         layout: LayoutName::from_str(layout).unwrap(),
         prover_config_file: None,
@@ -227,7 +229,7 @@ fn test_run_cairo1_fail(
     let prove_args = ProveArgs {
         cairo_version: CairoVersion::cairo1,
         cairo_program: program_file.clone(),
-        program_input: None,
+        program_input: FuncArgs(vec![]),
         program_input_file: None,
         layout: LayoutName::from_str(layout).unwrap(),
         prover_config_file: None,
@@ -243,10 +245,7 @@ fn test_run_cairo1_fail(
             "Expected an error but got a successful result: {:?}",
             result
         ),
-        Err(e) => assert_error_msg_eq(
-            &e,
-            "cairo1-run failed with error: Error: VirtualMachine(Memory(AddressNotRelocatable))\n",
-        ),
+        Err(e) => assert_error_msg_eq(&e, "Memory addresses must be relocatable"),
     }
 }
 
@@ -306,7 +305,7 @@ fn test_run_cairo1_success(
     let prove_args = ProveArgs {
         cairo_version: CairoVersion::cairo1,
         cairo_program: program_file.clone(),
-        program_input: None,
+        program_input: FuncArgs(vec![]),
         program_input_file: None,
         layout: LayoutName::from_str(layout).unwrap(),
         prover_config_file: None,
@@ -353,7 +352,7 @@ fn test_run_cairo1_with_input_file(
     let prove_args = ProveArgs {
         cairo_version: CairoVersion::cairo1,
         cairo_program: program_file.clone(),
-        program_input: None,
+        program_input: FuncArgs(vec![]),
         program_input_file: Some(input_file),
         layout: LayoutName::from_str(layout).unwrap(),
         prover_config_file: None,
@@ -396,7 +395,7 @@ fn test_run_cairo1_with_inputs(
     let prove_args = ProveArgs {
         cairo_version: CairoVersion::cairo1,
         cairo_program: program_file.clone(),
-        program_input: Some(input.to_string()),
+        program_input: FuncArgs(process_args(input).unwrap().0),
         program_input_file: None,
         layout: LayoutName::from_str(layout).unwrap(),
         prover_config_file: None,
@@ -441,7 +440,7 @@ fn test_run_cairo_e2e_linux(
     let prove_args = ProveArgs {
         cairo_version: cairo_version.clone(),
         cairo_program: program_file.clone(),
-        program_input: None,
+        program_input: FuncArgs(vec![]),
         program_input_file: None,
         layout: LayoutName::from_str(layout).unwrap(),
         prover_config_file: None,
@@ -537,7 +536,7 @@ fn test_run_cairo_e2e_macos(
     let prove_args = ProveArgs {
         cairo_version: cairo_version.clone(),
         cairo_program: program_file.clone(),
-        program_input: None,
+        program_input: FuncArgs(vec![]),
         program_input_file: None,
         layout: LayoutName::from_str(layout).unwrap(),
         prover_config_file: None,

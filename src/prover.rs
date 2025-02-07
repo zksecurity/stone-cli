@@ -1,13 +1,14 @@
 pub mod config;
 
 use crate::args::{LayoutName, ProveArgs, ProveBootloaderArgs, StoneVersion};
+use crate::sharp::{resolve_automatic_layout, DynamicParamsResponse};
 use crate::utils::write_json_to_file;
 use cairo_vm::air_public_input::{MemorySegmentAddresses, PublicMemoryEntry};
 use config::{ProverConfig, ProverParametersConfig};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::Command;
 use thiserror::Error;
 
@@ -50,6 +51,17 @@ impl std::fmt::Display for ProverCommandError {
     }
 }
 
+#[derive(Serialize, Deserialize, Debug)]
+pub struct AirPublicInput {
+    pub layout: String,
+    pub rc_min: isize,
+    pub rc_max: isize,
+    pub n_steps: usize,
+    pub memory_segments: HashMap<String, MemorySegmentAddresses>,
+    pub public_memory: Vec<PublicMemoryEntry>,
+    pub dynamic_params: Option<DynamicParamsResponse>,
+}
+
 /// Runs the Stone prover with the given inputs
 ///
 /// # Arguments
@@ -63,12 +75,30 @@ impl std::fmt::Display for ProverCommandError {
 /// An empty `Result` on success, or an `Error` on failure
 pub fn run_stone_prover(
     prove_args: &ProveArgs,
-    air_public_input: &PathBuf,
+    air_public_input: &Path,
     air_private_input: &PathBuf,
     tmp_dir: &tempfile::TempDir,
-) -> Result<(), ProverError> {
-    println!("Running prover...");
+) -> Result<(), anyhow::Error> {
+    // optionally resolve the dynamic layout
+    let air_public_input = if let Some((dynamic_params, cairo_runner)) =
+        resolve_automatic_layout(prove_args, tmp_dir)?
+    {
+        // load the public input and update the layout
+        let input = cairo_runner.get_air_public_input()?;
 
+        let mut pi: AirPublicInput = serde_json::from_str(&input.serialize_json().unwrap())?;
+        pi.dynamic_params = Some(dynamic_params);
+
+        // save the updated params to the temporary directory
+        let air_public_input = tmp_dir.path().join("air_public_input_dyn_params.json");
+        write_json_to_file(pi, &air_public_input)?;
+        air_public_input
+    } else {
+        // no dynamic layout, continue as usual
+        air_public_input.to_path_buf()
+    };
+
+    log::debug!("running prover...");
     run_stone_prover_internal(
         &prove_args.parameter_config,
         prove_args.parameter_file.as_ref(),
@@ -76,13 +106,12 @@ pub fn run_stone_prover(
         prove_args.prover_config_file.as_ref(),
         &prove_args.output,
         &prove_args.stone_version,
-        air_public_input,
+        &air_public_input,
         air_private_input,
         tmp_dir,
         prove_args.bench_memory,
     )?;
-
-    println!("Prover finished successfully");
+    log::debug!("prover finished successfully");
     Ok(())
 }
 
@@ -104,8 +133,7 @@ pub fn run_stone_prover_bootloader(
     air_private_input: &PathBuf,
     tmp_dir: &tempfile::TempDir,
 ) -> Result<(), ProverError> {
-    println!("Running prover for bootloader...");
-
+    log::debug!("Running prover for bootloader...");
     run_stone_prover_internal(
         &prove_bootloader_args.parameter_config,
         prove_bootloader_args.parameter_file.as_ref(),
@@ -118,8 +146,7 @@ pub fn run_stone_prover_bootloader(
         tmp_dir,
         prove_bootloader_args.bench_memory,
     )?;
-
-    println!("Prover finished successfully");
+    log::debug!("prover finished successfully");
     Ok(())
 }
 
