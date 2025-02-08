@@ -1,0 +1,2340 @@
+{
+    "attributes": [],
+    "builtins": [
+        "keccak"
+    ],
+    "compiler_version": "0.13.1",
+    "data": [
+        "0x40780017fff7fff",
+        "0x1",
+        "0x1104800180018000",
+        "0x27",
+        "0x10780017fff7fff",
+        "0x0",
+        "0x20780017fff7ffd",
+        "0xc",
+        "0x480a7ff47fff8000",
+        "0x480a7ff57fff8000",
+        "0x480a7ff67fff8000",
+        "0x480a7ff77fff8000",
+        "0x480a7ff87fff8000",
+        "0x480a7ff97fff8000",
+        "0x480a7ffa7fff8000",
+        "0x480a7ffb7fff8000",
+        "0x480a7ffc7fff8000",
+        "0x208b7fff7fff7ffe",
+        "0x400380007ff47ff5",
+        "0x400380017ff47ff6",
+        "0x400380027ff47ff7",
+        "0x400380037ff47ff8",
+        "0x400380047ff47ff9",
+        "0x400380057ff47ffa",
+        "0x400380067ff47ffb",
+        "0x400380077ff47ffc",
+        "0x482680017ff48000",
+        "0x10",
+        "0x480280087ff48000",
+        "0x480280097ff48000",
+        "0x4802800a7ff48000",
+        "0x4802800b7ff48000",
+        "0x4802800c7ff48000",
+        "0x4802800d7ff48000",
+        "0x4802800e7ff48000",
+        "0x4802800f7ff48000",
+        "0x482680017ffd8000",
+        "0x800000000000011000000000000000000000000000000000000000000000000",
+        "0x1104800180018000",
+        "0x800000000000010ffffffffffffffffffffffffffffffffffffffffffffffe1",
+        "0x208b7fff7fff7ffe",
+        "0x40780017fff7fff",
+        "0x1",
+        "0x480a7ffd7fff8000",
+        "0x480680017fff8000",
+        "0x1",
+        "0x480680017fff8000",
+        "0x2",
+        "0x480680017fff8000",
+        "0x3",
+        "0x480680017fff8000",
+        "0x4",
+        "0x480680017fff8000",
+        "0x5",
+        "0x480680017fff8000",
+        "0x6",
+        "0x480680017fff8000",
+        "0x7",
+        "0x480680017fff8000",
+        "0x8",
+        "0x480a80007fff8000",
+        "0x1104800180018000",
+        "0x800000000000010ffffffffffffffffffffffffffffffffffffffffffffffca",
+        "0x48127ff77fff8000",
+        "0x208b7fff7fff7ffe"
+    ],
+    "debug_info": {
+        "file_contents": {
+            "<start>": "__start__:\nap += main.Args.SIZE + main.ImplicitArgs.SIZE;\ncall main;\n\n__end__:\njmp rel 0;\n"
+        },
+        "instruction_locations": {
+            "0": {
+                "accessible_scopes": [
+                    "__main__"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 0,
+                        "offset": 0
+                    },
+                    "reference_ids": {}
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 46,
+                    "end_line": 2,
+                    "input_file": {
+                        "filename": "<start>"
+                    },
+                    "start_col": 1,
+                    "start_line": 2
+                }
+            },
+            "2": {
+                "accessible_scopes": [
+                    "__main__"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 0,
+                        "offset": 1
+                    },
+                    "reference_ids": {}
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 10,
+                    "end_line": 3,
+                    "input_file": {
+                        "filename": "<start>"
+                    },
+                    "start_col": 1,
+                    "start_line": 3
+                }
+            },
+            "4": {
+                "accessible_scopes": [
+                    "__main__"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 1,
+                        "offset": 0
+                    },
+                    "reference_ids": {}
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 10,
+                    "end_line": 6,
+                    "input_file": {
+                        "filename": "<start>"
+                    },
+                    "start_col": 1,
+                    "start_line": 6
+                }
+            },
+            "6": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.repeat_hash"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 2,
+                        "offset": 0
+                    },
+                    "reference_ids": {
+                        "__main__.repeat_hash.keccak_ptr": 2,
+                        "__main__.repeat_hash.n": 1,
+                        "__main__.repeat_hash.state": 0
+                    }
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 7,
+                    "end_line": 9,
+                    "input_file": {
+                        "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                    },
+                    "start_col": 5,
+                    "start_line": 9
+                }
+            },
+            "8": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.repeat_hash"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 2,
+                        "offset": 0
+                    },
+                    "reference_ids": {
+                        "__main__.repeat_hash.keccak_ptr": 2,
+                        "__main__.repeat_hash.n": 1,
+                        "__main__.repeat_hash.state": 0
+                    }
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 44,
+                    "end_line": 6,
+                    "input_file": {
+                        "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                    },
+                    "parent_location": [
+                        {
+                            "end_col": 44,
+                            "end_line": 6,
+                            "input_file": {
+                                "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                            },
+                            "parent_location": [
+                                {
+                                    "end_col": 24,
+                                    "end_line": 11,
+                                    "input_file": {
+                                        "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                                    },
+                                    "start_col": 9,
+                                    "start_line": 11
+                                },
+                                "While trying to retrieve the implicit argument 'keccak_ptr' in:"
+                            ],
+                            "start_col": 18,
+                            "start_line": 6
+                        },
+                        "While expanding the reference 'keccak_ptr' in:"
+                    ],
+                    "start_col": 18,
+                    "start_line": 6
+                }
+            },
+            "9": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.repeat_hash"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 2,
+                        "offset": 1
+                    },
+                    "reference_ids": {
+                        "__main__.repeat_hash.keccak_ptr": 2,
+                        "__main__.repeat_hash.n": 1,
+                        "__main__.repeat_hash.state": 0
+                    }
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 30,
+                    "end_line": 7,
+                    "input_file": {
+                        "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                    },
+                    "parent_location": [
+                        {
+                            "end_col": 22,
+                            "end_line": 11,
+                            "input_file": {
+                                "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                            },
+                            "start_col": 17,
+                            "start_line": 11
+                        },
+                        "While expanding the reference 'state' in:"
+                    ],
+                    "start_col": 5,
+                    "start_line": 7
+                }
+            },
+            "10": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.repeat_hash"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 2,
+                        "offset": 2
+                    },
+                    "reference_ids": {
+                        "__main__.repeat_hash.keccak_ptr": 2,
+                        "__main__.repeat_hash.n": 1,
+                        "__main__.repeat_hash.state": 0
+                    }
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 30,
+                    "end_line": 7,
+                    "input_file": {
+                        "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                    },
+                    "parent_location": [
+                        {
+                            "end_col": 22,
+                            "end_line": 11,
+                            "input_file": {
+                                "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                            },
+                            "start_col": 17,
+                            "start_line": 11
+                        },
+                        "While expanding the reference 'state' in:"
+                    ],
+                    "start_col": 5,
+                    "start_line": 7
+                }
+            },
+            "11": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.repeat_hash"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 2,
+                        "offset": 3
+                    },
+                    "reference_ids": {
+                        "__main__.repeat_hash.keccak_ptr": 2,
+                        "__main__.repeat_hash.n": 1,
+                        "__main__.repeat_hash.state": 0
+                    }
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 30,
+                    "end_line": 7,
+                    "input_file": {
+                        "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                    },
+                    "parent_location": [
+                        {
+                            "end_col": 22,
+                            "end_line": 11,
+                            "input_file": {
+                                "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                            },
+                            "start_col": 17,
+                            "start_line": 11
+                        },
+                        "While expanding the reference 'state' in:"
+                    ],
+                    "start_col": 5,
+                    "start_line": 7
+                }
+            },
+            "12": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.repeat_hash"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 2,
+                        "offset": 4
+                    },
+                    "reference_ids": {
+                        "__main__.repeat_hash.keccak_ptr": 2,
+                        "__main__.repeat_hash.n": 1,
+                        "__main__.repeat_hash.state": 0
+                    }
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 30,
+                    "end_line": 7,
+                    "input_file": {
+                        "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                    },
+                    "parent_location": [
+                        {
+                            "end_col": 22,
+                            "end_line": 11,
+                            "input_file": {
+                                "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                            },
+                            "start_col": 17,
+                            "start_line": 11
+                        },
+                        "While expanding the reference 'state' in:"
+                    ],
+                    "start_col": 5,
+                    "start_line": 7
+                }
+            },
+            "13": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.repeat_hash"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 2,
+                        "offset": 5
+                    },
+                    "reference_ids": {
+                        "__main__.repeat_hash.keccak_ptr": 2,
+                        "__main__.repeat_hash.n": 1,
+                        "__main__.repeat_hash.state": 0
+                    }
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 30,
+                    "end_line": 7,
+                    "input_file": {
+                        "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                    },
+                    "parent_location": [
+                        {
+                            "end_col": 22,
+                            "end_line": 11,
+                            "input_file": {
+                                "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                            },
+                            "start_col": 17,
+                            "start_line": 11
+                        },
+                        "While expanding the reference 'state' in:"
+                    ],
+                    "start_col": 5,
+                    "start_line": 7
+                }
+            },
+            "14": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.repeat_hash"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 2,
+                        "offset": 6
+                    },
+                    "reference_ids": {
+                        "__main__.repeat_hash.keccak_ptr": 2,
+                        "__main__.repeat_hash.n": 1,
+                        "__main__.repeat_hash.state": 0
+                    }
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 30,
+                    "end_line": 7,
+                    "input_file": {
+                        "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                    },
+                    "parent_location": [
+                        {
+                            "end_col": 22,
+                            "end_line": 11,
+                            "input_file": {
+                                "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                            },
+                            "start_col": 17,
+                            "start_line": 11
+                        },
+                        "While expanding the reference 'state' in:"
+                    ],
+                    "start_col": 5,
+                    "start_line": 7
+                }
+            },
+            "15": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.repeat_hash"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 2,
+                        "offset": 7
+                    },
+                    "reference_ids": {
+                        "__main__.repeat_hash.keccak_ptr": 2,
+                        "__main__.repeat_hash.n": 1,
+                        "__main__.repeat_hash.state": 0
+                    }
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 30,
+                    "end_line": 7,
+                    "input_file": {
+                        "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                    },
+                    "parent_location": [
+                        {
+                            "end_col": 22,
+                            "end_line": 11,
+                            "input_file": {
+                                "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                            },
+                            "start_col": 17,
+                            "start_line": 11
+                        },
+                        "While expanding the reference 'state' in:"
+                    ],
+                    "start_col": 5,
+                    "start_line": 7
+                }
+            },
+            "16": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.repeat_hash"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 2,
+                        "offset": 8
+                    },
+                    "reference_ids": {
+                        "__main__.repeat_hash.keccak_ptr": 2,
+                        "__main__.repeat_hash.n": 1,
+                        "__main__.repeat_hash.state": 0
+                    }
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 30,
+                    "end_line": 7,
+                    "input_file": {
+                        "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                    },
+                    "parent_location": [
+                        {
+                            "end_col": 22,
+                            "end_line": 11,
+                            "input_file": {
+                                "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                            },
+                            "start_col": 17,
+                            "start_line": 11
+                        },
+                        "While expanding the reference 'state' in:"
+                    ],
+                    "start_col": 5,
+                    "start_line": 7
+                }
+            },
+            "17": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.repeat_hash"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 2,
+                        "offset": 9
+                    },
+                    "reference_ids": {
+                        "__main__.repeat_hash.keccak_ptr": 2,
+                        "__main__.repeat_hash.n": 1,
+                        "__main__.repeat_hash.state": 0
+                    }
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 24,
+                    "end_line": 11,
+                    "input_file": {
+                        "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                    },
+                    "start_col": 9,
+                    "start_line": 11
+                }
+            },
+            "18": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.repeat_hash"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 2,
+                        "offset": 0
+                    },
+                    "reference_ids": {
+                        "__main__.repeat_hash.keccak_ptr": 2,
+                        "__main__.repeat_hash.n": 1,
+                        "__main__.repeat_hash.state": 0
+                    }
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 40,
+                    "end_line": 15,
+                    "input_file": {
+                        "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                    },
+                    "start_col": 5,
+                    "start_line": 15
+                }
+            },
+            "19": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.repeat_hash"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 2,
+                        "offset": 0
+                    },
+                    "reference_ids": {
+                        "__main__.repeat_hash.keccak_ptr": 2,
+                        "__main__.repeat_hash.n": 1,
+                        "__main__.repeat_hash.state": 0
+                    }
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 40,
+                    "end_line": 15,
+                    "input_file": {
+                        "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                    },
+                    "start_col": 5,
+                    "start_line": 15
+                }
+            },
+            "20": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.repeat_hash"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 2,
+                        "offset": 0
+                    },
+                    "reference_ids": {
+                        "__main__.repeat_hash.keccak_ptr": 2,
+                        "__main__.repeat_hash.n": 1,
+                        "__main__.repeat_hash.state": 0
+                    }
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 40,
+                    "end_line": 15,
+                    "input_file": {
+                        "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                    },
+                    "start_col": 5,
+                    "start_line": 15
+                }
+            },
+            "21": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.repeat_hash"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 2,
+                        "offset": 0
+                    },
+                    "reference_ids": {
+                        "__main__.repeat_hash.keccak_ptr": 2,
+                        "__main__.repeat_hash.n": 1,
+                        "__main__.repeat_hash.state": 0
+                    }
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 40,
+                    "end_line": 15,
+                    "input_file": {
+                        "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                    },
+                    "start_col": 5,
+                    "start_line": 15
+                }
+            },
+            "22": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.repeat_hash"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 2,
+                        "offset": 0
+                    },
+                    "reference_ids": {
+                        "__main__.repeat_hash.keccak_ptr": 2,
+                        "__main__.repeat_hash.n": 1,
+                        "__main__.repeat_hash.state": 0
+                    }
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 40,
+                    "end_line": 15,
+                    "input_file": {
+                        "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                    },
+                    "start_col": 5,
+                    "start_line": 15
+                }
+            },
+            "23": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.repeat_hash"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 2,
+                        "offset": 0
+                    },
+                    "reference_ids": {
+                        "__main__.repeat_hash.keccak_ptr": 2,
+                        "__main__.repeat_hash.n": 1,
+                        "__main__.repeat_hash.state": 0
+                    }
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 40,
+                    "end_line": 15,
+                    "input_file": {
+                        "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                    },
+                    "start_col": 5,
+                    "start_line": 15
+                }
+            },
+            "24": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.repeat_hash"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 2,
+                        "offset": 0
+                    },
+                    "reference_ids": {
+                        "__main__.repeat_hash.keccak_ptr": 2,
+                        "__main__.repeat_hash.n": 1,
+                        "__main__.repeat_hash.state": 0
+                    }
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 40,
+                    "end_line": 15,
+                    "input_file": {
+                        "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                    },
+                    "start_col": 5,
+                    "start_line": 15
+                }
+            },
+            "25": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.repeat_hash"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 2,
+                        "offset": 0
+                    },
+                    "reference_ids": {
+                        "__main__.repeat_hash.keccak_ptr": 2,
+                        "__main__.repeat_hash.n": 1,
+                        "__main__.repeat_hash.state": 0
+                    }
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 40,
+                    "end_line": 15,
+                    "input_file": {
+                        "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                    },
+                    "start_col": 5,
+                    "start_line": 15
+                }
+            },
+            "26": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.repeat_hash"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 2,
+                        "offset": 0
+                    },
+                    "reference_ids": {
+                        "__main__.repeat_hash.keccak_ptr": 4,
+                        "__main__.repeat_hash.n": 1,
+                        "__main__.repeat_hash.output": 3,
+                        "__main__.repeat_hash.state": 0
+                    }
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 53,
+                    "end_line": 19,
+                    "input_file": {
+                        "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                    },
+                    "parent_location": [
+                        {
+                            "end_col": 44,
+                            "end_line": 6,
+                            "input_file": {
+                                "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                            },
+                            "parent_location": [
+                                {
+                                    "end_col": 38,
+                                    "end_line": 22,
+                                    "input_file": {
+                                        "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                                    },
+                                    "start_col": 12,
+                                    "start_line": 22
+                                },
+                                "While trying to retrieve the implicit argument 'keccak_ptr' in:"
+                            ],
+                            "start_col": 18,
+                            "start_line": 6
+                        },
+                        "While expanding the reference 'keccak_ptr' in:"
+                    ],
+                    "start_col": 22,
+                    "start_line": 19
+                }
+            },
+            "28": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.repeat_hash"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 2,
+                        "offset": 1
+                    },
+                    "reference_ids": {
+                        "__main__.repeat_hash.keccak_ptr": 4,
+                        "__main__.repeat_hash.n": 1,
+                        "__main__.repeat_hash.output": 3,
+                        "__main__.repeat_hash.state": 0
+                    }
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 38,
+                    "end_line": 17,
+                    "input_file": {
+                        "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                    },
+                    "parent_location": [
+                        {
+                            "end_col": 30,
+                            "end_line": 22,
+                            "input_file": {
+                                "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                            },
+                            "start_col": 24,
+                            "start_line": 22
+                        },
+                        "While expanding the reference 'output' in:"
+                    ],
+                    "start_col": 18,
+                    "start_line": 17
+                }
+            },
+            "29": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.repeat_hash"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 2,
+                        "offset": 2
+                    },
+                    "reference_ids": {
+                        "__main__.repeat_hash.keccak_ptr": 4,
+                        "__main__.repeat_hash.n": 1,
+                        "__main__.repeat_hash.output": 3,
+                        "__main__.repeat_hash.state": 0
+                    }
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 38,
+                    "end_line": 17,
+                    "input_file": {
+                        "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                    },
+                    "parent_location": [
+                        {
+                            "end_col": 30,
+                            "end_line": 22,
+                            "input_file": {
+                                "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                            },
+                            "start_col": 24,
+                            "start_line": 22
+                        },
+                        "While expanding the reference 'output' in:"
+                    ],
+                    "start_col": 18,
+                    "start_line": 17
+                }
+            },
+            "30": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.repeat_hash"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 2,
+                        "offset": 3
+                    },
+                    "reference_ids": {
+                        "__main__.repeat_hash.keccak_ptr": 4,
+                        "__main__.repeat_hash.n": 1,
+                        "__main__.repeat_hash.output": 3,
+                        "__main__.repeat_hash.state": 0
+                    }
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 38,
+                    "end_line": 17,
+                    "input_file": {
+                        "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                    },
+                    "parent_location": [
+                        {
+                            "end_col": 30,
+                            "end_line": 22,
+                            "input_file": {
+                                "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                            },
+                            "start_col": 24,
+                            "start_line": 22
+                        },
+                        "While expanding the reference 'output' in:"
+                    ],
+                    "start_col": 18,
+                    "start_line": 17
+                }
+            },
+            "31": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.repeat_hash"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 2,
+                        "offset": 4
+                    },
+                    "reference_ids": {
+                        "__main__.repeat_hash.keccak_ptr": 4,
+                        "__main__.repeat_hash.n": 1,
+                        "__main__.repeat_hash.output": 3,
+                        "__main__.repeat_hash.state": 0
+                    }
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 38,
+                    "end_line": 17,
+                    "input_file": {
+                        "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                    },
+                    "parent_location": [
+                        {
+                            "end_col": 30,
+                            "end_line": 22,
+                            "input_file": {
+                                "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                            },
+                            "start_col": 24,
+                            "start_line": 22
+                        },
+                        "While expanding the reference 'output' in:"
+                    ],
+                    "start_col": 18,
+                    "start_line": 17
+                }
+            },
+            "32": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.repeat_hash"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 2,
+                        "offset": 5
+                    },
+                    "reference_ids": {
+                        "__main__.repeat_hash.keccak_ptr": 4,
+                        "__main__.repeat_hash.n": 1,
+                        "__main__.repeat_hash.output": 3,
+                        "__main__.repeat_hash.state": 0
+                    }
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 38,
+                    "end_line": 17,
+                    "input_file": {
+                        "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                    },
+                    "parent_location": [
+                        {
+                            "end_col": 30,
+                            "end_line": 22,
+                            "input_file": {
+                                "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                            },
+                            "start_col": 24,
+                            "start_line": 22
+                        },
+                        "While expanding the reference 'output' in:"
+                    ],
+                    "start_col": 18,
+                    "start_line": 17
+                }
+            },
+            "33": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.repeat_hash"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 2,
+                        "offset": 6
+                    },
+                    "reference_ids": {
+                        "__main__.repeat_hash.keccak_ptr": 4,
+                        "__main__.repeat_hash.n": 1,
+                        "__main__.repeat_hash.output": 3,
+                        "__main__.repeat_hash.state": 0
+                    }
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 38,
+                    "end_line": 17,
+                    "input_file": {
+                        "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                    },
+                    "parent_location": [
+                        {
+                            "end_col": 30,
+                            "end_line": 22,
+                            "input_file": {
+                                "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                            },
+                            "start_col": 24,
+                            "start_line": 22
+                        },
+                        "While expanding the reference 'output' in:"
+                    ],
+                    "start_col": 18,
+                    "start_line": 17
+                }
+            },
+            "34": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.repeat_hash"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 2,
+                        "offset": 7
+                    },
+                    "reference_ids": {
+                        "__main__.repeat_hash.keccak_ptr": 4,
+                        "__main__.repeat_hash.n": 1,
+                        "__main__.repeat_hash.output": 3,
+                        "__main__.repeat_hash.state": 0
+                    }
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 38,
+                    "end_line": 17,
+                    "input_file": {
+                        "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                    },
+                    "parent_location": [
+                        {
+                            "end_col": 30,
+                            "end_line": 22,
+                            "input_file": {
+                                "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                            },
+                            "start_col": 24,
+                            "start_line": 22
+                        },
+                        "While expanding the reference 'output' in:"
+                    ],
+                    "start_col": 18,
+                    "start_line": 17
+                }
+            },
+            "35": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.repeat_hash"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 2,
+                        "offset": 8
+                    },
+                    "reference_ids": {
+                        "__main__.repeat_hash.keccak_ptr": 4,
+                        "__main__.repeat_hash.n": 1,
+                        "__main__.repeat_hash.output": 3,
+                        "__main__.repeat_hash.state": 0
+                    }
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 38,
+                    "end_line": 17,
+                    "input_file": {
+                        "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                    },
+                    "parent_location": [
+                        {
+                            "end_col": 30,
+                            "end_line": 22,
+                            "input_file": {
+                                "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                            },
+                            "start_col": 24,
+                            "start_line": 22
+                        },
+                        "While expanding the reference 'output' in:"
+                    ],
+                    "start_col": 18,
+                    "start_line": 17
+                }
+            },
+            "36": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.repeat_hash"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 2,
+                        "offset": 9
+                    },
+                    "reference_ids": {
+                        "__main__.repeat_hash.keccak_ptr": 4,
+                        "__main__.repeat_hash.n": 1,
+                        "__main__.repeat_hash.output": 3,
+                        "__main__.repeat_hash.state": 0
+                    }
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 37,
+                    "end_line": 22,
+                    "input_file": {
+                        "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                    },
+                    "start_col": 32,
+                    "start_line": 22
+                }
+            },
+            "38": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.repeat_hash"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 2,
+                        "offset": 10
+                    },
+                    "reference_ids": {
+                        "__main__.repeat_hash.keccak_ptr": 4,
+                        "__main__.repeat_hash.n": 1,
+                        "__main__.repeat_hash.output": 3,
+                        "__main__.repeat_hash.state": 0
+                    }
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 38,
+                    "end_line": 22,
+                    "input_file": {
+                        "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                    },
+                    "start_col": 12,
+                    "start_line": 22
+                }
+            },
+            "40": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.repeat_hash"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 3,
+                        "offset": 0
+                    },
+                    "reference_ids": {
+                        "__main__.repeat_hash.keccak_ptr": 5,
+                        "__main__.repeat_hash.n": 1,
+                        "__main__.repeat_hash.output": 3,
+                        "__main__.repeat_hash.state": 0
+                    }
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 39,
+                    "end_line": 22,
+                    "input_file": {
+                        "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                    },
+                    "start_col": 5,
+                    "start_line": 22
+                }
+            },
+            "41": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.main"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 4,
+                        "offset": 0
+                    },
+                    "reference_ids": {
+                        "__main__.main.keccak_ptr": 6
+                    }
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 18,
+                    "end_line": 27,
+                    "input_file": {
+                        "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                    },
+                    "start_col": 5,
+                    "start_line": 27
+                }
+            },
+            "43": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.main"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 4,
+                        "offset": 1
+                    },
+                    "reference_ids": {
+                        "__main__.main.initial_state": 8,
+                        "__main__.main.iterations": 7,
+                        "__main__.main.keccak_ptr": 6
+                    }
+                },
+                "hints": [
+                    {
+                        "location": {
+                            "end_col": 55,
+                            "end_line": 30,
+                            "input_file": {
+                                "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                            },
+                            "start_col": 5,
+                            "start_line": 30
+                        },
+                        "n_prefix_newlines": 0
+                    }
+                ],
+                "inst": {
+                    "end_col": 37,
+                    "end_line": 26,
+                    "input_file": {
+                        "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                    },
+                    "parent_location": [
+                        {
+                            "end_col": 44,
+                            "end_line": 6,
+                            "input_file": {
+                                "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                            },
+                            "parent_location": [
+                                {
+                                    "end_col": 61,
+                                    "end_line": 36,
+                                    "input_file": {
+                                        "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                                    },
+                                    "start_col": 23,
+                                    "start_line": 36
+                                },
+                                "While trying to retrieve the implicit argument 'keccak_ptr' in:"
+                            ],
+                            "start_col": 18,
+                            "start_line": 6
+                        },
+                        "While expanding the reference 'keccak_ptr' in:"
+                    ],
+                    "start_col": 11,
+                    "start_line": 26
+                }
+            },
+            "44": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.main"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 4,
+                        "offset": 2
+                    },
+                    "reference_ids": {
+                        "__main__.main.initial_state": 8,
+                        "__main__.main.iterations": 7,
+                        "__main__.main.keccak_ptr": 6
+                    }
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 45,
+                    "end_line": 33,
+                    "input_file": {
+                        "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                    },
+                    "parent_location": [
+                        {
+                            "end_col": 48,
+                            "end_line": 36,
+                            "input_file": {
+                                "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                            },
+                            "start_col": 35,
+                            "start_line": 36
+                        },
+                        "While expanding the reference 'initial_state' in:"
+                    ],
+                    "start_col": 44,
+                    "start_line": 33
+                }
+            },
+            "46": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.main"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 4,
+                        "offset": 3
+                    },
+                    "reference_ids": {
+                        "__main__.main.initial_state": 8,
+                        "__main__.main.iterations": 7,
+                        "__main__.main.keccak_ptr": 6
+                    }
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 48,
+                    "end_line": 33,
+                    "input_file": {
+                        "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                    },
+                    "parent_location": [
+                        {
+                            "end_col": 48,
+                            "end_line": 36,
+                            "input_file": {
+                                "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                            },
+                            "start_col": 35,
+                            "start_line": 36
+                        },
+                        "While expanding the reference 'initial_state' in:"
+                    ],
+                    "start_col": 47,
+                    "start_line": 33
+                }
+            },
+            "48": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.main"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 4,
+                        "offset": 4
+                    },
+                    "reference_ids": {
+                        "__main__.main.initial_state": 8,
+                        "__main__.main.iterations": 7,
+                        "__main__.main.keccak_ptr": 6
+                    }
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 51,
+                    "end_line": 33,
+                    "input_file": {
+                        "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                    },
+                    "parent_location": [
+                        {
+                            "end_col": 48,
+                            "end_line": 36,
+                            "input_file": {
+                                "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                            },
+                            "start_col": 35,
+                            "start_line": 36
+                        },
+                        "While expanding the reference 'initial_state' in:"
+                    ],
+                    "start_col": 50,
+                    "start_line": 33
+                }
+            },
+            "50": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.main"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 4,
+                        "offset": 5
+                    },
+                    "reference_ids": {
+                        "__main__.main.initial_state": 8,
+                        "__main__.main.iterations": 7,
+                        "__main__.main.keccak_ptr": 6
+                    }
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 54,
+                    "end_line": 33,
+                    "input_file": {
+                        "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                    },
+                    "parent_location": [
+                        {
+                            "end_col": 48,
+                            "end_line": 36,
+                            "input_file": {
+                                "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                            },
+                            "start_col": 35,
+                            "start_line": 36
+                        },
+                        "While expanding the reference 'initial_state' in:"
+                    ],
+                    "start_col": 53,
+                    "start_line": 33
+                }
+            },
+            "52": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.main"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 4,
+                        "offset": 6
+                    },
+                    "reference_ids": {
+                        "__main__.main.initial_state": 8,
+                        "__main__.main.iterations": 7,
+                        "__main__.main.keccak_ptr": 6
+                    }
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 57,
+                    "end_line": 33,
+                    "input_file": {
+                        "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                    },
+                    "parent_location": [
+                        {
+                            "end_col": 48,
+                            "end_line": 36,
+                            "input_file": {
+                                "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                            },
+                            "start_col": 35,
+                            "start_line": 36
+                        },
+                        "While expanding the reference 'initial_state' in:"
+                    ],
+                    "start_col": 56,
+                    "start_line": 33
+                }
+            },
+            "54": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.main"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 4,
+                        "offset": 7
+                    },
+                    "reference_ids": {
+                        "__main__.main.initial_state": 8,
+                        "__main__.main.iterations": 7,
+                        "__main__.main.keccak_ptr": 6
+                    }
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 60,
+                    "end_line": 33,
+                    "input_file": {
+                        "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                    },
+                    "parent_location": [
+                        {
+                            "end_col": 48,
+                            "end_line": 36,
+                            "input_file": {
+                                "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                            },
+                            "start_col": 35,
+                            "start_line": 36
+                        },
+                        "While expanding the reference 'initial_state' in:"
+                    ],
+                    "start_col": 59,
+                    "start_line": 33
+                }
+            },
+            "56": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.main"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 4,
+                        "offset": 8
+                    },
+                    "reference_ids": {
+                        "__main__.main.initial_state": 8,
+                        "__main__.main.iterations": 7,
+                        "__main__.main.keccak_ptr": 6
+                    }
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 63,
+                    "end_line": 33,
+                    "input_file": {
+                        "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                    },
+                    "parent_location": [
+                        {
+                            "end_col": 48,
+                            "end_line": 36,
+                            "input_file": {
+                                "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                            },
+                            "start_col": 35,
+                            "start_line": 36
+                        },
+                        "While expanding the reference 'initial_state' in:"
+                    ],
+                    "start_col": 62,
+                    "start_line": 33
+                }
+            },
+            "58": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.main"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 4,
+                        "offset": 9
+                    },
+                    "reference_ids": {
+                        "__main__.main.initial_state": 8,
+                        "__main__.main.iterations": 7,
+                        "__main__.main.keccak_ptr": 6
+                    }
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 66,
+                    "end_line": 33,
+                    "input_file": {
+                        "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                    },
+                    "parent_location": [
+                        {
+                            "end_col": 48,
+                            "end_line": 36,
+                            "input_file": {
+                                "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                            },
+                            "start_col": 35,
+                            "start_line": 36
+                        },
+                        "While expanding the reference 'initial_state' in:"
+                    ],
+                    "start_col": 65,
+                    "start_line": 33
+                }
+            },
+            "60": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.main"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 4,
+                        "offset": 10
+                    },
+                    "reference_ids": {
+                        "__main__.main.initial_state": 8,
+                        "__main__.main.iterations": 7,
+                        "__main__.main.keccak_ptr": 6
+                    }
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 21,
+                    "end_line": 29,
+                    "input_file": {
+                        "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                    },
+                    "parent_location": [
+                        {
+                            "end_col": 60,
+                            "end_line": 36,
+                            "input_file": {
+                                "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                            },
+                            "start_col": 50,
+                            "start_line": 36
+                        },
+                        "While expanding the reference 'iterations' in:"
+                    ],
+                    "start_col": 11,
+                    "start_line": 29
+                }
+            },
+            "61": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.main"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 4,
+                        "offset": 11
+                    },
+                    "reference_ids": {
+                        "__main__.main.initial_state": 8,
+                        "__main__.main.iterations": 7,
+                        "__main__.main.keccak_ptr": 6
+                    }
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 61,
+                    "end_line": 36,
+                    "input_file": {
+                        "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                    },
+                    "start_col": 23,
+                    "start_line": 36
+                }
+            },
+            "63": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.main"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 5,
+                        "offset": 0
+                    },
+                    "reference_ids": {
+                        "__main__.main.final_state": 10,
+                        "__main__.main.initial_state": 8,
+                        "__main__.main.iterations": 7,
+                        "__main__.main.keccak_ptr": 9
+                    }
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 44,
+                    "end_line": 6,
+                    "input_file": {
+                        "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                    },
+                    "parent_location": [
+                        {
+                            "end_col": 61,
+                            "end_line": 36,
+                            "input_file": {
+                                "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                            },
+                            "parent_location": [
+                                {
+                                    "end_col": 37,
+                                    "end_line": 26,
+                                    "input_file": {
+                                        "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                                    },
+                                    "parent_location": [
+                                        {
+                                            "end_col": 15,
+                                            "end_line": 39,
+                                            "input_file": {
+                                                "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                                            },
+                                            "start_col": 5,
+                                            "start_line": 39
+                                        },
+                                        "While trying to retrieve the implicit argument 'keccak_ptr' in:"
+                                    ],
+                                    "start_col": 11,
+                                    "start_line": 26
+                                },
+                                "While expanding the reference 'keccak_ptr' in:"
+                            ],
+                            "start_col": 23,
+                            "start_line": 36
+                        },
+                        "While trying to update the implicit return value 'keccak_ptr' in:"
+                    ],
+                    "start_col": 18,
+                    "start_line": 6
+                }
+            },
+            "64": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.main"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 5,
+                        "offset": 1
+                    },
+                    "reference_ids": {
+                        "__main__.main.final_state": 10,
+                        "__main__.main.initial_state": 8,
+                        "__main__.main.iterations": 7,
+                        "__main__.main.keccak_ptr": 9
+                    }
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 15,
+                    "end_line": 39,
+                    "input_file": {
+                        "filename": "./examples/cairo0/with_hint/keccak.cairo"
+                    },
+                    "start_col": 5,
+                    "start_line": 39
+                }
+            }
+        }
+    },
+    "hints": {
+        "43": [
+            {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.main"
+                ],
+                "code": "ids.iterations = program_input['iterations']",
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 4,
+                        "offset": 1
+                    },
+                    "reference_ids": {
+                        "__main__.main.iterations": 7,
+                        "__main__.main.keccak_ptr": 6
+                    }
+                }
+            }
+        ]
+    },
+    "identifiers": {
+        "__main__.KeccakBuiltin": {
+            "destination": "starkware.cairo.common.cairo_builtins.KeccakBuiltin",
+            "type": "alias"
+        },
+        "__main__.KeccakBuiltinState": {
+            "destination": "starkware.cairo.common.keccak_state.KeccakBuiltinState",
+            "type": "alias"
+        },
+        "__main__.__end__": {
+            "pc": 4,
+            "type": "label"
+        },
+        "__main__.__start__": {
+            "pc": 0,
+            "type": "label"
+        },
+        "__main__.main": {
+            "decorators": [],
+            "pc": 41,
+            "type": "function"
+        },
+        "__main__.main.Args": {
+            "full_name": "__main__.main.Args",
+            "members": {},
+            "size": 0,
+            "type": "struct"
+        },
+        "__main__.main.ImplicitArgs": {
+            "full_name": "__main__.main.ImplicitArgs",
+            "members": {
+                "keccak_ptr": {
+                    "cairo_type": "starkware.cairo.common.cairo_builtins.KeccakBuiltin*",
+                    "offset": 0
+                }
+            },
+            "size": 1,
+            "type": "struct"
+        },
+        "__main__.main.Return": {
+            "cairo_type": "()",
+            "type": "type_definition"
+        },
+        "__main__.main.SIZEOF_LOCALS": {
+            "type": "const",
+            "value": 1
+        },
+        "__main__.main.final_state": {
+            "cairo_type": "starkware.cairo.common.keccak_state.KeccakBuiltinState",
+            "full_name": "__main__.main.final_state",
+            "references": [
+                {
+                    "ap_tracking_data": {
+                        "group": 5,
+                        "offset": 0
+                    },
+                    "pc": 63,
+                    "value": "[cast(ap + (-8), starkware.cairo.common.keccak_state.KeccakBuiltinState*)]"
+                }
+            ],
+            "type": "reference"
+        },
+        "__main__.main.initial_state": {
+            "cairo_type": "starkware.cairo.common.keccak_state.KeccakBuiltinState",
+            "full_name": "__main__.main.initial_state",
+            "references": [
+                {
+                    "ap_tracking_data": {
+                        "group": 4,
+                        "offset": 1
+                    },
+                    "pc": 43,
+                    "value": "cast((1, 2, 3, 4, 5, 6, 7, 8), starkware.cairo.common.keccak_state.KeccakBuiltinState)"
+                }
+            ],
+            "type": "reference"
+        },
+        "__main__.main.iterations": {
+            "cairo_type": "felt",
+            "full_name": "__main__.main.iterations",
+            "references": [
+                {
+                    "ap_tracking_data": {
+                        "group": 4,
+                        "offset": 1
+                    },
+                    "pc": 43,
+                    "value": "[cast(fp, felt*)]"
+                }
+            ],
+            "type": "reference"
+        },
+        "__main__.main.keccak_ptr": {
+            "cairo_type": "starkware.cairo.common.cairo_builtins.KeccakBuiltin*",
+            "full_name": "__main__.main.keccak_ptr",
+            "references": [
+                {
+                    "ap_tracking_data": {
+                        "group": 4,
+                        "offset": 0
+                    },
+                    "pc": 41,
+                    "value": "[cast(fp + (-3), starkware.cairo.common.cairo_builtins.KeccakBuiltin**)]"
+                },
+                {
+                    "ap_tracking_data": {
+                        "group": 5,
+                        "offset": 0
+                    },
+                    "pc": 63,
+                    "value": "[cast(ap + (-9), starkware.cairo.common.cairo_builtins.KeccakBuiltin**)]"
+                }
+            ],
+            "type": "reference"
+        },
+        "__main__.repeat_hash": {
+            "decorators": [],
+            "pc": 6,
+            "type": "function"
+        },
+        "__main__.repeat_hash.Args": {
+            "full_name": "__main__.repeat_hash.Args",
+            "members": {
+                "n": {
+                    "cairo_type": "felt",
+                    "offset": 8
+                },
+                "state": {
+                    "cairo_type": "starkware.cairo.common.keccak_state.KeccakBuiltinState",
+                    "offset": 0
+                }
+            },
+            "size": 9,
+            "type": "struct"
+        },
+        "__main__.repeat_hash.ImplicitArgs": {
+            "full_name": "__main__.repeat_hash.ImplicitArgs",
+            "members": {
+                "keccak_ptr": {
+                    "cairo_type": "starkware.cairo.common.cairo_builtins.KeccakBuiltin*",
+                    "offset": 0
+                }
+            },
+            "size": 1,
+            "type": "struct"
+        },
+        "__main__.repeat_hash.Return": {
+            "cairo_type": "starkware.cairo.common.keccak_state.KeccakBuiltinState",
+            "type": "type_definition"
+        },
+        "__main__.repeat_hash.SIZEOF_LOCALS": {
+            "type": "const",
+            "value": 0
+        },
+        "__main__.repeat_hash.keccak_ptr": {
+            "cairo_type": "starkware.cairo.common.cairo_builtins.KeccakBuiltin*",
+            "full_name": "__main__.repeat_hash.keccak_ptr",
+            "references": [
+                {
+                    "ap_tracking_data": {
+                        "group": 2,
+                        "offset": 0
+                    },
+                    "pc": 6,
+                    "value": "[cast(fp + (-12), starkware.cairo.common.cairo_builtins.KeccakBuiltin**)]"
+                },
+                {
+                    "ap_tracking_data": {
+                        "group": 2,
+                        "offset": 0
+                    },
+                    "pc": 26,
+                    "value": "cast([fp + (-12)] + 16, starkware.cairo.common.cairo_builtins.KeccakBuiltin*)"
+                },
+                {
+                    "ap_tracking_data": {
+                        "group": 3,
+                        "offset": 0
+                    },
+                    "pc": 40,
+                    "value": "[cast(ap + (-9), starkware.cairo.common.cairo_builtins.KeccakBuiltin**)]"
+                }
+            ],
+            "type": "reference"
+        },
+        "__main__.repeat_hash.n": {
+            "cairo_type": "felt",
+            "full_name": "__main__.repeat_hash.n",
+            "references": [
+                {
+                    "ap_tracking_data": {
+                        "group": 2,
+                        "offset": 0
+                    },
+                    "pc": 6,
+                    "value": "[cast(fp + (-3), felt*)]"
+                }
+            ],
+            "type": "reference"
+        },
+        "__main__.repeat_hash.output": {
+            "cairo_type": "starkware.cairo.common.keccak_state.KeccakBuiltinState",
+            "full_name": "__main__.repeat_hash.output",
+            "references": [
+                {
+                    "ap_tracking_data": {
+                        "group": 2,
+                        "offset": 0
+                    },
+                    "pc": 26,
+                    "value": "[cast([fp + (-12)] + 8, starkware.cairo.common.keccak_state.KeccakBuiltinState*)]"
+                }
+            ],
+            "type": "reference"
+        },
+        "__main__.repeat_hash.state": {
+            "cairo_type": "starkware.cairo.common.keccak_state.KeccakBuiltinState",
+            "full_name": "__main__.repeat_hash.state",
+            "references": [
+                {
+                    "ap_tracking_data": {
+                        "group": 2,
+                        "offset": 0
+                    },
+                    "pc": 6,
+                    "value": "[cast(fp + (-11), starkware.cairo.common.keccak_state.KeccakBuiltinState*)]"
+                }
+            ],
+            "type": "reference"
+        },
+        "starkware.cairo.common.cairo_builtins.BitwiseBuiltin": {
+            "full_name": "starkware.cairo.common.cairo_builtins.BitwiseBuiltin",
+            "members": {
+                "x": {
+                    "cairo_type": "felt",
+                    "offset": 0
+                },
+                "x_and_y": {
+                    "cairo_type": "felt",
+                    "offset": 2
+                },
+                "x_or_y": {
+                    "cairo_type": "felt",
+                    "offset": 4
+                },
+                "x_xor_y": {
+                    "cairo_type": "felt",
+                    "offset": 3
+                },
+                "y": {
+                    "cairo_type": "felt",
+                    "offset": 1
+                }
+            },
+            "size": 5,
+            "type": "struct"
+        },
+        "starkware.cairo.common.cairo_builtins.EcOpBuiltin": {
+            "full_name": "starkware.cairo.common.cairo_builtins.EcOpBuiltin",
+            "members": {
+                "m": {
+                    "cairo_type": "felt",
+                    "offset": 4
+                },
+                "p": {
+                    "cairo_type": "starkware.cairo.common.ec_point.EcPoint",
+                    "offset": 0
+                },
+                "q": {
+                    "cairo_type": "starkware.cairo.common.ec_point.EcPoint",
+                    "offset": 2
+                },
+                "r": {
+                    "cairo_type": "starkware.cairo.common.ec_point.EcPoint",
+                    "offset": 5
+                }
+            },
+            "size": 7,
+            "type": "struct"
+        },
+        "starkware.cairo.common.cairo_builtins.EcPoint": {
+            "destination": "starkware.cairo.common.ec_point.EcPoint",
+            "type": "alias"
+        },
+        "starkware.cairo.common.cairo_builtins.HashBuiltin": {
+            "full_name": "starkware.cairo.common.cairo_builtins.HashBuiltin",
+            "members": {
+                "result": {
+                    "cairo_type": "felt",
+                    "offset": 2
+                },
+                "x": {
+                    "cairo_type": "felt",
+                    "offset": 0
+                },
+                "y": {
+                    "cairo_type": "felt",
+                    "offset": 1
+                }
+            },
+            "size": 3,
+            "type": "struct"
+        },
+        "starkware.cairo.common.cairo_builtins.KeccakBuiltin": {
+            "full_name": "starkware.cairo.common.cairo_builtins.KeccakBuiltin",
+            "members": {
+                "input": {
+                    "cairo_type": "starkware.cairo.common.keccak_state.KeccakBuiltinState",
+                    "offset": 0
+                },
+                "output": {
+                    "cairo_type": "starkware.cairo.common.keccak_state.KeccakBuiltinState",
+                    "offset": 8
+                }
+            },
+            "size": 16,
+            "type": "struct"
+        },
+        "starkware.cairo.common.cairo_builtins.KeccakBuiltinState": {
+            "destination": "starkware.cairo.common.keccak_state.KeccakBuiltinState",
+            "type": "alias"
+        },
+        "starkware.cairo.common.cairo_builtins.PoseidonBuiltin": {
+            "full_name": "starkware.cairo.common.cairo_builtins.PoseidonBuiltin",
+            "members": {
+                "input": {
+                    "cairo_type": "starkware.cairo.common.poseidon_state.PoseidonBuiltinState",
+                    "offset": 0
+                },
+                "output": {
+                    "cairo_type": "starkware.cairo.common.poseidon_state.PoseidonBuiltinState",
+                    "offset": 3
+                }
+            },
+            "size": 6,
+            "type": "struct"
+        },
+        "starkware.cairo.common.cairo_builtins.PoseidonBuiltinState": {
+            "destination": "starkware.cairo.common.poseidon_state.PoseidonBuiltinState",
+            "type": "alias"
+        },
+        "starkware.cairo.common.cairo_builtins.SignatureBuiltin": {
+            "full_name": "starkware.cairo.common.cairo_builtins.SignatureBuiltin",
+            "members": {
+                "message": {
+                    "cairo_type": "felt",
+                    "offset": 1
+                },
+                "pub_key": {
+                    "cairo_type": "felt",
+                    "offset": 0
+                }
+            },
+            "size": 2,
+            "type": "struct"
+        },
+        "starkware.cairo.common.ec_point.EcPoint": {
+            "full_name": "starkware.cairo.common.ec_point.EcPoint",
+            "members": {
+                "x": {
+                    "cairo_type": "felt",
+                    "offset": 0
+                },
+                "y": {
+                    "cairo_type": "felt",
+                    "offset": 1
+                }
+            },
+            "size": 2,
+            "type": "struct"
+        },
+        "starkware.cairo.common.keccak_state.KeccakBuiltinState": {
+            "full_name": "starkware.cairo.common.keccak_state.KeccakBuiltinState",
+            "members": {
+                "s0": {
+                    "cairo_type": "felt",
+                    "offset": 0
+                },
+                "s1": {
+                    "cairo_type": "felt",
+                    "offset": 1
+                },
+                "s2": {
+                    "cairo_type": "felt",
+                    "offset": 2
+                },
+                "s3": {
+                    "cairo_type": "felt",
+                    "offset": 3
+                },
+                "s4": {
+                    "cairo_type": "felt",
+                    "offset": 4
+                },
+                "s5": {
+                    "cairo_type": "felt",
+                    "offset": 5
+                },
+                "s6": {
+                    "cairo_type": "felt",
+                    "offset": 6
+                },
+                "s7": {
+                    "cairo_type": "felt",
+                    "offset": 7
+                }
+            },
+            "size": 8,
+            "type": "struct"
+        },
+        "starkware.cairo.common.poseidon_state.PoseidonBuiltinState": {
+            "full_name": "starkware.cairo.common.poseidon_state.PoseidonBuiltinState",
+            "members": {
+                "s0": {
+                    "cairo_type": "felt",
+                    "offset": 0
+                },
+                "s1": {
+                    "cairo_type": "felt",
+                    "offset": 1
+                },
+                "s2": {
+                    "cairo_type": "felt",
+                    "offset": 2
+                }
+            },
+            "size": 3,
+            "type": "struct"
+        }
+    },
+    "main_scope": "__main__",
+    "prime": "0x800000000000011000000000000000000000000000000000000000000000001",
+    "reference_manager": {
+        "references": [
+            {
+                "ap_tracking_data": {
+                    "group": 2,
+                    "offset": 0
+                },
+                "pc": 6,
+                "value": "[cast(fp + (-11), starkware.cairo.common.keccak_state.KeccakBuiltinState*)]"
+            },
+            {
+                "ap_tracking_data": {
+                    "group": 2,
+                    "offset": 0
+                },
+                "pc": 6,
+                "value": "[cast(fp + (-3), felt*)]"
+            },
+            {
+                "ap_tracking_data": {
+                    "group": 2,
+                    "offset": 0
+                },
+                "pc": 6,
+                "value": "[cast(fp + (-12), starkware.cairo.common.cairo_builtins.KeccakBuiltin**)]"
+            },
+            {
+                "ap_tracking_data": {
+                    "group": 2,
+                    "offset": 0
+                },
+                "pc": 26,
+                "value": "[cast([fp + (-12)] + 8, starkware.cairo.common.keccak_state.KeccakBuiltinState*)]"
+            },
+            {
+                "ap_tracking_data": {
+                    "group": 2,
+                    "offset": 0
+                },
+                "pc": 26,
+                "value": "cast([fp + (-12)] + 16, starkware.cairo.common.cairo_builtins.KeccakBuiltin*)"
+            },
+            {
+                "ap_tracking_data": {
+                    "group": 3,
+                    "offset": 0
+                },
+                "pc": 40,
+                "value": "[cast(ap + (-9), starkware.cairo.common.cairo_builtins.KeccakBuiltin**)]"
+            },
+            {
+                "ap_tracking_data": {
+                    "group": 4,
+                    "offset": 0
+                },
+                "pc": 41,
+                "value": "[cast(fp + (-3), starkware.cairo.common.cairo_builtins.KeccakBuiltin**)]"
+            },
+            {
+                "ap_tracking_data": {
+                    "group": 4,
+                    "offset": 1
+                },
+                "pc": 43,
+                "value": "[cast(fp, felt*)]"
+            },
+            {
+                "ap_tracking_data": {
+                    "group": 4,
+                    "offset": 1
+                },
+                "pc": 43,
+                "value": "cast((1, 2, 3, 4, 5, 6, 7, 8), starkware.cairo.common.keccak_state.KeccakBuiltinState)"
+            },
+            {
+                "ap_tracking_data": {
+                    "group": 5,
+                    "offset": 0
+                },
+                "pc": 63,
+                "value": "[cast(ap + (-9), starkware.cairo.common.cairo_builtins.KeccakBuiltin**)]"
+            },
+            {
+                "ap_tracking_data": {
+                    "group": 5,
+                    "offset": 0
+                },
+                "pc": 63,
+                "value": "[cast(ap + (-8), starkware.cairo.common.keccak_state.KeccakBuiltinState*)]"
+            }
+        ]
+    }
+}

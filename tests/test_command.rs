@@ -5,9 +5,7 @@ use std::path::Path;
 use std::process::Command;
 
 #[fixture]
-fn setup() {
-    stone_cli::setup();
-}
+fn setup() {}
 
 #[rstest]
 #[case("--field", "PrimeField0")]

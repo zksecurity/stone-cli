@@ -1,6 +1,8 @@
 use rstest::{fixture, rstest};
 use serde::{Deserialize, Serialize};
 use std::{path::Path, str::FromStr};
+use stone_cli::utils::process_args;
+use stone_cli::utils::FuncArgs;
 use stone_cli::{
     args::{
         CairoVersion, LayoutName, Network, ProveArgs, ProveBootloaderArgs, SerializationType,
@@ -20,9 +22,7 @@ use stone_cli::prover::run_stone_prover;
 use tempfile::TempDir;
 
 #[fixture]
-fn setup() {
-    stone_cli::setup();
-}
+fn setup() {}
 
 #[rstest]
 #[case("recursive", "abs_value_array.json")]
@@ -189,7 +189,7 @@ fn test_run_cairo0_success(
     let prove_args = ProveArgs {
         cairo_version: CairoVersion::cairo0,
         cairo_program: program_file.clone(),
-        program_input: None,
+        program_input: FuncArgs(vec![]),
         program_input_file: None,
         layout: LayoutName::from_str(layout).unwrap(),
         prover_config_file: None,
@@ -198,6 +198,7 @@ fn test_run_cairo0_success(
         parameter_config: ProverParametersConfig::default(),
         prover_config: ProverConfig::default(),
         stone_version: StoneVersion::V5,
+        bench_memory: None,
     };
 
     match run_cairo0(&prove_args, &tmp_dir) {
@@ -227,7 +228,7 @@ fn test_run_cairo1_fail(
     let prove_args = ProveArgs {
         cairo_version: CairoVersion::cairo1,
         cairo_program: program_file.clone(),
-        program_input: None,
+        program_input: FuncArgs(vec![]),
         program_input_file: None,
         layout: LayoutName::from_str(layout).unwrap(),
         prover_config_file: None,
@@ -236,16 +237,14 @@ fn test_run_cairo1_fail(
         parameter_config: ProverParametersConfig::default(),
         prover_config: ProverConfig::default(),
         stone_version: StoneVersion::V6,
+        bench_memory: None,
     };
     match run_cairo1(&prove_args, &tmp_dir) {
         Ok(result) => panic!(
             "Expected an error but got a successful result: {:?}",
             result
         ),
-        Err(e) => assert_error_msg_eq(
-            &e,
-            "cairo1-run failed with error: Error: VirtualMachine(Memory(AddressNotRelocatable))\n",
-        ),
+        Err(e) => assert_error_msg_eq(&e, "Memory addresses must be relocatable"),
     }
 }
 
@@ -305,7 +304,7 @@ fn test_run_cairo1_success(
     let prove_args = ProveArgs {
         cairo_version: CairoVersion::cairo1,
         cairo_program: program_file.clone(),
-        program_input: None,
+        program_input: FuncArgs(vec![]),
         program_input_file: None,
         layout: LayoutName::from_str(layout).unwrap(),
         prover_config_file: None,
@@ -314,6 +313,7 @@ fn test_run_cairo1_success(
         parameter_config: ProverParametersConfig::default(),
         prover_config: ProverConfig::default(),
         stone_version: StoneVersion::V6,
+        bench_memory: None,
     };
     match run_cairo1(&prove_args, &tmp_dir) {
         Ok(result) => println!("Successfully ran cairo1: {:?}", result),
@@ -351,7 +351,7 @@ fn test_run_cairo1_with_input_file(
     let prove_args = ProveArgs {
         cairo_version: CairoVersion::cairo1,
         cairo_program: program_file.clone(),
-        program_input: None,
+        program_input: FuncArgs(vec![]),
         program_input_file: Some(input_file),
         layout: LayoutName::from_str(layout).unwrap(),
         prover_config_file: None,
@@ -360,6 +360,7 @@ fn test_run_cairo1_with_input_file(
         parameter_config: ProverParametersConfig::default(),
         prover_config: ProverConfig::default(),
         stone_version: StoneVersion::V6,
+        bench_memory: None,
     };
 
     match run_cairo1(&prove_args, &tmp_dir) {
@@ -393,7 +394,7 @@ fn test_run_cairo1_with_inputs(
     let prove_args = ProveArgs {
         cairo_version: CairoVersion::cairo1,
         cairo_program: program_file.clone(),
-        program_input: Some(input.to_string()),
+        program_input: FuncArgs(process_args(input).unwrap().0),
         program_input_file: None,
         layout: LayoutName::from_str(layout).unwrap(),
         prover_config_file: None,
@@ -402,6 +403,7 @@ fn test_run_cairo1_with_inputs(
         parameter_config: ProverParametersConfig::default(),
         prover_config: ProverConfig::default(),
         stone_version: StoneVersion::V6,
+        bench_memory: None,
     };
 
     match run_cairo1(&prove_args, &tmp_dir) {
@@ -437,7 +439,7 @@ fn test_run_cairo_e2e_linux(
     let prove_args = ProveArgs {
         cairo_version: cairo_version.clone(),
         cairo_program: program_file.clone(),
-        program_input: None,
+        program_input: FuncArgs(vec![]),
         program_input_file: None,
         layout: LayoutName::from_str(layout).unwrap(),
         prover_config_file: None,
@@ -446,6 +448,7 @@ fn test_run_cairo_e2e_linux(
         parameter_config: ProverParametersConfig::default(),
         prover_config: ProverConfig::default(),
         stone_version: StoneVersion::V6,
+        bench_memory: None,
     };
     let verify_args = VerifyArgs {
         proof: tmp_dir.path().join("proof.json"),
@@ -532,7 +535,7 @@ fn test_run_cairo_e2e_macos(
     let prove_args = ProveArgs {
         cairo_version: cairo_version.clone(),
         cairo_program: program_file.clone(),
-        program_input: None,
+        program_input: FuncArgs(vec![]),
         program_input_file: None,
         layout: LayoutName::from_str(layout).unwrap(),
         prover_config_file: None,
@@ -541,6 +544,7 @@ fn test_run_cairo_e2e_macos(
         parameter_config: ProverParametersConfig::default(),
         prover_config: ProverConfig::default(),
         stone_version: stone_version.clone(),
+        bench_memory: None,
     };
     let verify_args = VerifyArgs {
         proof: proof_file.clone(),
@@ -653,6 +657,7 @@ fn test_run_bootloader(
         prover_config: ProverConfig::default(),
         fact_topologies_output: tmp_dir.path().join("fact_topologies.json"),
         ignore_fact_topologies: false,
+        bench_memory: None,
     };
 
     match run_bootloader(&prove_bootloader_args, &tmp_dir) {

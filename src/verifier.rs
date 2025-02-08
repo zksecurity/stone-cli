@@ -1,7 +1,10 @@
 use std::path::PathBuf;
 use thiserror::Error;
 
-use crate::args::{StoneVersion, VerifyArgs};
+use crate::{
+    args::{StoneVersion, VerifyArgs},
+    path_stone_v5_verifier, path_stone_v6_verifier,
+};
 
 #[derive(Error, Debug)]
 pub enum VerifierError {
@@ -50,9 +53,10 @@ fn run_verifier_from_command_line(
     stone_version: &StoneVersion,
 ) -> Result<(), VerifierError> {
     let verifier_run_path = match stone_version {
-        StoneVersion::V5 => std::env::var("CPU_AIR_VERIFIER_V5").unwrap(),
-        StoneVersion::V6 => std::env::var("CPU_AIR_VERIFIER_V6").unwrap(),
-    };
+        StoneVersion::V5 => path_stone_v5_verifier(),
+        StoneVersion::V6 => path_stone_v6_verifier(),
+    }
+    .unwrap();
 
     let mut command = std::process::Command::new(verifier_run_path);
     command.arg("--in_file").arg(in_file);

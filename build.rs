@@ -19,7 +19,6 @@ const RES_STONE_V5_PROVER: &str = "bin:v5-prover";
 const RES_STONE_V6_PROVER: &str = "bin:v6-prover";
 const RES_STONE_V5_VERIFIER: &str = "bin:v5-verifier";
 const RES_STONE_V6_VERIFIER: &str = "bin:v6-verifier";
-const RES_CAIRO_1RUN: &str = "tar-gz:cairo1-run";
 const RES_CORELIB: &str = "tar-gz:corelib";
 
 // binary names
@@ -27,7 +26,6 @@ const BIN_STONE_V5_PROVER: &str = "cpu_air_prover_v5";
 const BIN_STONE_V6_PROVER: &str = "cpu_air_prover_v6";
 const BIN_STONE_V5_VERIFIER: &str = "cpu_air_verifier_v5";
 const BIN_STONE_V6_VERIFIER: &str = "cpu_air_verifier_v6";
-const BIN_CAIRO_1RUN: &str = "cairo1-run";
 
 // excutables to add to the resources
 const EXECUTABLES: [(&str, &str); 4] = [
@@ -78,12 +76,6 @@ static DISTS: Lazy<HashMap<(Os, Arch), Vec<Artifact>>> = Lazy::new(|| {
     m.insert(
         (Os::Linux, Arch::Amd64),
         vec![
-            // TODO: deprecate this
-            Artifact {
-                name: RES_CAIRO_1RUN,
-                url: "https://github.com/zksecurity/stone-cli/releases/download/v0.1.0/cairo1-run-v2.0.0-rc0-x86_64.tar.gz",
-                sha256_sum: "bbdcaad15bf44e7b4b8e2eadb7b8287787bbf738acb60ad0f87f991cadfa56a4",
-            },
             Artifact {
                 name: RES_STONE_V5_PROVER,
                 url: "https://github.com/dipdup-io/stone-packaging/releases/download/v3.0.1/cpu_air_prover-x86_64",
@@ -114,12 +106,6 @@ static DISTS: Lazy<HashMap<(Os, Arch), Vec<Artifact>>> = Lazy::new(|| {
     m.insert(
         (Os::MacOS, Arch::Aarch64),
         vec![
-            // TODO: deprecate this
-            Artifact {
-                name: RES_CAIRO_1RUN,
-                url: "https://github.com/zksecurity/stone-cli/releases/download/v0.1.0/cairo1-run-v2.0.0-rc0-aarch64.tar.gz",
-                sha256_sum: "ff682b3e91c9447e5719b0989abbeeec56f4b68a0ce3de843fb8e52b19f93cb0",
-            },
             Artifact {
                 name: RES_STONE_V5_PROVER,
                 url: "https://github.com/dipdup-io/stone-packaging/releases/download/v3.0.1/cpu_air_prover-arm64",
@@ -335,28 +321,6 @@ fn build_resource_tar(arts: &ArtifactStore) -> Result<(), anyhow::Error> {
             .path()
             .join("cairo/corelib"),
     )?;
-
-    // decompress cairo1-run tarball and add "cairo1-run" to the "executables" directory
-    {
-        // find the inner dir
-        let tmp = deflate_artifact(arts.find(RES_CAIRO_1RUN)?)?;
-        let entries: Vec<_> = std::fs::read_dir(tmp.path())?.map(|e| e.unwrap()).collect();
-        assert_eq!(
-            entries.len(),
-            1,
-            "Invalid number of entries in cairo1-run archive"
-        );
-
-        // copy the cairo1-run executable to the archive
-        let src = entries[0].path().join("cairo1-run-v2.0.0-rc0");
-        let dst = Path::new(DIR_EXEC).join(BIN_CAIRO_1RUN);
-        assert!(src.exists(), "{}", src.display());
-        archive_add_exe(
-            &mut archive,
-            std::fs::File::open(src)?,
-            dst.to_str().unwrap(),
-        )?;
-    }
 
     // copy all the executables
     for (res, bin) in EXECUTABLES {

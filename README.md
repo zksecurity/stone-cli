@@ -64,6 +64,7 @@ Additional args for prover parameters. Most of them are related to optimizations
 - `--use_extension_field`
 - `--verifier_friendly_channel_updates`
 - `--verifier_friendly_commitment_hash`
+- `--bench_memory`: requires `heaptrack` to be installed
 
 Additional args for prover config:
 
@@ -89,6 +90,7 @@ Additional args:
 - `--prover_config_file`
 - `--parameter_file`
 - `--ignore_fact_topologies`
+- `--bench_memory`: requires `heaptrack` to be installed
 
 ### Verify
 
@@ -147,13 +149,9 @@ Here are the specific steps for the above process:
 
 #### Notes
 
-- Cairo 0 programs that use hints are not supported
+- Only certain hints for Cairo 0 programs are supported (see `examples/cairo0/with_hint` for examples that use supported hints)
 - Only the `starknet` layout is supported for bootloader proofs
 - Programs should use the `output` builtin--programs that do not can be proved, but won't verify on Ethereum
-
-## Testing
-
-Before running the tests, make sure to increase the Rust default stack size via `export RUST_MIN_STACK=4194304`. After that, you can run `cargo test` to run all the tests.
 
 ## Versioning guide
 
@@ -178,15 +176,7 @@ Before running the tests, make sure to increase the Rust default stack size via 
 ## Common issues
 
 ```bash
-Error: Failed to run cairo1: cairo1-run failed with error: Error: VirtualMachine(Memory(AddressNotRelocatable))
+Error: Failed to run cairo1: Memory addresses must be relocatable
 ```
 
 This error occurs when the program uses a builtin that is not supported by the layout. Refer to the [List of supported builtins per layout](#list-of-supported-builtins-per-layout) to find the right layout for theprogram.
-
-```bash
-thread 'opt cgu.00' has overflowed its stack
-fatal runtime error: stack overflow
-error: could not compile `swiftness_air` (lib)
-```
-
-This error occurs when trying to run `cargo test`. This can be solved by increasing the Rust default stack size via `export RUST_MIN_STACK=4194304`.

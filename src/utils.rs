@@ -1,5 +1,7 @@
 use bincode::enc::write::Writer;
+use cairo1_run::FuncArg;
 use cairo_vm::air_public_input::{PublicInput, PublicInputError};
+use cairo_vm::Felt252;
 use serde::Serialize;
 use std::fs::File;
 use std::io::{self, BufWriter, Write};
@@ -36,29 +38,6 @@ pub fn write_json_to_file<T: Serialize, P: AsRef<Path>>(
 pub fn cleanup_tmp_files(tmp_dir: &tempfile::TempDir) {
     if let Err(e) = std::fs::remove_dir_all(tmp_dir) {
         eprintln!("Failed to clean up temporary directory: {}", e);
-    }
-}
-
-#[derive(serde::Deserialize)]
-pub struct Config {
-    download_dir: String,
-    file_names: Vec<String>,
-    env_names: Vec<String>,
-}
-
-pub fn parse(config: &str) -> Config {
-    serde_json::from_str(config).expect("Failed to parse config file")
-}
-
-pub fn set_env_vars(config: &Config) {
-    let download_dir = Path::new(env!("HOME"))
-        .join(&config.download_dir)
-        .join("executables");
-    for (env_name, filename) in config.env_names.iter().zip(config.file_names.iter()) {
-        let full_path = download_dir.join(filename);
-        unsafe {
-            std::env::set_var(env_name, full_path.clone());
-        }
     }
 }
 
@@ -125,4 +104,59 @@ pub fn get_formatted_air_public_input(
     let air_public_input_str = serde_json::to_string(&air_public_input)?;
 
     Ok(air_public_input_str)
+}
+
+/// Copied from `cairo-vm`
+#[derive(Debug, Clone, Default)]
+pub struct FuncArgs(pub Vec<FuncArg>);
+
+/// Processes an iterator of format [s1, s2,.., sn, "]", ...], stopping at the first "]" string
+/// and returning the array [f1, f2,.., fn] where fi = Felt::from_dec_str(si)
+pub fn process_array<'a>(iter: &mut impl Iterator<Item = &'a str>) -> Result<FuncArg, String> {
+    let mut array = vec![];
+    for value in iter {
+        match value {
+            "]" => break,
+            _ => array.push(
+                Felt252::from_dec_str(value)
+                    .map_err(|_| format!("\"{}\" is not a valid felt", value))?,
+            ),
+        }
+    }
+    Ok(FuncArg::Array(array))
+}
+
+/// Parses a string of ascii whitespace separated values, containing either numbers or series of numbers wrapped in brackets
+/// Returns an array of felts and felt arrays
+pub fn process_args(value: &str) -> Result<FuncArgs, String> {
+    let mut args = Vec::new();
+    // Split input string into numbers and array delimiters
+    let mut input = value.split_ascii_whitespace().flat_map(|mut x| {
+        // We don't have a way to split and keep the separate delimiters so we do it manually
+        let mut res = vec![];
+        if let Some(val) = x.strip_prefix('[') {
+            res.push("[");
+            x = val;
+        }
+        if let Some(val) = x.strip_suffix(']') {
+            if !val.is_empty() {
+                res.push(val)
+            }
+            res.push("]")
+        } else if !x.is_empty() {
+            res.push(x)
+        }
+        res
+    });
+    // Process iterator of numbers & array delimiters
+    while let Some(value) = input.next() {
+        match value {
+            "[" => args.push(process_array(&mut input)?),
+            _ => args.push(FuncArg::Single(
+                Felt252::from_dec_str(value)
+                    .map_err(|_| format!("\"{}\" is not a valid felt", value))?,
+            )),
+        }
+    }
+    Ok(FuncArgs(args))
 }

@@ -4,16 +4,12 @@ use stone_cli::bootloader::run_bootloader;
 use stone_cli::cairo::run_cairo;
 use stone_cli::prover::{run_stone_prover, run_stone_prover_bootloader};
 use stone_cli::serialize::serialize_proof;
-use stone_cli::setup;
 use stone_cli::utils::cleanup_tmp_files;
 use stone_cli::verifier::run_stone_verifier;
 use tempfile::Builder;
 
 fn main() -> anyhow::Result<()> {
-    // setup the environment
-    setup();
-
-    // copy the binaries and corelibs to a directory
+    // create a temporary directory for intermediate files
     let tmp_dir = Builder::new()
         .prefix("stone-cli-")
         .tempdir()
