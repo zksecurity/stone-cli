@@ -34,6 +34,7 @@ fn main() -> anyhow::Result<()> {
                 });
             match result {
                 Ok(_) => {
+                    println!("Created proof at {:?}", args.output);
                     cleanup_tmp_files(&tmp_dir);
                     Ok(())
                 }
@@ -61,6 +62,7 @@ fn main() -> anyhow::Result<()> {
                 });
             match result {
                 Ok(_) => {
+                    println!("Created proof at {:?}", args.output);
                     cleanup_tmp_files(&tmp_dir);
                     Ok(())
                 }
