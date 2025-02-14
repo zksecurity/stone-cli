@@ -98,8 +98,8 @@ static DISTS: Lazy<HashMap<(Os, Arch), Vec<Artifact>>> = Lazy::new(|| {
             },
             Artifact {
                 name: RES_CORELIB,
-                url: "https://github.com/starkware-libs/cairo/releases/download/v2.9.0-dev.0/release-x86_64-unknown-linux-musl.tar.gz",
-                sha256_sum: "d52c7acd29bd83762aa60974bc3b28ad260eb2d822952c186ec6f12994d3c824"
+                url: "https://github.com/starkware-libs/cairo/releases/download/v2.10.0-rc.1/release-x86_64-unknown-linux-musl.tar.gz",
+                sha256_sum: "905ca3d366fd1a7fc639d4611336f317340e4b11d48b293b5cbd795f65f6f681"
             }
         ],
     );
@@ -128,8 +128,8 @@ static DISTS: Lazy<HashMap<(Os, Arch), Vec<Artifact>>> = Lazy::new(|| {
             },
             Artifact {
                 name: RES_CORELIB,
-                url: "https://github.com/starkware-libs/cairo/releases/download/v2.9.0-dev.0/release-x86_64-unknown-linux-musl.tar.gz",
-                sha256_sum: "d52c7acd29bd83762aa60974bc3b28ad260eb2d822952c186ec6f12994d3c824"
+                url: "https://github.com/starkware-libs/cairo/releases/download/v2.10.0-rc.1/release-x86_64-unknown-linux-musl.tar.gz",
+                sha256_sum: "905ca3d366fd1a7fc639d4611336f317340e4b11d48b293b5cbd795f65f6f681"
             }
         ],
     );
