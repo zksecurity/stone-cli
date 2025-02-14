@@ -1,6 +1,7 @@
 use rstest::{fixture, rstest};
 use serde::{Deserialize, Serialize};
 use std::{path::Path, str::FromStr};
+use stone_cli::cairo::run_cairo;
 use stone_cli::utils::process_args;
 use stone_cli::utils::FuncArgs;
 use stone_cli::{
@@ -9,7 +10,6 @@ use stone_cli::{
         SerializeArgs, StoneVersion, VerifyArgs,
     },
     bootloader::run_bootloader,
-    cairo::{run_cairo0, run_cairo1},
     config::{ProverConfig, ProverParametersConfig},
     serialize::serialize_proof,
     verifier::run_stone_verifier,
@@ -201,7 +201,7 @@ fn test_run_cairo0_success(
         bench_memory: None,
     };
 
-    match run_cairo0(&prove_args, &tmp_dir) {
+    match run_cairo(&prove_args, &tmp_dir) {
         Ok(_) => {
             println!("Successfully ran cairo0");
         }
@@ -239,7 +239,7 @@ fn test_run_cairo1_fail(
         stone_version: StoneVersion::V6,
         bench_memory: None,
     };
-    match run_cairo1(&prove_args, &tmp_dir) {
+    match run_cairo(&prove_args, &tmp_dir) {
         Ok(result) => panic!(
             "Expected an error but got a successful result: {:?}",
             result
@@ -315,7 +315,7 @@ fn test_run_cairo1_success(
         stone_version: StoneVersion::V6,
         bench_memory: None,
     };
-    match run_cairo1(&prove_args, &tmp_dir) {
+    match run_cairo(&prove_args, &tmp_dir) {
         Ok(result) => println!("Successfully ran cairo1: {:?}", result),
         Err(e) => panic!("Expected a successful result but got an error: {:?}", e),
     }
@@ -363,7 +363,7 @@ fn test_run_cairo1_with_input_file(
         bench_memory: None,
     };
 
-    match run_cairo1(&prove_args, &tmp_dir) {
+    match run_cairo(&prove_args, &tmp_dir) {
         Ok(_) => {
             println!("Successfully ran cairo1 with input file");
         }
@@ -406,7 +406,7 @@ fn test_run_cairo1_with_inputs(
         bench_memory: None,
     };
 
-    match run_cairo1(&prove_args, &tmp_dir) {
+    match run_cairo(&prove_args, &tmp_dir) {
         Ok(_) => {
             println!("Successfully ran cairo1 with input file");
         }
@@ -457,11 +457,7 @@ fn test_run_cairo_e2e_linux(
         stone_version: StoneVersion::V6,
     };
 
-    match cairo_version {
-        CairoVersion::cairo0 => run_cairo0(&prove_args, &tmp_dir).expect("Failed to run cairo0"),
-        CairoVersion::cairo1 => run_cairo1(&prove_args, &tmp_dir).expect("Failed to run cairo1"),
-    };
-
+    run_cairo(&prove_args, &tmp_dir).expect("Failed to run cairo");
     let filename = program_file.file_stem().unwrap().to_str().unwrap();
     let air_public_input = tmp_dir
         .path()
@@ -553,11 +549,7 @@ fn test_run_cairo_e2e_macos(
         stone_version,
     };
 
-    match cairo_version {
-        CairoVersion::cairo0 => run_cairo0(&prove_args, &tmp_dir).expect("Failed to run cairo0"),
-        CairoVersion::cairo1 => run_cairo1(&prove_args, &tmp_dir).expect("Failed to run cairo1"),
-    };
-
+    run_cairo(&prove_args, &tmp_dir).expect("Failed to run cairo");
     // Skip proving on macOS as it takes too long
     run_stone_verifier(verify_args).expect("Failed to run stone verifier");
     check_tmp_files(&tmp_dir, &program_file);

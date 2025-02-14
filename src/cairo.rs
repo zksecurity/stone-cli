@@ -88,9 +88,19 @@ pub fn run_cairo(
     args: &ProveArgs,
     tmp_dir: &tempfile::TempDir,
 ) -> Result<CairoRunResult, anyhow::Error> {
+    let filename = args.cairo_program.file_stem().unwrap().to_str().unwrap();
+
     match args.cairo_version {
-        CairoVersion::cairo0 => run_cairo0(args, tmp_dir).map_err(Into::into),
-        CairoVersion::cairo1 => run_cairo1(args, tmp_dir),
+        CairoVersion::cairo0 => {
+            let runner = run_cairo0(args, tmp_dir)?;
+            let file_paths = write_to_files(&runner, tmp_dir, filename)?;
+            Ok(file_paths)
+        }
+        CairoVersion::cairo1 => {
+            let runner = run_cairo1(args, tmp_dir)?;
+            let file_paths = write_to_files(&runner, tmp_dir, filename)?;
+            Ok(file_paths)
+        }
     }
 }
 
@@ -112,14 +122,7 @@ pub fn run_cairo(
 pub fn run_cairo0(
     prove_args: &ProveArgs,
     tmp_dir: &tempfile::TempDir,
-) -> Result<CairoRunResult, anyhow::Error> {
-    let filename = prove_args
-        .cairo_program
-        .file_stem()
-        .unwrap()
-        .to_str()
-        .unwrap();
-
+) -> Result<CairoRunner, anyhow::Error> {
     let program = Program::from_file(&prove_args.cairo_program, Some("main"))?;
     let program_input = if let Some(program_input_file) = prove_args.program_input_file.clone() {
         let program_input_file_str = std::fs::read_to_string(program_input_file)?;
@@ -171,21 +174,39 @@ pub fn run_cairo0(
         ))),
     );
 
-    let cairo_run_config = CairoRunConfig {
-        entrypoint: "main",
-        trace_enabled: true,
-        relocate_mem: true,
-        layout: get_layout(&prove_args.layout),
-        proof_mode: true,
-        secure_run: None,
-        disable_trace_padding: false,
-        allow_missing_builtins: None,
-        dynamic_layout_params: None,
+    let cairo_run_config = match &prove_args.layout {
+        LayoutName::dynamic | LayoutName::automatic => {
+            let cairo_layout_params_file = tmp_dir.path().join("cairo_layout_params_file.json");
+            std::fs::write(cairo_layout_params_file.clone(), DYNAMIC_LAYOUT)?;
+            CairoRunConfig {
+                entrypoint: "main",
+                trace_enabled: true,
+                relocate_mem: true,
+                layout: cairo_vm::types::layout_name::LayoutName::dynamic,
+                proof_mode: true,
+                secure_run: None,
+                disable_trace_padding: false,
+                allow_missing_builtins: None,
+                dynamic_layout_params: Some(CairoLayoutParams::from_file(
+                    cairo_layout_params_file.as_path(),
+                )?),
+            }
+        }
+        layout => CairoRunConfig {
+            entrypoint: "main",
+            trace_enabled: true,
+            relocate_mem: true,
+            layout: get_layout(layout),
+            proof_mode: true,
+            secure_run: None,
+            disable_trace_padding: false,
+            allow_missing_builtins: None,
+            dynamic_layout_params: None,
+        },
     };
 
     let runner = cairo_run_program(&program, &cairo_run_config, &mut hint_processor)?;
-    let file_paths = write_to_files(&runner, tmp_dir, filename)?;
-    Ok(file_paths)
+    Ok(runner)
 }
 
 /// Runs a Cairo 1 program and generates the necessary outputs for proving
@@ -205,14 +226,7 @@ pub fn run_cairo0(
 pub fn run_cairo1(
     prove_args: &ProveArgs,
     tmp_dir: &tempfile::TempDir,
-) -> Result<CairoRunResult, anyhow::Error> {
-    let filename = prove_args
-        .cairo_program
-        .file_stem()
-        .unwrap()
-        .to_str()
-        .unwrap();
-
+) -> Result<CairoRunner, anyhow::Error> {
     let args = if let Some(program_input_file) = &prove_args.program_input_file {
         let file_content = std::fs::read_to_string(program_input_file)?;
         process_args(&file_content).unwrap()
@@ -278,8 +292,7 @@ pub fn run_cairo1(
         cairo_run_program_cairo1(&sierra_program, cairo_run_config)?;
     println!("Cairo1 program output: {:?}", serialized_output);
 
-    let file_paths = write_to_files(&runner, tmp_dir, filename)?;
-    Ok(file_paths)
+    Ok(runner)
 }
 
 pub fn get_cairo_runner(
@@ -297,53 +310,13 @@ pub fn get_cairo_runner(
     // write to "cairo_layout_params_file.json"
     std::fs::write(cairo_layout_params_file.clone(), DYNAMIC_LAYOUT)?;
 
-    let args = if let Some(program_input_file) = &prove_args.program_input_file {
-        let file_content = std::fs::read_to_string(program_input_file)?;
-        process_args(&file_content).unwrap()
+    println!("Running Cairo again to get dynamic params...");
+
+    let runner = if prove_args.cairo_version == CairoVersion::cairo1 {
+        run_cairo1(prove_args, tmp_dir).unwrap()
     } else {
-        prove_args.program_input.clone()
+        run_cairo0(prove_args, tmp_dir).unwrap()
     };
-    let cairo_run_config = Cairo1RunConfig {
-        proof_mode: true,
-        serialize_output: true,
-        relocate_mem: true,
-        layout: cairo_vm::types::layout_name::LayoutName::dynamic,
-        trace_enabled: true,
-        args: &args.0,
-        finalize_builtins: true,
-        append_return_values: true,
-        dynamic_layout_params: Some(CairoLayoutParams::from_file(
-            cairo_layout_params_file.as_path(),
-        )?),
-    };
-
-    // Try to parse the file as a sierra program
-    let file = std::fs::read(&prove_args.cairo_program)?;
-    let sierra_program = match serde_json::from_slice(&file) {
-        Ok(program) => program,
-        Err(_) => {
-            // If it fails, try to compile it as a cairo program
-            let compiler_config = CompilerConfig {
-                replace_ids: true,
-                ..CompilerConfig::default()
-            };
-            let mut db = RootDatabase::builder()
-                .skip_auto_withdraw_gas()
-                .build()
-                .unwrap();
-
-            init_dev_corelib(&mut db, path_corelib()?.join("src"));
-            let main_crate_ids = setup_project(&mut db, &prove_args.cairo_program).unwrap();
-            let sierra_program_with_dbg =
-                compile_prepared_db(&db, main_crate_ids, compiler_config).unwrap();
-
-            sierra_program_with_dbg.program
-        }
-    };
-
-    let (runner, _, serialized_output) =
-        cairo_run_program_cairo1(&sierra_program, cairo_run_config)?;
-    println!("Cairo1 program output: {:?}", serialized_output);
 
     Ok(runner)
 }
