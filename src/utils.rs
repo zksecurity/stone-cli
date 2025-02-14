@@ -41,29 +41,6 @@ pub fn cleanup_tmp_files(tmp_dir: &tempfile::TempDir) {
     }
 }
 
-#[derive(serde::Deserialize)]
-pub struct Config {
-    pub download_dir: String,
-    pub file_names: Vec<String>,
-    pub env_names: Vec<String>,
-}
-
-pub fn parse(config: &str) -> Config {
-    serde_json::from_str(config).expect("Failed to parse config file")
-}
-
-pub fn set_env_vars(config: &Config) {
-    let download_dir = Path::new(env!("HOME"))
-        .join(&config.download_dir)
-        .join("executables");
-    for (env_name, filename) in config.env_names.iter().zip(config.file_names.iter()) {
-        let full_path = download_dir.join(filename);
-        unsafe {
-            std::env::set_var(env_name, full_path.clone());
-        }
-    }
-}
-
 pub struct FileWriter {
     buf_writer: BufWriter<std::fs::File>,
     bytes_written: usize,

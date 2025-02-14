@@ -1,5 +1,6 @@
 use crate::args::{CairoVersion, LayoutName, ProveArgs};
-use crate::utils::{get_formatted_air_public_input, process_args, Config, FileWriter};
+use crate::path_corelib;
+use crate::utils::{get_formatted_air_public_input, process_args, FileWriter};
 use cairo1_run::{cairo_run_program as cairo_run_program_cairo1, Cairo1RunConfig, CairoRunner};
 use cairo_lang_compiler::db::RootDatabase;
 use cairo_lang_compiler::project::setup_project;
@@ -21,7 +22,7 @@ use cairo_vm::vm::errors::trace_errors::TraceError;
 use cairo_vm::Felt252;
 use std::collections::HashMap;
 use std::io;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::rc::Rc;
 use thiserror::Error;
 
@@ -56,8 +57,6 @@ const DYNAMIC_LAYOUT: &str = r#"{
     "mul_mod_ratio": 256,
     "mul_mod_ratio_den": 1
 }"#;
-
-const CONFIG: &str = include_str!("../configs/env.json");
 
 #[derive(Debug)]
 pub struct CairoRunResult {
@@ -281,13 +280,7 @@ pub fn run_cairo1(
                 .build()
                 .unwrap();
 
-            let config: Config = serde_json::from_str(CONFIG).expect("Failed to parse config file");
-            let download_dir = Path::new(env!("HOME")).join(&config.download_dir);
-            let corelib_dir = download_dir.join("corelib");
-            if !corelib_dir.exists() {
-                anyhow::bail!("Corelib directory does not exist: {:?}", corelib_dir);
-            }
-            init_dev_corelib(&mut db, corelib_dir.join("src"));
+            init_dev_corelib(&mut db, path_corelib()?.join("src"));
             let main_crate_ids = setup_project(&mut db, &prove_args.cairo_program).unwrap();
             let sierra_program_with_dbg =
                 compile_prepared_db(&db, main_crate_ids, compiler_config).unwrap();

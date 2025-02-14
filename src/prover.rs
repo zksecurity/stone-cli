@@ -3,6 +3,7 @@ pub mod config;
 use crate::args::{LayoutName, ProveArgs, ProveBootloaderArgs, StoneVersion};
 use crate::sharp::{resolve_automatic_layout, DynamicParamsResponse};
 use crate::utils::write_json_to_file;
+use crate::{path_stone_v5_prover, path_stone_v6_prover};
 use cairo_vm::air_public_input::{MemorySegmentAddresses, PublicMemoryEntry};
 use config::{ProverConfig, ProverParametersConfig};
 use serde::{Deserialize, Serialize};
@@ -213,9 +214,10 @@ fn run_prover_from_command_line_with_annotations(
 ) -> Result<(), ProverError> {
     // TODO: Add better error handling
     let prover_run_path = match stone_version {
-        StoneVersion::V5 => std::env::var("CPU_AIR_PROVER_V5").unwrap(),
-        StoneVersion::V6 => std::env::var("CPU_AIR_PROVER_V6").unwrap(),
-    };
+        StoneVersion::V5 => path_stone_v5_prover(),
+        StoneVersion::V6 => path_stone_v6_prover(),
+    }
+    .unwrap();
 
     let mut command;
     if bench_memory {
