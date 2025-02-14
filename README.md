@@ -1,6 +1,22 @@
 # Stone CLI
 
-A CLI for proving and verifying Cairo programs.
+A convient CLI for proving and verifying Cairo programs.
+
+## Installation
+
+To install the CLI, use `cargo install`, either:
+
+#### Directly from the repository:
+```bash
+cargo install --git https://github.com/zksecurity/stone-cli.git
+```
+
+#### From a local copy of the repository:
+```bash
+cargo install --path .
+```
+
+Currently, `linux/amd64` with `AVX` support and `macos/arm64` are supported.
 
 ## Overview
 
@@ -17,16 +33,6 @@ As can be seen in the diagram, the Stone CLI does not directly interact with the
 For the Ethereum verifier, there is an additional specific requirement: the proof needs to be generated using a specific Cairo program named the "bootloader". The bootloader program allows one to efficiently run multiple Cairo programs by creating a smaller size proof (see more details in the [STARK book](https://zksecurity.github.io/stark-book/cairo/bootloader.html)). Since only the bootloader program is supported on Ethereum, the CLI provides an easy way to generate proofs using the bootloader program via the `prove-bootloader` command.
 
 Please refer to the [Cairo book](https://book.cairo-lang.org/) for more details on how to create a Cairo program.
-
-## Setup
-
-Run the following command to install the CLI:
-
-```bash
-cargo install --path .
-```
-
-Currently, `linux/amd64` with `AVX` and `macos/arm64` are supported.
 
 ## Usage
 
