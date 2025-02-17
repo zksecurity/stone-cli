@@ -3,14 +3,9 @@ use predicates::prelude::*;
 use rstest::{fixture, rstest};
 use std::path::Path;
 use std::process::Command;
-use stone_cli::utils::{parse, set_env_vars};
 
 #[fixture]
-fn setup() {
-    const CONFIG: &str = include_str!("../configs/env.json");
-    let config = parse(CONFIG);
-    set_env_vars(&config);
-}
+fn setup() {}
 
 #[rstest]
 #[case("--field", "PrimeField0")]
