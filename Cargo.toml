@@ -1,6 +1,6 @@
 [package]
 name = "stone-cli"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 
 [dependencies]
@@ -8,17 +8,17 @@ anyhow = "1.0.86"
 bincode = { version = "2.0.0-rc.3", default-features = false, features = [
     "serde",
 ] }
-cairo-bootloader = { git = "https://github.com/zksecurity/cairo-bootloader", rev = "91e8121221140317f0f4d6ba7a59b16ec7ff2d7d" }
+cairo-bootloader = { git = "https://github.com/zksecurity/cairo-bootloader", rev = "fecd3657928aedd62d2b7d89e120a22758d4521a" }
 cairo-felt = "0.9.1"
 cairo1-run = { git = "https://github.com/zksecurity/cairo-vm", package = "cairo1-run", features = [
     "mod_builtin",
-], rev = "ac8b81b79f65f5017fe0929bf4025be4a0e9c73c" }
+], rev = "098e0f9cd3525922403f810a59653fc73d6f22c7" }
 cairo-vm = { git = "https://github.com/zksecurity/cairo-vm", features = [
     "extensive_hints",
     "mod_builtin",
-], rev = "ac8b81b79f65f5017fe0929bf4025be4a0e9c73c" }
-cairo-lang-compiler = { version = "=2.10.0-rc.0", default-features = false }
-cairo-lang-filesystem = { version = "=2.10.0-rc.0", default-features = false }
+], rev = "098e0f9cd3525922403f810a59653fc73d6f22c7" }
+cairo-lang-compiler = { version = "=2.12.0-dev.0", default-features = false }
+cairo-lang-filesystem = { version = "=2.12.0-dev.0", default-features = false }
 clap = { version = "4.3.10", features = ["derive"] }
 itertools = "0.13.0"
 num-bigint = "0.4.6"
