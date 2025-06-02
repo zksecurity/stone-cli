@@ -82,6 +82,7 @@ pub enum Error {
     TopologyFileNotSpecified,
 }
 
+#[allow(clippy::result_large_err)]
 pub fn run_bootloader(
     prove_bootloader_args: &ProveBootloaderArgs,
     tmp_dir: &tempfile::TempDir,
@@ -171,6 +172,7 @@ pub fn run_bootloader(
     })
 }
 
+#[allow(clippy::result_large_err)]
 fn cairo_run_bootloader_in_proof_mode(
     bootloader_program: &Program,
     tasks: Vec<TaskSpec>,
