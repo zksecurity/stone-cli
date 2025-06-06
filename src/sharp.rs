@@ -402,7 +402,7 @@ fn get_sharp_url() -> Result<String, anyhow::Error> {
 
 fn get_client_crt() -> Result<String, anyhow::Error> {
     let path = std::env::var(ENV_SHARP_CLIENT_CERT).map_err(|_e| anyhow::anyhow!(
-        "Using a method which requires a SHARP certificate. Please set the \"{}\" enviroment variable",
+        "Using a method which requires a SHARP certificate. Please set the \"{}\" environment variable",
         ENV_SHARP_CLIENT_CERT
     ))?;
     let pem =
@@ -417,7 +417,7 @@ fn get_client_crt() -> Result<String, anyhow::Error> {
 fn get_client_key() -> Result<Zeroizing<String>, anyhow::Error> {
     let path = std::env::var(ENV_SHARP_KEY_PATH).map_err(|_e| {
         anyhow::anyhow!(
-            "Using a method which requires a SHARP key. Please set the \"{}\" enviroment variable",
+            "Using a method which requires a SHARP key. Please set the \"{}\" environment variable",
             ENV_SHARP_KEY_PATH
         )
     })?;
