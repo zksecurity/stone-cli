@@ -10,7 +10,7 @@ on:
       - dev-ci
 
   schedule:
-    - cron: '0 1 * * 0' # 1 AM UTC every Sunday
+    - cron: "0 1 * * 0" # 1 AM UTC every Sunday
 
 jobs:
   build-and-test-macos:
@@ -35,6 +35,11 @@ jobs:
       - if: steps.cache-cargo.outputs.cache-hit == 'false'
         run: echo "cargo cache miss"
 
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: stable
+
       - name: Increase stack size
         run: |
           echo "Setting stack size to 8MB"
@@ -56,7 +61,7 @@ jobs:
         run: cargo build --release
 
       - name: CLI Integration tests
-        run: ./tests/cli/tests.sh
+        run: ./tests/cli/tests.sh ${{ secrets.ETHEREUM_MAINNET_FORK_URL }} ${{ secrets.STARKNET_SEPOLIA_V0_7_URL }}
 
   build-and-test-linux:
     runs-on: ubuntu-latest
@@ -79,6 +84,11 @@ jobs:
       - if: steps.cache-cargo.outputs.cache-hit == 'false'
         run: echo "cargo cache miss"
 
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: stable
+
       - name: Increase stack size
         run: |
           echo "Setting stack size to 8MB"
@@ -100,4 +110,4 @@ jobs:
         run: cargo build --release
 
       - name: CLI Integration tests
-        run: ./tests/cli/tests.sh
+        run: ./tests/cli/tests.sh ${{ secrets.ETHEREUM_MAINNET_FORK_URL }} ${{ secrets.STARKNET_SEPOLIA_V0_7_URL }}

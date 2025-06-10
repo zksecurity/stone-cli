@@ -1,11 +1,22 @@
 # Integration tests for the CLI
 # tests against
 # 1. https://github.com/zksecurity/stark-evm-adapter.git
-# 2. https://github.com/HerodotusDev/integrity.git
+# 2. https://github.com/zksecurity/integrity.git
 # 3. https://github.com/zksecurity/integrity-calldata-generator.git -> forked because the CLI implementation also relies on the fork
 
 #!/bin/bash
 set -e
+
+# Check if both URL arguments are provided
+if [ $# -lt 2 ]; then
+    echo "Error: Both ETHEREUM_MAINNET_FORK_URL and STARKNET_SEPOLIA_V0_7_URL arguments are required"
+    echo "Usage: $0 <ETHEREUM_MAINNET_FORK_URL> <STARKNET_SEPOLIA_V0_7_URL>"
+    exit 1
+fi
+
+# Store the URL arguments
+ETHEREUM_MAINNET_FORK_URL=$1
+STARKNET_SEPOLIA_V0_7_URL=$2
 
 # Set main directory
 MAIN_DIR=$(pwd)
@@ -45,9 +56,14 @@ stone-cli serialize-proof \
     --output bootloader_serialized_proof.json
 echo "Proof serialized"
 
-git clone https://github.com/zksecurity/stark-evm-adapter.git
+# Clone stark-evm-adapter repo
+if [ ! -d "stark-evm-adapter" ]; then
+    git clone https://github.com/zksecurity/stark-evm-adapter.git
+    echo "stark-evm-adapter repo cloned"
+fi
+
 cd $MAIN_DIR/stark-evm-adapter/
-URL=https://rpc.tenderly.co/fork/f4839248-30b4-4451-b1da-93ebb124c73f \
+FORK_URL=$ETHEREUM_MAINNET_FORK_URL \
 ANNOTATED_PROOF=../bootloader_serialized_proof.json \
 FACT_TOPOLOGIES=../fact_topologies.json \
 cargo run --example verify_stone_proof
@@ -83,8 +99,11 @@ echo "Monolith proof serialized"
 
 # Clone integrity repo
 if [ ! -d "integrity" ]; then
-    git clone https://github.com/zksecurity/integrity.git
-    echo "Integrity repo cloned"
+    git clone https://github.com/zksecurity/integrity
+    cd integrity
+    git checkout 9d38c5383f4b8cef76a6117e9b35db711163fe30
+    cd ..
+    echo "Integrity repo cloned and checked out to commit 9d38c5383f4b8cef76a6117e9b35db711163fe30"
 fi
 cd $MAIN_DIR/integrity/
 
@@ -131,6 +150,15 @@ cat > ~/.starknet_accounts/starknet_open_zeppelin_accounts.json << 'EOL'
 EOL
 echo "Starknet accounts file created"
 
+# Replace the URL in the snfoundry.toml file
+if [ "$(uname)" = "Darwin" ]; then
+    # macOS version
+    sed -i '' "s|url = .*|url = \"$STARKNET_SEPOLIA_V0_7_URL\"|" snfoundry.toml
+else
+    # Linux version
+    sed -i "s|url = .*|url = \"$STARKNET_SEPOLIA_V0_7_URL\"|" snfoundry.toml
+fi
+
 ./verify-on-starknet.sh \
     0x16409cfef9b6c3e6002133b61c59d09484594b37b8e4daef7dcba5495a0ef1a \
     ../cairo0_fibonacci_recursive_builtins_stone5_keccak_160_lsb \
@@ -153,8 +181,11 @@ echo "Split proof serialized"
 cd $MAIN_DIR
 if [ ! -d "integrity-calldata-generator" ]; then
     GIT_LFS_SKIP_SMUDGE=1 git clone https://github.com/zksecurity/integrity-calldata-generator
+    cd integrity-calldata-generator
+    git checkout b0e07df60f7b593bccb8b4d41aac7172f5582181
+    cd ..
+    echo "integrity-calldata-generator repo cloned and checked out to commit b0e07df60f7b593bccb8b4d41aac7172f5582181"
 fi
-echo "integrity-calldata-generator repo cloned"
 
 # Copy split proofs to integrity-calldata-generator
 cp -r $MAIN_DIR/split_proofs/* $MAIN_DIR/integrity-calldata-generator/cli/calldata/
@@ -167,8 +198,17 @@ elif [ "$(uname)" = "Darwin" ]; then
 fi
 echo "Generated random job id: $JOB_ID"
 
+# Replace the URL in the snfoundry.toml file
+if [ "$(uname)" = "Darwin" ]; then
+    # macOS version
+    sed -i '' "s|url = .*|url = \"$STARKNET_SEPOLIA_V0_7_URL\"|" $MAIN_DIR/integrity-calldata-generator/cli/snfoundry.toml
+else
+    # Linux version
+    sed -i "s|url = .*|url = \"$STARKNET_SEPOLIA_V0_7_URL\"|" $MAIN_DIR/integrity-calldata-generator/cli/snfoundry.toml
+fi
+
 # Run verify.sh
 cd $MAIN_DIR/integrity-calldata-generator/cli
-./verify.sh $JOB_ID recursive keccak_160_lsb stone5 cairo0
+./verify.sh $JOB_ID recursive keccak_160_lsb stone5 strict 
 
 echo "Split proof verified on Starknet"
