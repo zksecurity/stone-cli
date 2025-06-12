@@ -21,7 +21,7 @@ fn main() -> Array<felt252> {
     d.insert(2, nullable_from_box(box_b));
 
     // We can't implement Serde for a Felt252Dict due to mutability requirements
-    // So we will serialize the dict explicitely
+    // So we will serialize the dict explicitly
     let mut output: Array<felt252> = ArrayTrait::new();
     // Serialize entry 0
     0.serialize(ref output);
