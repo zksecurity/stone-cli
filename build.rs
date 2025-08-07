@@ -27,7 +27,7 @@ const BIN_STONE_V6_PROVER: &str = "cpu_air_prover_v6";
 const BIN_STONE_V5_VERIFIER: &str = "cpu_air_verifier_v5";
 const BIN_STONE_V6_VERIFIER: &str = "cpu_air_verifier_v6";
 
-// excutables to add to the resources
+// executables to add to the resources
 const EXECUTABLES: [(&str, &str); 4] = [
     (RES_STONE_V5_PROVER, BIN_STONE_V5_PROVER),
     (RES_STONE_V5_VERIFIER, BIN_STONE_V5_VERIFIER),
